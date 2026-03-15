@@ -1,53 +1,38 @@
-# SmartFactory: AI-Driven Predictive Maintenance & MES System
+# Smart Factory App
 
-## 1. Executive Summary
+Smart Factory App is an Industry 4.0 dashboard prototype for predictive maintenance, OEE monitoring, and production analytics. It blends machine health data, operational KPIs, and lightweight machine learning into a single manufacturing view.
 
-This project is a comprehensive Industry 4.0 solution that demonstrates the convergence of Operational Technology (OT) data with Information Technology (IT) analytics. The system provides a unified dashboard for real-time monitoring of machine health, manufacturing execution system (MES) metrics, financial cost analysis, and AI-based failure prediction. It serves as a digital twin prototype, offering a holistic view of factory floor operations.
+## What it does
 
-## 2. Key Features
+- Simulates live machine data for temperature, vibration, current, pressure, RPM, and energy.
+- Estimates failure risk with a Random Forest model.
+- Tracks operational metrics such as OEE, cycle time, and shift performance.
+- Presents the data in a dashboard-oriented layout designed for manufacturing use cases.
 
-- **Dashboard Architecture:** A modern "Bento Grid" layout with fixed sidebar navigation provides a professional, high-density SaaS user experience. The interface is fully responsive and designed for at-a-glance monitoring.
-- **AI & Analytics:**
-    - **Anomaly Detection:** A Random Forest Classifier, trained using Scikit-learn, analyzes a live stream of sensor data to compute a real-time failure risk score.
-    - **RUL (Remaining Useful Life):** A predictive estimation of machine longevity, presented in operational hours, enables proactive maintenance scheduling.
-- **Financial Metrics:** Real-time energy cost calculation (presented in $/hr) is derived from live power consumption data, providing immediate insight into operational expenditure.
-- **Production Tracking (MES):**
-    - **OEE (Overall Equipment Effectiveness):** Live monitoring of the primary manufacturing productivity KPI.
-    - **Cycle Time Analysis:** Tracks the time required for each production cycle.
-    - **Shift Tracking:** Monitors production data segmented by operational shifts.
-- **Visualization:**
-    - A high-performance Chart.js implementation renders real-time sensor data for temperature and vibration.
-    - Line charts use smoothed cubic interpolation (`tension: 0.4`) for clear, readable data representation.
+## Stack
 
-## 3. Technical Stack
+- Python
+- Flask
+- Pandas
+- NumPy
+- scikit-learn
+- HTML, CSS, JavaScript
 
-- **Backend:** Python 3.11, Flask (Microservice), NumPy, Pandas
-- **Frontend:** HTML5, CSS3 (Custom Grid Layout), JavaScript (ES6), Chart.js, Bootstrap 5
-- **Machine Learning:** Scikit-learn (RandomForestClassifier)
+## Local setup
 
-## 4. Installation and Usage
-
-Follow these steps to set up and run the application locally.
-
-### Step 1: Clone the Repository
 ```bash
-git clone <repository-url>
-cd <repository-directory>
-```
-
-### Step 2: Set Up Environment and Install Dependencies
-A virtual environment is recommended.
-```bash
-# Create and activate a virtual environment
 python -m venv .venv
-source .venv/bin/activate  # On Windows use: .venv\Scripts\activate
-
-# Install the required packages
+.venv\\Scripts\\activate
 pip install -r requirements.txt
-```
-
-### Step 3: Run the Application
-```bash
 python main.py
 ```
-The application will be running and accessible at `http://127.0.0.1:8080`.
+
+The app runs on `http://127.0.0.1:8080`.
+
+## Portfolio note
+
+This repository is a portfolio prototype that shows how predictive maintenance concepts can be turned into an operator-friendly web dashboard without heavyweight infrastructure.
+
+## License
+
+MIT
