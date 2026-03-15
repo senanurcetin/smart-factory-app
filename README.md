@@ -2,6 +2,8 @@
 
 Smart Factory App is an Industry 4.0 dashboard prototype for predictive maintenance, OEE monitoring, and production analytics. It blends machine health data, operational KPIs, and lightweight machine learning into a single manufacturing view.
 
+Demo: [Portfolio project entry](https://senanur-cetin.vercel.app/#projects)
+
 ## What it does
 
 - Simulates live machine data for temperature, vibration, current, pressure, RPM, and energy.
