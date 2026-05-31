@@ -2,7 +2,11 @@
 
 Smart Factory App is an Industry 4.0 dashboard prototype for predictive maintenance, OEE monitoring, and production analytics. It blends machine-health data, operational KPIs, and lightweight machine learning into a single manufacturing view.
 
-Demo: [Portfolio project entry](https://senanur-cetin.vercel.app/#projects)
+Demo: [Portfolio project entry](https://senanur-cetin.vercel.app/projects/smart-factory-app)
+
+Short video demo: [`docs/assets/smart-factory-dashboard.webm`](docs/assets/smart-factory-dashboard.webm)
+
+![Smart Factory dashboard](docs/assets/smart-factory-dashboard.png)
 
 Portfolio role: `support case study`
 
