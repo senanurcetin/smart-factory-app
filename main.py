@@ -16,12 +16,14 @@ import pandas as pd
 from flask import Flask, jsonify, render_template_string
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.model_selection import train_test_split
+from case_study import case_study_bp
 
 # =============================================================================
 # 1. BACKEND: APPLICATION & ENRICHED DATA SIMULATION (UNCHANGED)
 # =============================================================================
 
 app = Flask(__name__)
+app.register_blueprint(case_study_bp)
 
 features_for_model = ['Temperature', 'Vibration', 'Current', 'Pressure', 'RPM', 'Energy']
 data = {feat: [random.uniform(1, 100) for _ in range(100)] for feat in features_for_model}
@@ -203,7 +205,7 @@ HTML_TEMPLATE = '''
         <div class="sidebar-logo"><i class="fas fa-bolt"></i> SmartFactory</div>
         <nav class="sidebar-nav">
             <a href="#" class="active"><i class="fas fa-tachometer-alt"></i> Dashboard</a>
-            <a href="#"><i class="fas fa-chart-line"></i> Analytics</a>
+            <a href="/case-study"><i class="fas fa-chart-line"></i> Case Study</a>
             <a href="#"><i class="fas fa-cogs"></i> Settings</a>
         </nav>
          <div class="sidebar-footer">

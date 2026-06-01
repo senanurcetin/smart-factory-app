@@ -1,0 +1,37 @@
+[
+  {
+    "failure_code": "TWF",
+    "label": "Tool wear failure",
+    "holdout_failures": 10,
+    "captured_in_top_10_percent_queue": 6,
+    "capture_rate": 0.6
+  },
+  {
+    "failure_code": "HDF",
+    "label": "Heat dissipation failure",
+    "holdout_failures": 29,
+    "captured_in_top_10_percent_queue": 29,
+    "capture_rate": 1.0
+  },
+  {
+    "failure_code": "PWF",
+    "label": "Power failure",
+    "holdout_failures": 13,
+    "captured_in_top_10_percent_queue": 13,
+    "capture_rate": 1.0
+  },
+  {
+    "failure_code": "OSF",
+    "label": "Overstrain failure",
+    "holdout_failures": 16,
+    "captured_in_top_10_percent_queue": 16,
+    "capture_rate": 1.0
+  },
+  {
+    "failure_code": "RNF",
+    "label": "Random failure",
+    "holdout_failures": 4,
+    "captured_in_top_10_percent_queue": 2,
+    "capture_rate": 0.5
+  }
+]

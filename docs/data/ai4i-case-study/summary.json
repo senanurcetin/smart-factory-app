@@ -1,0 +1,53 @@
+{
+  "project": "Predictive maintenance triage benchmark",
+  "portfolio_role": "support case study",
+  "dataset": {
+    "name": "AI4I 2020 Predictive Maintenance Dataset",
+    "doi": "10.24432/C5HS5C",
+    "source_url": "https://archive.ics.uci.edu/dataset/601/ai4i+2020+predictive+maintenance+dataset",
+    "download_url": "https://cdn.uci-ics-mlr-prod.aws.uci.edu/601/ai4i%2B2020%2Bpredictive%2Bmaintenance%2Bdataset.zip",
+    "rows": 10000,
+    "failures": 339,
+    "failure_rate": 0.0339,
+    "evaluation_split": {
+      "train_rows": 8000,
+      "holdout_rows": 2000,
+      "strategy": "Deterministic 80/20 stratified holdout"
+    }
+  },
+  "final_model": {
+    "name": "HistGradientBoostingClassifier",
+    "roc_auc": 0.9686,
+    "pr_auc": 0.8522,
+    "accuracy": 0.988,
+    "precision": 0.9074,
+    "recall": 0.7206,
+    "f1": 0.8033,
+    "confusion_matrix": [
+      [
+        1927,
+        5
+      ],
+      [
+        19,
+        49
+      ]
+    ]
+  },
+  "review_queue": {
+    "selected_budget_fraction": 0.1,
+    "selected_budget_label": "Top 10% highest-risk machines",
+    "reviewed_assets": 200,
+    "captured_failures": 63,
+    "failure_capture_rate": 0.9265,
+    "review_yield": 0.315,
+    "random_review_yield": 0.034,
+    "yield_lift_vs_random": 9.2647
+  },
+  "operational_takeaway": "A risk-ranked maintenance queue captures most holdout failures inside a small analyst budget, which makes the model useful for maintenance prioritization rather than just post-hoc scoring.",
+  "limitations": [
+    "The UCI AI4I dataset is simulated, so it is better for benchmarking than for plant-specific deployment claims.",
+    "The cost model is illustrative and meant to show how review logic can be translated into business tradeoffs.",
+    "The app still serves a lightweight demo UI rather than a production monitoring stack."
+  ]
+}

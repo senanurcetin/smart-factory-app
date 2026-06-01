@@ -1,0 +1,47 @@
+{
+  "selected_model": "hist_gradient_boosting",
+  "selection_reason": "HistGradientBoosting produced the strongest PR-AUC and F1 on the imbalanced holdout while staying fast and free-tier friendly.",
+  "benchmarks_considered": [
+    {
+      "model": "dummy_baseline",
+      "accuracy": 0.966,
+      "roc_auc": 0.5,
+      "pr_auc": 0.034,
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1": 0.0,
+      "training_seconds": 0.0267
+    },
+    {
+      "model": "logistic_regression",
+      "accuracy": 0.8245,
+      "roc_auc": 0.907,
+      "pr_auc": 0.3818,
+      "precision": 0.1418,
+      "recall": 0.8235,
+      "f1": 0.2419,
+      "training_seconds": 0.0721
+    },
+    {
+      "model": "random_forest",
+      "accuracy": 0.983,
+      "roc_auc": 0.9611,
+      "pr_auc": 0.7724,
+      "precision": 0.8269,
+      "recall": 0.6324,
+      "f1": 0.7167,
+      "training_seconds": 3.2507
+    },
+    {
+      "model": "hist_gradient_boosting",
+      "accuracy": 0.988,
+      "roc_auc": 0.9686,
+      "pr_auc": 0.8522,
+      "precision": 0.9074,
+      "recall": 0.7206,
+      "f1": 0.8033,
+      "training_seconds": 3.622
+    }
+  ],
+  "next_step": "Add time-aware validation or asset-level splits when the repo evolves from benchmark framing to deployment realism."
+}

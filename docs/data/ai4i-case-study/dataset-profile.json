@@ -1,0 +1,20 @@
+{
+  "dataset_name": "AI4I 2020 Predictive Maintenance Dataset",
+  "row_count": 10000,
+  "type_distribution": {
+    "H": 1003,
+    "L": 6000,
+    "M": 2997
+  },
+  "target_distribution": {
+    "no_failure": 9661,
+    "failure": 339
+  },
+  "failure_mode_totals": {
+    "Tool wear failure": 46,
+    "Heat dissipation failure": 115,
+    "Power failure": 95,
+    "Overstrain failure": 98,
+    "Random failure": 19
+  }
+}

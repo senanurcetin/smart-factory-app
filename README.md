@@ -1,6 +1,9 @@
 # Smart Factory App
 
-Smart Factory App is an Industry 4.0 dashboard prototype for predictive maintenance, OEE monitoring, and production analytics. It blends machine-health data, operational KPIs, and lightweight machine learning into a single manufacturing view.
+Smart Factory App is a predictive-maintenance support case study for manufacturing teams. It combines two portfolio layers in one repo:
+
+- a Flask dashboard for plant KPIs, machine-health context, and maintenance-oriented UI packaging
+- a real predictive-maintenance benchmark on the UCI AI4I 2020 dataset with measurable review-queue logic
 
 Demo: [Portfolio project entry](https://senanur-cetin.vercel.app/projects/smart-factory-app)
 
@@ -12,43 +15,75 @@ Portfolio role: `support case study`
 
 ## Why this project exists
 
-Predictive-maintenance demos often stop at a model score or a generic chart. Plant teams, however, need machine signals, KPI context, and maintenance-oriented prioritization in the same surface. Smart Factory App exists to show how predictive logic can be made legible to operations and maintenance reviewers.
+Predictive-maintenance demos often stop at a generic chart or a model score. Plant teams need something more usable:
+
+- machine context
+- failure prioritization
+- queue logic for limited engineering capacity
+- an explanation of why the score matters operationally
+
+This repository exists to show both the product layer and the DS layer.
 
 ## Case-study frame
 
 ### Problem
 
-Machine-health indicators, production KPIs, and maintenance context are often reviewed separately even though plant decisions need them together.
+Maintenance teams cannot review every asset equally. The useful question is whether telemetry can be translated into a ranked work queue that captures most failures inside a small review budget.
 
 ### Business context
 
-For a maintenance or plant-analytics reviewer, the useful question is whether telemetry can be translated into prioritization and planning signals, not whether a dashboard merely looks polished.
+Plant analytics is only valuable if it changes maintenance prioritization. A dashboard should support scheduling and escalation decisions, not just visualize telemetry.
 
 ### Data or signal source
 
-The application simulates six machine-health features plus MES-style context such as OEE, cycle time, shift ownership, event logs, and energy cost.
+- Workflow layer: synthetic telemetry, OEE, RUL, event context, and shift-level plant KPIs
+- DS layer: `AI4I 2020 Predictive Maintenance Dataset` from the UCI Machine Learning Repository with `10,000` records and a `3.39%` failure rate
 
-### Workflow and logic approach
+### Methodology
 
-The app trains a lightweight Random Forest model on synthetic telemetry and places the risk score next to OEE, RUL, cost-per-hour, and event context in one dashboard flow.
+- Features:
+  - product type
+  - air temperature
+  - process temperature
+  - rotational speed
+  - torque
+  - tool wear
+- Benchmarks:
+  - dummy baseline
+  - logistic regression
+  - random forest
+  - HistGradientBoostingClassifier
+- Evaluation:
+  - deterministic `80/20` stratified holdout
+  - ROC-AUC
+  - PR-AUC
+  - precision, recall, and F1
+  - top-risk maintenance queue analysis
+  - illustrative maintenance cost model
 
-### Evaluation and key metrics
+## Key results
 
-- **Machine signals:** temperature, vibration, current, pressure, RPM, and energy
-- **Maintenance-facing KPIs:** OEE, RUL, cost per hour, shift context
-- **Decision-support surface:** risk score plus event log
-- **Model role:** lightweight support logic rather than a production benchmark
+From [`docs/data/ai4i-case-study/summary.json`](docs/data/ai4i-case-study/summary.json):
 
-### Operational outcome
+- Final model: `HistGradientBoostingClassifier`
+- ROC-AUC: `0.9686`
+- PR-AUC: `0.8522`
+- Precision: `0.9074`
+- Recall: `0.7206`
+- F1: `0.8033`
+- Queue result: reviewing the top `10%` highest-risk assets captures `92.6%` of holdout failures with `9.26x` better failure yield than random review
 
-The result is a support case study that shows how predictive-maintenance ideas can be packaged into a plant-facing KPI and maintenance workflow.
+From [`docs/data/ai4i-case-study/cost-simulation.json`](docs/data/ai4i-case-study/cost-simulation.json):
+
+- Illustrative savings vs reactive maintenance: `76.47%`
 
 ## What it does
 
-- Simulates live machine data for temperature, vibration, current, pressure, RPM, and energy.
-- Estimates failure risk with a Random Forest model.
-- Tracks operational metrics such as OEE, cycle time, and shift performance.
-- Presents the data in a dashboard-oriented layout designed for manufacturing use cases.
+- Simulates live machine telemetry and plant KPIs
+- Estimates failure risk with a lightweight model layer
+- Shows OEE, RUL, and cost context in one dashboard
+- Publishes a real maintenance case-study route at `/case-study`
+- Exposes review-budget and cost-tradeoff artifacts for interviews and portfolio review
 
 ## Stack
 
@@ -61,24 +96,33 @@ The result is a support case study that shows how predictive-maintenance ideas c
 
 ## Architecture snapshot
 
-- **Application shell:** single-file Flask dashboard for plant-facing analytics
-- **Signal layer:** synthetic machine telemetry and MES-style operational context
-- **Model layer:** lightweight Random Forest classifier for failure-risk estimation
-- **KPI layer:** OEE, RUL, cost-per-hour, shift context, and event-log surfaces
+- **Application shell:** Flask dashboard for plant-facing KPI and maintenance context
+- **Signal layer:** synthetic telemetry and MES-style operational data
+- **Analysis layer:** reproducible AI4I benchmark and maintenance queue logic
+- **Proof layer:** JSON artifacts, hiring summary, and public case-study route
 - **Deployment shape:** lightweight local or free-tier Flask demo
+
+## Public proof surfaces
+
+- Case-study notes: [`docs/case-study.md`](docs/case-study.md)
+- Hiring summary: [`docs/hiring-summary.md`](docs/hiring-summary.md)
+- Analysis notes: [`analysis/README.md`](analysis/README.md)
+- Metrics artifacts: [`docs/data/ai4i-case-study`](docs/data/ai4i-case-study)
+- Local route: `http://127.0.0.1:8080/case-study`
 
 ## What this proves
 
-- You can combine telemetry, KPI logic, and a lightweight ML layer in one manufacturing surface.
-- You understand how predictive-maintenance concepts should be packaged for plant teams rather than left as isolated modeling artifacts.
-- You can bridge operations language and DS language without losing the industrial context.
+- You can frame predictive maintenance as an imbalanced ranking and prioritization problem, not only as a dashboard feature.
+- You can connect model output to limited maintenance capacity through queue design and cost tradeoffs.
+- You can package operations language and DS language into one readable portfolio surface.
 
 ## Local setup
 
 ```bash
 python -m venv .venv
-.venv\\Scripts\\activate
+.venv\Scripts\activate
 pip install -r requirements.txt
+python analysis/run_ai4i_case_study.py
 python main.py
 ```
 
@@ -87,20 +131,21 @@ The app runs on `http://127.0.0.1:8080`.
 ## Quality checks
 
 ```bash
-python -m py_compile main.py
+python analysis/run_ai4i_case_study.py
+python -m py_compile main.py case_study.py analysis/run_ai4i_case_study.py
+python -m unittest discover -s tests -v
 python -c "import main; print(main.app.name)"
 ```
 
-These are the same smoke checks enforced in GitHub Actions.
-
 ## Limitations
 
-- The current model is trained on synthetic data and should be read as workflow packaging rather than a production benchmark.
-- The strongest value is in KPI framing and maintenance-oriented decision support, not in model novelty.
+- The live dashboard still uses synthetic telemetry rather than a deployed production stream.
+- The UCI dataset is simulated, so it should be treated as benchmark evidence rather than a plant-ready claim.
+- The cost model is illustrative and meant to show maintenance economics framing, not audited savings.
 
 ## Portfolio note
 
-This repository is a predictive-maintenance support case study. It is intended to show plant analytics, KPI framing, and manufacturing-oriented software packaging rather than heavyweight infrastructure or production deployment.
+This repository now sits above a generic dashboard prototype but below a production monitoring platform. The correct framing is: portfolio-grade predictive-maintenance support case study with measurable prioritization logic.
 
 ## License
 

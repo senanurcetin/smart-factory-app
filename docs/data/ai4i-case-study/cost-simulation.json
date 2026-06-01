@@ -1,0 +1,12 @@
+{
+  "assumptions": {
+    "review_cost_per_asset": 35,
+    "scheduled_maintenance_cost_per_captured_failure": 500,
+    "unplanned_failure_cost": 3500
+  },
+  "reactive_baseline_cost": 238000,
+  "random_review_cost": 224000,
+  "risk_queue_cost": 56000,
+  "savings_vs_reactive": 182000,
+  "savings_vs_reactive_share": 0.7647
+}
