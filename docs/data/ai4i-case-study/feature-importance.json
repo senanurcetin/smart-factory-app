@@ -1,26 +1,304 @@
-[
-  {
-    "feature": "Torque [Nm]",
-    "importance": 0.5867
-  },
-  {
-    "feature": "Air temperature [K]",
-    "importance": 0.566
-  },
-  {
-    "feature": "Rotational speed [rpm]",
-    "importance": 0.4062
-  },
-  {
-    "feature": "Process temperature [K]",
-    "importance": 0.3428
-  },
-  {
-    "feature": "Tool wear [min]",
-    "importance": 0.3418
-  },
-  {
-    "feature": "Type",
-    "importance": 0.0276
-  }
-]
+{
+  "method": "Permutation importance (average precision scoring, 8 repeats)",
+  "features": [
+    {
+      "feature": "Rotational speed [rpm]",
+      "importance": 0.5176
+    },
+    {
+      "feature": "thermal_stress",
+      "importance": 0.4664
+    },
+    {
+      "feature": "Tool wear [min]",
+      "importance": 0.2498
+    },
+    {
+      "feature": "mechanical_load",
+      "importance": 0.1687
+    },
+    {
+      "feature": "Torque [Nm]",
+      "importance": 0.1547
+    },
+    {
+      "feature": "Type",
+      "importance": 0.0158
+    },
+    {
+      "feature": "tool_wear_load_ratio",
+      "importance": 0.0106
+    },
+    {
+      "feature": "Air temperature [K]",
+      "importance": -0.0014
+    },
+    {
+      "feature": "Process temperature [K]",
+      "importance": -0.0068
+    }
+  ],
+  "derived_feature_note": "mechanical_load and thermal_stress capture cross-feature interactions that individual raw sensors cannot express independently.",
+  "local_attributions_top10_high_risk": [
+    {
+      "sample_index": 5706,
+      "predicted_probability": 0.9969,
+      "top_features": [
+        {
+          "feature": "mechanical_load",
+          "contribution": 0.992
+        },
+        {
+          "feature": "Torque [Nm]",
+          "contribution": 0.2658
+        },
+        {
+          "feature": "Rotational speed [rpm]",
+          "contribution": 0.0083
+        },
+        {
+          "feature": "tool_wear_load_ratio",
+          "contribution": 0.0052
+        },
+        {
+          "feature": "thermal_stress",
+          "contribution": 0.0041
+        }
+      ]
+    },
+    {
+      "sample_index": 4342,
+      "predicted_probability": 0.9961,
+      "top_features": [
+        {
+          "feature": "Rotational speed [rpm]",
+          "contribution": 0.1104
+        },
+        {
+          "feature": "thermal_stress",
+          "contribution": 0.0767
+        },
+        {
+          "feature": "mechanical_load",
+          "contribution": 0.0102
+        },
+        {
+          "feature": "Torque [Nm]",
+          "contribution": 0.0074
+        },
+        {
+          "feature": "tool_wear_load_ratio",
+          "contribution": 0.0037
+        }
+      ]
+    },
+    {
+      "sample_index": 4170,
+      "predicted_probability": 0.9944,
+      "top_features": [
+        {
+          "feature": "Rotational speed [rpm]",
+          "contribution": 0.9935
+        },
+        {
+          "feature": "thermal_stress",
+          "contribution": 0.9904
+        },
+        {
+          "feature": "Torque [Nm]",
+          "contribution": 0.0103
+        },
+        {
+          "feature": "Air temperature [K]",
+          "contribution": 0.0061
+        },
+        {
+          "feature": "Type",
+          "contribution": 0.002
+        }
+      ]
+    },
+    {
+      "sample_index": 4565,
+      "predicted_probability": 0.9923,
+      "top_features": [
+        {
+          "feature": "Rotational speed [rpm]",
+          "contribution": 0.9908
+        },
+        {
+          "feature": "thermal_stress",
+          "contribution": 0.9884
+        },
+        {
+          "feature": "Torque [Nm]",
+          "contribution": 0.0169
+        },
+        {
+          "feature": "Type",
+          "contribution": -0.0016
+        },
+        {
+          "feature": "mechanical_load",
+          "contribution": 0.0008
+        }
+      ]
+    },
+    {
+      "sample_index": 4283,
+      "predicted_probability": 0.9914,
+      "top_features": [
+        {
+          "feature": "Rotational speed [rpm]",
+          "contribution": 0.8171
+        },
+        {
+          "feature": "thermal_stress",
+          "contribution": 0.5052
+        },
+        {
+          "feature": "Torque [Nm]",
+          "contribution": 0.0342
+        },
+        {
+          "feature": "Tool wear [min]",
+          "contribution": 0.0075
+        },
+        {
+          "feature": "Type",
+          "contribution": -0.0041
+        }
+      ]
+    },
+    {
+      "sample_index": 8245,
+      "predicted_probability": 0.9914,
+      "top_features": [
+        {
+          "feature": "mechanical_load",
+          "contribution": 0.9883
+        },
+        {
+          "feature": "Torque [Nm]",
+          "contribution": 0.3645
+        },
+        {
+          "feature": "tool_wear_load_ratio",
+          "contribution": 0.0214
+        },
+        {
+          "feature": "Rotational speed [rpm]",
+          "contribution": -0.0018
+        },
+        {
+          "feature": "thermal_stress",
+          "contribution": -0.0014
+        }
+      ]
+    },
+    {
+      "sample_index": 4427,
+      "predicted_probability": 0.991,
+      "top_features": [
+        {
+          "feature": "Rotational speed [rpm]",
+          "contribution": 0.9902
+        },
+        {
+          "feature": "thermal_stress",
+          "contribution": 0.9883
+        },
+        {
+          "feature": "Torque [Nm]",
+          "contribution": 0.0314
+        },
+        {
+          "feature": "Air temperature [K]",
+          "contribution": 0.0059
+        },
+        {
+          "feature": "Type",
+          "contribution": 0.0032
+        }
+      ]
+    },
+    {
+      "sample_index": 8582,
+      "predicted_probability": 0.9899,
+      "top_features": [
+        {
+          "feature": "mechanical_load",
+          "contribution": 0.9878
+        },
+        {
+          "feature": "Torque [Nm]",
+          "contribution": 0.6075
+        },
+        {
+          "feature": "tool_wear_load_ratio",
+          "contribution": 0.0074
+        },
+        {
+          "feature": "Tool wear [min]",
+          "contribution": -0.003
+        },
+        {
+          "feature": "Process temperature [K]",
+          "contribution": 0.0028
+        }
+      ]
+    },
+    {
+      "sample_index": 3814,
+      "predicted_probability": 0.9898,
+      "top_features": [
+        {
+          "feature": "thermal_stress",
+          "contribution": 0.9833
+        },
+        {
+          "feature": "Rotational speed [rpm]",
+          "contribution": 0.9826
+        },
+        {
+          "feature": "Torque [Nm]",
+          "contribution": 0.0088
+        },
+        {
+          "feature": "Air temperature [K]",
+          "contribution": 0.0036
+        },
+        {
+          "feature": "Type",
+          "contribution": 0.0034
+        }
+      ]
+    },
+    {
+      "sample_index": 4270,
+      "predicted_probability": 0.9895,
+      "top_features": [
+        {
+          "feature": "Rotational speed [rpm]",
+          "contribution": 0.9883
+        },
+        {
+          "feature": "thermal_stress",
+          "contribution": 0.986
+        },
+        {
+          "feature": "Torque [Nm]",
+          "contribution": 0.0217
+        },
+        {
+          "feature": "Tool wear [min]",
+          "contribution": -0.0023
+        },
+        {
+          "feature": "Air temperature [K]",
+          "contribution": -0.0022
+        }
+      ]
+    }
+  ]
+}

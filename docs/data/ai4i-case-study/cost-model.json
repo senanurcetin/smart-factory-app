@@ -1,0 +1,94 @@
+{
+  "approach": "Per-failure-mode cost model using differentiated unplanned-failure costs and preventive-maintenance costs. Savings computed at 10% review budget.",
+  "cost_assumptions": {
+    "TWF": {
+      "unplanned_cost": 1500,
+      "preventive_cost": 300
+    },
+    "HDF": {
+      "unplanned_cost": 4000,
+      "preventive_cost": 600
+    },
+    "PWF": {
+      "unplanned_cost": 5000,
+      "preventive_cost": 500
+    },
+    "OSF": {
+      "unplanned_cost": 2500,
+      "preventive_cost": 400
+    },
+    "RNF": {
+      "unplanned_cost": 8000,
+      "preventive_cost": 1000
+    }
+  },
+  "review_cost_per_asset": 35,
+  "modes": [
+    {
+      "failure_code": "HDF",
+      "label": "Heat dissipation failure",
+      "unplanned_failure_cost": 4000,
+      "preventive_maintenance_cost": 600,
+      "holdout_failures": 29,
+      "captured_failures": 28,
+      "missed_failures": 1,
+      "reactive_baseline_cost": 116000,
+      "risk_queue_cost": 27800,
+      "savings_vs_reactive": 88200,
+      "savings_share": 0.7603
+    },
+    {
+      "failure_code": "PWF",
+      "label": "Power failure",
+      "unplanned_failure_cost": 5000,
+      "preventive_maintenance_cost": 500,
+      "holdout_failures": 13,
+      "captured_failures": 13,
+      "missed_failures": 0,
+      "reactive_baseline_cost": 65000,
+      "risk_queue_cost": 13500,
+      "savings_vs_reactive": 51500,
+      "savings_share": 0.7923
+    },
+    {
+      "failure_code": "OSF",
+      "label": "Overstrain failure",
+      "unplanned_failure_cost": 2500,
+      "preventive_maintenance_cost": 400,
+      "holdout_failures": 16,
+      "captured_failures": 16,
+      "missed_failures": 0,
+      "reactive_baseline_cost": 40000,
+      "risk_queue_cost": 13400,
+      "savings_vs_reactive": 26600,
+      "savings_share": 0.665
+    },
+    {
+      "failure_code": "RNF",
+      "label": "Random failure",
+      "unplanned_failure_cost": 8000,
+      "preventive_maintenance_cost": 1000,
+      "holdout_failures": 4,
+      "captured_failures": 2,
+      "missed_failures": 2,
+      "reactive_baseline_cost": 32000,
+      "risk_queue_cost": 25000,
+      "savings_vs_reactive": 7000,
+      "savings_share": 0.2188
+    },
+    {
+      "failure_code": "TWF",
+      "label": "Tool wear failure",
+      "unplanned_failure_cost": 1500,
+      "preventive_maintenance_cost": 300,
+      "holdout_failures": 10,
+      "captured_failures": 8,
+      "missed_failures": 2,
+      "reactive_baseline_cost": 15000,
+      "risk_queue_cost": 12400,
+      "savings_vs_reactive": 2600,
+      "savings_share": 0.1733
+    }
+  ],
+  "total_per_mode_savings": 175900
+}

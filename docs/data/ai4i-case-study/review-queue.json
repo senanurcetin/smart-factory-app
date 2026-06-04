@@ -3,83 +3,60 @@
     {
       "review_fraction": 0.05,
       "reviewed_assets": 100,
-      "captured_failures": 57,
-      "failure_capture_rate": 0.8382,
-      "review_yield": 0.57,
+      "captured_failures": 60,
+      "failure_capture_rate": 0.8824,
+      "review_yield": 0.6,
       "random_review_yield": 0.034,
-      "yield_lift_vs_random": 16.7647
+      "yield_lift_vs_random": 17.6471
     },
     {
       "review_fraction": 0.1,
       "reviewed_assets": 200,
-      "captured_failures": 63,
-      "failure_capture_rate": 0.9265,
-      "review_yield": 0.315,
+      "captured_failures": 64,
+      "failure_capture_rate": 0.9412,
+      "review_yield": 0.32,
       "random_review_yield": 0.034,
-      "yield_lift_vs_random": 9.2647
+      "yield_lift_vs_random": 9.4118
     },
     {
       "review_fraction": 0.15,
       "reviewed_assets": 300,
-      "captured_failures": 64,
-      "failure_capture_rate": 0.9412,
-      "review_yield": 0.2133,
+      "captured_failures": 65,
+      "failure_capture_rate": 0.9559,
+      "review_yield": 0.2167,
       "random_review_yield": 0.034,
-      "yield_lift_vs_random": 6.2745
+      "yield_lift_vs_random": 6.3725
     }
   ],
   "top_queue_assets": [
     {
-      "product_id": "L47428",
-      "risk_score": 0.9923,
-      "machine_failure": 1,
-      "failure_modes": [
-        "Overstrain failure"
-      ]
-    },
-    {
-      "product_id": "L53677",
-      "risk_score": 0.99,
-      "machine_failure": 1,
-      "failure_modes": [
-        "Overstrain failure"
-      ]
-    },
-    {
-      "product_id": "L51675",
-      "risk_score": 0.9792,
-      "machine_failure": 1,
-      "failure_modes": [
-        "Heat dissipation failure"
-      ]
-    },
-    {
-      "product_id": "L47429",
-      "risk_score": 0.9706,
-      "machine_failure": 1,
-      "failure_modes": [
-        "Overstrain failure"
-      ]
-    },
-    {
-      "product_id": "L51724",
-      "risk_score": 0.9683,
-      "machine_failure": 1,
-      "failure_modes": [
-        "Heat dissipation failure"
-      ]
-    },
-    {
-      "product_id": "M23167",
-      "risk_score": 0.9679,
+      "product_id": "L52886",
+      "risk_score": 0.9969,
       "machine_failure": 1,
       "failure_modes": [
         "Power failure"
       ]
     },
     {
-      "product_id": "M19461",
-      "risk_score": 0.9662,
+      "product_id": "M19202",
+      "risk_score": 0.9961,
+      "machine_failure": 1,
+      "failure_modes": [
+        "Heat dissipation failure",
+        "Power failure"
+      ]
+    },
+    {
+      "product_id": "M19030",
+      "risk_score": 0.9944,
+      "machine_failure": 1,
+      "failure_modes": [
+        "Heat dissipation failure"
+      ]
+    },
+    {
+      "product_id": "H33979",
+      "risk_score": 0.9923,
       "machine_failure": 1,
       "failure_modes": [
         "Heat dissipation failure"
@@ -87,15 +64,23 @@
     },
     {
       "product_id": "M19143",
-      "risk_score": 0.9643,
+      "risk_score": 0.9914,
       "machine_failure": 1,
       "failure_modes": [
         "Heat dissipation failure"
       ]
     },
     {
+      "product_id": "M23105",
+      "risk_score": 0.9914,
+      "machine_failure": 1,
+      "failure_modes": [
+        "Power failure"
+      ]
+    },
+    {
       "product_id": "M19287",
-      "risk_score": 0.9566,
+      "risk_score": 0.991,
       "machine_failure": 1,
       "failure_modes": [
         "Heat dissipation failure"
@@ -103,23 +88,39 @@
     },
     {
       "product_id": "M23442",
-      "risk_score": 0.9542,
+      "risk_score": 0.9899,
       "machine_failure": 1,
       "failure_modes": [
         "Power failure"
       ]
     },
     {
-      "product_id": "M18795",
-      "risk_score": 0.9542,
+      "product_id": "M18674",
+      "risk_score": 0.9898,
       "machine_failure": 1,
       "failure_modes": [
-        "Overstrain failure"
+        "Heat dissipation failure"
       ]
     },
     {
-      "product_id": "M19309",
-      "risk_score": 0.9478,
+      "product_id": "L51450",
+      "risk_score": 0.9895,
+      "machine_failure": 1,
+      "failure_modes": [
+        "Heat dissipation failure"
+      ]
+    },
+    {
+      "product_id": "M23167",
+      "risk_score": 0.9882,
+      "machine_failure": 1,
+      "failure_modes": [
+        "Power failure"
+      ]
+    },
+    {
+      "product_id": "L51261",
+      "risk_score": 0.9875,
       "machine_failure": 1,
       "failure_modes": [
         "Heat dissipation failure"

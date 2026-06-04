@@ -15,39 +15,98 @@
       "strategy": "Deterministic 80/20 stratified holdout"
     }
   },
+  "feature_engineering": {
+    "original_features": [
+      "Type",
+      "Air temperature [K]",
+      "Process temperature [K]",
+      "Rotational speed [rpm]",
+      "Torque [Nm]",
+      "Tool wear [min]"
+    ],
+    "derived_features": {
+      "mechanical_load": "Torque \u00d7 RPM \u2014 proxy for power delivered to spindle",
+      "thermal_stress": "(Process temp \u2212 Air temp) / Air temp \u2014 relative thermal load",
+      "tool_wear_load_ratio": "Tool wear / Torque \u2014 wear rate under load"
+    },
+    "total_features": 9
+  },
   "final_model": {
-    "name": "HistGradientBoostingClassifier",
-    "roc_auc": 0.9686,
-    "pr_auc": 0.8522,
-    "accuracy": 0.988,
-    "precision": 0.9074,
-    "recall": 0.7206,
-    "f1": 0.8033,
+    "name": "HistGradientBoostingClassifier (enhanced features)",
+    "roc_auc": 0.9819,
+    "pr_auc": 0.8855,
+    "accuracy": 0.9895,
+    "precision": 0.8852,
+    "recall": 0.7941,
+    "f1": 0.8372,
     "confusion_matrix": [
       [
-        1927,
-        5
+        1925,
+        7
       ],
       [
-        19,
-        49
+        14,
+        54
       ]
-    ]
+    ],
+    "calibration_ece": 0.0017
   },
   "review_queue": {
     "selected_budget_fraction": 0.1,
     "selected_budget_label": "Top 10% highest-risk machines",
     "reviewed_assets": 200,
-    "captured_failures": 63,
-    "failure_capture_rate": 0.9265,
-    "review_yield": 0.315,
+    "captured_failures": 64,
+    "failure_capture_rate": 0.9412,
+    "review_yield": 0.32,
     "random_review_yield": 0.034,
-    "yield_lift_vs_random": 9.2647
+    "yield_lift_vs_random": 9.4118
   },
-  "operational_takeaway": "A risk-ranked maintenance queue captures most holdout failures inside a small analyst budget, which makes the model useful for maintenance prioritization rather than just post-hoc scoring.",
+  "per_failure_mode_models": {
+    "approach": "One binary HistGradientBoosting classifier per failure mode with cost-proportional sample weights",
+    "modes_trained": 5,
+    "summary": [
+      {
+        "failure_code": "TWF",
+        "label": "Tool wear failure",
+        "roc_auc": 0.8548,
+        "recall": 0.2,
+        "capture_rate_at_10pct": 0.8
+      },
+      {
+        "failure_code": "HDF",
+        "label": "Heat dissipation failure",
+        "roc_auc": 0.9654,
+        "recall": 0.931,
+        "capture_rate_at_10pct": 0.9655
+      },
+      {
+        "failure_code": "PWF",
+        "label": "Power failure",
+        "roc_auc": 0.9999,
+        "recall": 0.9231,
+        "capture_rate_at_10pct": 1.0
+      },
+      {
+        "failure_code": "OSF",
+        "label": "Overstrain failure",
+        "roc_auc": 0.9999,
+        "recall": 1.0,
+        "capture_rate_at_10pct": 1.0
+      },
+      {
+        "failure_code": "RNF",
+        "label": "Random failure",
+        "roc_auc": 0.6791,
+        "recall": 0.25,
+        "capture_rate_at_10pct": 0.5
+      }
+    ]
+  },
+  "operational_takeaway": "A risk-ranked maintenance queue captures most holdout failures inside a small analyst budget. Derived features (mechanical load, thermal stress, wear-rate) improve model interpretability. Per-failure-mode models enable cost-differentiated maintenance decisions.",
   "limitations": [
     "The UCI AI4I dataset is simulated, so it is better for benchmarking than for plant-specific deployment claims.",
     "The cost model is illustrative and meant to show how review logic can be translated into business tradeoffs.",
-    "The app still serves a lightweight demo UI rather than a production monitoring stack."
+    "The app still serves a lightweight demo UI rather than a production monitoring stack.",
+    "Local feature attributions use median-ablation (not SHAP), which underestimates interaction effects."
   ]
 }

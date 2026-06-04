@@ -3,8 +3,8 @@
     "failure_code": "TWF",
     "label": "Tool wear failure",
     "holdout_failures": 10,
-    "captured_in_top_10_percent_queue": 6,
-    "capture_rate": 0.6
+    "captured_in_top_10_percent_queue": 7,
+    "capture_rate": 0.7
   },
   {
     "failure_code": "HDF",
@@ -31,7 +31,7 @@
     "failure_code": "RNF",
     "label": "Random failure",
     "holdout_failures": 4,
-    "captured_in_top_10_percent_queue": 2,
-    "capture_rate": 0.5
+    "captured_in_top_10_percent_queue": 1,
+    "capture_rate": 0.25
   }
 ]

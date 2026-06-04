@@ -7,7 +7,7 @@
     "precision": 0.0,
     "recall": 0.0,
     "f1": 0.0,
-    "training_seconds": 0.0267
+    "training_seconds": 0.0699
   },
   {
     "model": "logistic_regression",
@@ -17,7 +17,7 @@
     "precision": 0.1418,
     "recall": 0.8235,
     "f1": 0.2419,
-    "training_seconds": 0.0721
+    "training_seconds": 0.1513
   },
   {
     "model": "random_forest",
@@ -27,7 +27,7 @@
     "precision": 0.8269,
     "recall": 0.6324,
     "f1": 0.7167,
-    "training_seconds": 3.2507
+    "training_seconds": 7.4143
   },
   {
     "model": "hist_gradient_boosting",
@@ -37,6 +37,6 @@
     "precision": 0.9074,
     "recall": 0.7206,
     "f1": 0.8033,
-    "training_seconds": 3.622
+    "training_seconds": 11.8092
   }
 ]
