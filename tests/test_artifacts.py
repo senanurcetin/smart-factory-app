@@ -1,0 +1,186 @@
+"""Data quality and metrics contract tests for AI4I case study artifacts."""
+
+import json
+import unittest
+from pathlib import Path
+
+ROOT = Path(__file__).resolve().parents[1]
+DATA_DIR = ROOT / "docs" / "data" / "ai4i-case-study"
+
+
+def _load(name):
+    return json.loads((DATA_DIR / name).read_text())
+
+
+class ArtifactPresenceTests(unittest.TestCase):
+    """All expected artifact files must exist."""
+
+    REQUIRED = [
+        "summary.json",
+        "benchmark-comparison.json",
+        "feature-importance.json",
+        "review-queue.json",
+        "cost-simulation.json",
+        "dataset-profile.json",
+        "failure-mode-breakdown.json",
+    ]
+
+    def test_all_artifacts_exist(self):
+        for fname in self.REQUIRED:
+            with self.subTest(file=fname):
+                self.assertTrue((DATA_DIR / fname).exists(), f"Missing artifact: {fname}")
+
+
+class MetricsRangeTests(unittest.TestCase):
+    """Final model metrics must meet portfolio-grade thresholds."""
+
+    @classmethod
+    def setUpClass(cls):
+        cls.summary = _load("summary.json")
+        cls.final = cls.summary.get("final_model", {})
+
+    def test_roc_auc_above_threshold(self):
+        roc = self.final.get("roc_auc", 0)
+        self.assertGreaterEqual(roc, 0.95, f"ROC-AUC {roc} below threshold 0.95")
+
+    def test_pr_auc_above_threshold(self):
+        pr = self.final.get("pr_auc", 0)
+        self.assertGreaterEqual(pr, 0.80, f"PR-AUC {pr} below threshold 0.80")
+
+    def test_f1_above_threshold(self):
+        f1 = self.final.get("f1", 0)
+        self.assertGreaterEqual(f1, 0.75, f"F1 {f1} below threshold 0.75")
+
+    def test_precision_above_threshold(self):
+        p = self.final.get("precision", 0)
+        self.assertGreaterEqual(p, 0.80, f"Precision {p} below threshold 0.80")
+
+    def test_model_name_recorded(self):
+        name = self.final.get("name", "")
+        self.assertTrue(len(name) > 0, "Final model name is empty")
+
+
+class BenchmarkComparisonTests(unittest.TestCase):
+    """Benchmark comparison artifact must include all required models and fields."""
+
+    @classmethod
+    def setUpClass(cls):
+        cls.benchmarks = _load("benchmark-comparison.json")
+
+    def test_four_models_present(self):
+        self.assertEqual(len(self.benchmarks), 4, "Expected 4 benchmark entries")
+
+    def test_required_fields_per_model(self):
+        required = {"model", "roc_auc", "pr_auc", "f1", "precision", "recall"}
+        for entry in self.benchmarks:
+            with self.subTest(model=entry.get("model")):
+                missing = required - set(entry.keys())
+                self.assertEqual(missing, set(), f"Missing fields: {missing}")
+
+    def test_final_model_beats_baseline_roc(self):
+        by_model = {d["model"]: d for d in self.benchmarks}
+        baseline = by_model["dummy_baseline"]["roc_auc"]
+        final = by_model["hist_gradient_boosting"]["roc_auc"]
+        self.assertGreater(final, baseline, "Final model must beat dummy baseline ROC-AUC")
+
+    def test_final_model_beats_logistic_pr(self):
+        by_model = {d["model"]: d for d in self.benchmarks}
+        lr = by_model["logistic_regression"]["pr_auc"]
+        final = by_model["hist_gradient_boosting"]["pr_auc"]
+        self.assertGreater(final, lr, "Final model must beat logistic regression PR-AUC")
+
+
+class FeatureImportanceTests(unittest.TestCase):
+    """Feature importance artifact must have expected structure."""
+
+    @classmethod
+    def setUpClass(cls):
+        cls.data = _load("feature-importance.json")
+
+    def test_features_list_non_empty(self):
+        self.assertGreater(len(self.data.get("features", [])), 0)
+
+    def test_top_feature_is_rotational_or_thermal(self):
+        top = self.data["features"][0]["feature"]
+        expected = {"Rotational speed [rpm]", "thermal_stress", "mechanical_load"}
+        self.assertIn(top, expected, f"Unexpected top feature: {top}")
+
+    def test_all_features_have_importance_score(self):
+        for f in self.data["features"]:
+            with self.subTest(feature=f["feature"]):
+                self.assertIn("importance", f)
+                self.assertIsInstance(f["importance"], float)
+
+
+class ReviewQueueTests(unittest.TestCase):
+    """Review queue artifact must show meaningful yield lift."""
+
+    @classmethod
+    def setUpClass(cls):
+        cls.data = _load("review-queue.json")
+
+    def test_review_budgets_present(self):
+        self.assertIn("review_budgets", self.data)
+        self.assertGreater(len(self.data["review_budgets"]), 0)
+
+    def test_top5_budget_captures_majority_of_failures(self):
+        b5 = next(
+            (b for b in self.data["review_budgets"] if b["review_fraction"] == 0.05),
+            None,
+        )
+        if b5 is None:
+            self.skipTest("No 5% budget entry found")
+        self.assertGreaterEqual(
+            b5["failure_capture_rate"], 0.80,
+            f"5% budget should capture at least 80% of failures, got {b5['failure_capture_rate']}",
+        )
+
+    def test_yield_lift_above_baseline(self):
+        for b in self.data["review_budgets"]:
+            with self.subTest(fraction=b["review_fraction"]):
+                self.assertGreater(b["yield_lift_vs_random"], 1.0, "Yield lift must exceed 1x random")
+
+
+class DatasetProfileTests(unittest.TestCase):
+    """Dataset profile artifact must record expected dataset characteristics."""
+
+    @classmethod
+    def setUpClass(cls):
+        cls.profile = _load("dataset-profile.json")
+
+    def test_row_count(self):
+        rows = self.profile.get("row_count", 0)
+        self.assertEqual(rows, 10000, f"Expected 10000 rows, got {rows}")
+
+    def test_failure_rate_reasonable(self):
+        rate = self.profile.get("target_distribution", {}).get("failure", 0) / self.profile.get("row_count", 1)
+        self.assertGreater(rate, 0.02)
+        self.assertLess(rate, 0.10)
+
+
+class VisualAssetTests(unittest.TestCase):
+    """Generated PNG assets must be present and non-trivial in size."""
+
+    EXPECTED_CHARTS = [
+        "model-comparison.png",
+        "feature-importance.png",
+        "review-queue-curve.png",
+    ]
+    ASSETS_DIR = ROOT / "docs" / "assets"
+
+    def test_chart_files_exist(self):
+        for fname in self.EXPECTED_CHARTS:
+            with self.subTest(chart=fname):
+                path = self.ASSETS_DIR / fname
+                self.assertTrue(path.exists(), f"Missing chart: {fname}")
+
+    def test_chart_files_non_trivial(self):
+        for fname in self.EXPECTED_CHARTS:
+            path = self.ASSETS_DIR / fname
+            if path.exists():
+                with self.subTest(chart=fname):
+                    self.assertGreater(path.stat().st_size, 10_000, f"{fname} seems too small")
+
+
+if __name__ == "__main__":
+    unittest.main()

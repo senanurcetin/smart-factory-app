@@ -7,7 +7,7 @@ on:
   pull_request:
 
 jobs:
-  smoke-check:
+  quality:
     runs-on: ubuntu-latest
 
     steps:
@@ -25,10 +25,19 @@ jobs:
           pip install -r requirements.txt
 
       - name: Syntax check
-        run: python -m py_compile main.py case_study.py analysis/run_ai4i_case_study.py
+        run: |
+          python -m py_compile main.py case_study.py
+          python -m py_compile analysis/run_ai4i_case_study.py
+          python -m py_compile analysis/generate_visuals.py
 
-      - name: Unit tests
-        run: python -m unittest discover -s tests -v
+      - name: Generate visualization assets
+        run: python analysis/generate_visuals.py
+
+      - name: Artifact + metrics contract tests
+        run: python -m unittest discover -s tests -p "test_artifacts.py" -v
+
+      - name: Route + integration tests
+        run: python -m unittest discover -s tests -p "test_case_study.py" -v
 
       - name: Import app
         run: python -c "import main; print(main.app.name)"
