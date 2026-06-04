@@ -159,12 +159,18 @@ class DatasetProfileTests(unittest.TestCase):
 
 
 class VisualAssetTests(unittest.TestCase):
-    """Generated PNG assets must be present and non-trivial in size."""
+    """All generated PNG assets must be present and non-trivial in size."""
 
     EXPECTED_CHARTS = [
+        # analysis charts
         "model-comparison.png",
         "feature-importance.png",
         "review-queue-curve.png",
+        # EDA charts
+        "eda-class-balance.png",
+        "eda-failure-modes.png",
+        "eda-type-distribution.png",
+        "eda-confusion-matrix.png",
     ]
     ASSETS_DIR = ROOT / "docs" / "assets"
 
@@ -180,6 +186,44 @@ class VisualAssetTests(unittest.TestCase):
             if path.exists():
                 with self.subTest(chart=fname):
                     self.assertGreater(path.stat().st_size, 10_000, f"{fname} seems too small")
+
+
+class SqlAnalysisTests(unittest.TestCase):
+    """SQL analysis artifact must exist and contain expected queries."""
+
+    @classmethod
+    def setUpClass(cls):
+        cls.sql = _load("sql-analysis.json")
+
+    def test_sql_artifact_exists(self):
+        self.assertTrue((DATA_DIR / "sql-analysis.json").exists())
+
+    def test_four_queries_present(self):
+        self.assertEqual(len(self.sql.get("queries", [])), 4)
+
+    def test_query_ids_correct(self):
+        ids = {q["id"] for q in self.sql["queries"]}
+        self.assertEqual(ids, {"Q1", "Q2", "Q3", "Q4"})
+
+    def test_q1_failure_mode_ranking_has_results(self):
+        q1 = next(q for q in self.sql["queries"] if q["id"] == "Q1")
+        self.assertEqual(len(q1["results"]), 5, "Expected 5 failure modes in Q1")
+
+    def test_q2_model_ranking_best_is_hgb(self):
+        q2 = next(q for q in self.sql["queries"] if q["id"] == "Q2")
+        top = q2["results"][0]
+        self.assertIn("hist_gradient_boosting", top["model"])
+
+    def test_q3_review_queue_has_three_budgets(self):
+        q3 = next(q for q in self.sql["queries"] if q["id"] == "Q3")
+        self.assertEqual(len(q3["results"]), 3)
+
+    def test_final_model_metrics_consistent_with_summary(self):
+        summary = _load("summary.json")
+        roc = summary["final_model"]["roc_auc"]
+        pr = summary["final_model"]["pr_auc"]
+        self.assertGreaterEqual(roc, 0.95)
+        self.assertGreaterEqual(pr, 0.85)
 
 
 if __name__ == "__main__":

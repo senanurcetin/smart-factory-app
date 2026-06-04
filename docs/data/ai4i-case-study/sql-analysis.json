@@ -1,0 +1,163 @@
+{
+  "description": "SQL analysis on pre-computed JSON artifacts using DuckDB in-memory engine",
+  "queries": [
+    {
+      "id": "Q1",
+      "title": "Failure modes ranked by holdout frequency",
+      "business_question": "Which failure types occur most often and are hardest to catch?",
+      "results": [
+        {
+          "failure_code": "HDF",
+          "label": "Heat dissipation failure",
+          "holdout_failures": 29,
+          "captured_top10": 29,
+          "capture_rate_pct": 100.0,
+          "frequency_rank": 1
+        },
+        {
+          "failure_code": "OSF",
+          "label": "Overstrain failure",
+          "holdout_failures": 16,
+          "captured_top10": 16,
+          "capture_rate_pct": 100.0,
+          "frequency_rank": 2
+        },
+        {
+          "failure_code": "PWF",
+          "label": "Power failure",
+          "holdout_failures": 13,
+          "captured_top10": 13,
+          "capture_rate_pct": 100.0,
+          "frequency_rank": 3
+        },
+        {
+          "failure_code": "TWF",
+          "label": "Tool wear failure",
+          "holdout_failures": 10,
+          "captured_top10": 7,
+          "capture_rate_pct": 70.0,
+          "frequency_rank": 4
+        },
+        {
+          "failure_code": "RNF",
+          "label": "Random failure",
+          "holdout_failures": 4,
+          "captured_top10": 1,
+          "capture_rate_pct": 25.0,
+          "frequency_rank": 5
+        }
+      ]
+    },
+    {
+      "id": "Q2",
+      "title": "Model comparison ranked by PR-AUC (imbalance-aware metric)",
+      "business_question": "Which model best identifies rare failures in an imbalanced dataset?",
+      "results": [
+        {
+          "model": "hist_gradient_boosting",
+          "roc_auc": 0.9686,
+          "pr_auc": 0.8522,
+          "f1": 0.8033,
+          "precision_score": 0.9074,
+          "recall_score": 0.7206,
+          "pr_auc_rank": 1
+        },
+        {
+          "model": "random_forest",
+          "roc_auc": 0.9611,
+          "pr_auc": 0.7724,
+          "f1": 0.7167,
+          "precision_score": 0.8269,
+          "recall_score": 0.6324,
+          "pr_auc_rank": 2
+        },
+        {
+          "model": "logistic_regression",
+          "roc_auc": 0.907,
+          "pr_auc": 0.3818,
+          "f1": 0.2419,
+          "precision_score": 0.1418,
+          "recall_score": 0.8235,
+          "pr_auc_rank": 3
+        },
+        {
+          "model": "dummy_baseline",
+          "roc_auc": 0.5,
+          "pr_auc": 0.034,
+          "f1": 0.0,
+          "precision_score": 0.0,
+          "recall_score": 0.0,
+          "pr_auc_rank": 4
+        }
+      ]
+    },
+    {
+      "id": "Q3",
+      "title": "Review queue ROI by budget level",
+      "business_question": "How many assets must be reviewed to catch each failure at different budget levels?",
+      "results": [
+        {
+          "review_budget_pct": 5.0,
+          "reviewed_assets": 100,
+          "captured_failures": 60,
+          "failure_capture_rate_pct": 88.2,
+          "yield_lift_vs_random": 17.65,
+          "assets_per_failure_caught": 1.7
+        },
+        {
+          "review_budget_pct": 10.0,
+          "reviewed_assets": 200,
+          "captured_failures": 64,
+          "failure_capture_rate_pct": 94.1,
+          "yield_lift_vs_random": 9.41,
+          "assets_per_failure_caught": 3.1
+        },
+        {
+          "review_budget_pct": 15.0,
+          "reviewed_assets": 300,
+          "captured_failures": 65,
+          "failure_capture_rate_pct": 95.6,
+          "yield_lift_vs_random": 6.37,
+          "assets_per_failure_caught": 4.6
+        }
+      ]
+    },
+    {
+      "id": "Q4",
+      "title": "Top 5 features by permutation importance",
+      "business_question": "Which sensor signals drive the failure risk score most?",
+      "results": [
+        {
+          "feature": "Rotational speed [rpm]",
+          "importance": 0.5176,
+          "share_of_total_pct": 32.7,
+          "importance_rank": 1
+        },
+        {
+          "feature": "thermal_stress",
+          "importance": 0.4664,
+          "share_of_total_pct": 29.5,
+          "importance_rank": 2
+        },
+        {
+          "feature": "Tool wear [min]",
+          "importance": 0.2498,
+          "share_of_total_pct": 15.8,
+          "importance_rank": 3
+        },
+        {
+          "feature": "mechanical_load",
+          "importance": 0.1687,
+          "share_of_total_pct": 10.7,
+          "importance_rank": 4
+        },
+        {
+          "feature": "Torque [Nm]",
+          "importance": 0.1547,
+          "share_of_total_pct": 9.8,
+          "importance_rank": 5
+        }
+      ]
+    }
+  ]
+}

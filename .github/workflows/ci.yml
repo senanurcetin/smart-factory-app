@@ -29,14 +29,22 @@ jobs:
           python -m py_compile main.py case_study.py
           python -m py_compile analysis/run_ai4i_case_study.py
           python -m py_compile analysis/generate_visuals.py
+          python -m py_compile analysis/generate_eda.py
+          python -m py_compile analysis/sql_queries.py
 
-      - name: Generate visualization assets
+      - name: Generate EDA assets
+        run: python analysis/generate_eda.py
+
+      - name: Generate analysis visuals
         run: python analysis/generate_visuals.py
 
-      - name: Artifact + metrics contract tests
+      - name: Run SQL analysis
+        run: python analysis/sql_queries.py
+
+      - name: Artifact and metrics contract tests
         run: python -m unittest discover -s tests -p "test_artifacts.py" -v
 
-      - name: Route + integration tests
+      - name: Route and integration tests
         run: python -m unittest discover -s tests -p "test_case_study.py" -v
 
       - name: Import app
