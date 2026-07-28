@@ -325,7 +325,9 @@ def _load_json(filename: str):
 def load_case_study_artifacts() -> dict:
     summary = _load_json("summary.json")
     if summary is None:
-        raise FileNotFoundError("Case-study artifacts are missing. Run python analysis/run_ai4i_case_study.py.")
+        raise FileNotFoundError(
+            "Case-study artifacts are missing. Run python analysis/run_ai4i_case_study.py."
+        )
     return {
         "summary": summary,
         "benchmarks": _load_json("benchmark-comparison.json") or [],

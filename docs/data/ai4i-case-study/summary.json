@@ -33,8 +33,8 @@
   },
   "final_model": {
     "name": "HistGradientBoostingClassifier (enhanced features)",
-    "roc_auc": 0.9819,
-    "pr_auc": 0.8855,
+    "roc_auc": 0.9807,
+    "pr_auc": 0.8848,
     "accuracy": 0.9895,
     "precision": 0.8852,
     "recall": 0.7941,
@@ -49,7 +49,7 @@
         54
       ]
     ],
-    "calibration_ece": 0.0017
+    "calibration_ece": 0.0014
   },
   "review_queue": {
     "selected_budget_fraction": 0.1,
@@ -68,35 +68,35 @@
       {
         "failure_code": "TWF",
         "label": "Tool wear failure",
-        "roc_auc": 0.8548,
-        "recall": 0.2,
+        "roc_auc": 0.8815,
+        "recall": 0.1,
         "capture_rate_at_10pct": 0.8
       },
       {
         "failure_code": "HDF",
         "label": "Heat dissipation failure",
-        "roc_auc": 0.9654,
-        "recall": 0.931,
-        "capture_rate_at_10pct": 0.9655
+        "roc_auc": 0.9996,
+        "recall": 0.9655,
+        "capture_rate_at_10pct": 1.0
       },
       {
         "failure_code": "PWF",
         "label": "Power failure",
-        "roc_auc": 0.9999,
-        "recall": 0.9231,
+        "roc_auc": 1.0,
+        "recall": 1.0,
         "capture_rate_at_10pct": 1.0
       },
       {
         "failure_code": "OSF",
         "label": "Overstrain failure",
-        "roc_auc": 0.9999,
+        "roc_auc": 0.9998,
         "recall": 1.0,
         "capture_rate_at_10pct": 1.0
       },
       {
         "failure_code": "RNF",
         "label": "Random failure",
-        "roc_auc": 0.6791,
+        "roc_auc": 0.6253,
         "recall": 0.25,
         "capture_rate_at_10pct": 0.5
       }

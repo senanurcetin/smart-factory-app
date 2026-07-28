@@ -10,7 +10,7 @@
       "precision": 0.0,
       "recall": 0.0,
       "f1": 0.0,
-      "training_seconds": 0.0699
+      "training_seconds": 0.019
     },
     {
       "model": "logistic_regression",
@@ -20,27 +20,27 @@
       "precision": 0.1418,
       "recall": 0.8235,
       "f1": 0.2419,
-      "training_seconds": 0.1513
+      "training_seconds": 0.0399
     },
     {
       "model": "random_forest",
-      "accuracy": 0.983,
-      "roc_auc": 0.9611,
-      "pr_auc": 0.7724,
-      "precision": 0.8269,
-      "recall": 0.6324,
-      "f1": 0.7167,
-      "training_seconds": 7.4143
+      "accuracy": 0.982,
+      "roc_auc": 0.9651,
+      "pr_auc": 0.7618,
+      "precision": 0.82,
+      "recall": 0.6029,
+      "f1": 0.6949,
+      "training_seconds": 1.1354
     },
     {
       "model": "hist_gradient_boosting",
-      "accuracy": 0.988,
-      "roc_auc": 0.9686,
-      "pr_auc": 0.8522,
-      "precision": 0.9074,
+      "accuracy": 0.9885,
+      "roc_auc": 0.9748,
+      "pr_auc": 0.8518,
+      "precision": 0.9245,
       "recall": 0.7206,
-      "f1": 0.8033,
-      "training_seconds": 11.8092
+      "f1": 0.8099,
+      "training_seconds": 2.3962
     }
   ],
   "feature_engineering_note": "Three derived features were added: mechanical_load (Torque \u00d7 RPM), thermal_stress ((Tprocess - Tair) / Tair), and tool_wear_load_ratio (wear / torque). These encode domain knowledge about failure mechanisms into the feature space.",

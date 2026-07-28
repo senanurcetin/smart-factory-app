@@ -37,7 +37,14 @@ def run():
         FROM read_json_auto('{failure_modes_file}')
         ORDER BY holdout_failures DESC
     """).fetchall()
-    q1_cols = ["failure_code", "label", "holdout_failures", "captured_top10", "capture_rate_pct", "frequency_rank"]
+    q1_cols = [
+        "failure_code",
+        "label",
+        "holdout_failures",
+        "captured_top10",
+        "capture_rate_pct",
+        "frequency_rank",
+    ]
 
     # Q2: Model comparison — focused on imbalance-aware metrics
     q2 = conn.execute(f"""
@@ -77,8 +84,14 @@ def run():
         ) t2
         ORDER BY review_fraction
     """).fetchall()
-    q3_cols = ["review_budget_pct", "reviewed_assets", "captured_failures",
-               "failure_capture_rate_pct", "yield_lift_vs_random", "assets_per_failure_caught"]
+    q3_cols = [
+        "review_budget_pct",
+        "reviewed_assets",
+        "captured_failures",
+        "failure_capture_rate_pct",
+        "yield_lift_vs_random",
+        "assets_per_failure_caught",
+    ]
 
     # Q4: Feature importance — top 5 and their contribution share
     q4 = conn.execute(f"""
@@ -113,27 +126,27 @@ def run():
                 "id": "Q1",
                 "title": "Failure modes ranked by holdout frequency",
                 "business_question": "Which failure types occur most often and are hardest to catch?",
-                "results": to_records(q1, q1_cols)
+                "results": to_records(q1, q1_cols),
             },
             {
                 "id": "Q2",
                 "title": "Model comparison ranked by PR-AUC (imbalance-aware metric)",
                 "business_question": "Which model best identifies rare failures in an imbalanced dataset?",
-                "results": to_records(q2, q2_cols)
+                "results": to_records(q2, q2_cols),
             },
             {
                 "id": "Q3",
                 "title": "Review queue ROI by budget level",
                 "business_question": "How many assets must be reviewed to catch each failure at different budget levels?",
-                "results": to_records(q3, q3_cols)
+                "results": to_records(q3, q3_cols),
             },
             {
                 "id": "Q4",
                 "title": "Top 5 features by permutation importance",
                 "business_question": "Which sensor signals drive the failure risk score most?",
-                "results": to_records(q4, q4_cols)
-            }
-        ]
+                "results": to_records(q4, q4_cols),
+            },
+        ],
     }
 
     OUT_FILE.write_text(json.dumps(result, indent=2))
@@ -142,8 +155,10 @@ def run():
     # Print summary to stdout for CI visibility
     print("\n--- Q1: Failure mode ranking ---")
     for r in result["queries"][0]["results"]:
-        print(f"  {r['failure_code']:4s}  {r['holdout_failures']:3d} holdout failures  "
-              f"capture rate: {r['capture_rate_pct']}%")
+        print(
+            f"  {r['failure_code']:4s}  {r['holdout_failures']:3d} holdout failures  "
+            f"capture rate: {r['capture_rate_pct']}%"
+        )
 
     print("\n--- Q2: Model ranking by PR-AUC ---")
     for r in result["queries"][1]["results"]:
@@ -151,10 +166,12 @@ def run():
 
     print("\n--- Q3: Review queue ROI ---")
     for r in result["queries"][2]["results"]:
-        print(f"  {r['review_budget_pct']:.0f}% budget  "
-              f"capture={r['failure_capture_rate_pct']}%  "
-              f"lift={r['yield_lift_vs_random']}x  "
-              f"assets/failure={r['assets_per_failure_caught']}")
+        print(
+            f"  {r['review_budget_pct']:.0f}% budget  "
+            f"capture={r['failure_capture_rate_pct']}%  "
+            f"lift={r['yield_lift_vs_random']}x  "
+            f"assets/failure={r['assets_per_failure_caught']}"
+        )
 
 
 if __name__ == "__main__":

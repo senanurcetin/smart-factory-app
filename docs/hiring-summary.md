@@ -6,10 +6,10 @@ Predictive-maintenance analytics case study covering EDA, feature engineering, m
 
 ## Headline metrics
 
-- Final model (HistGradientBoosting + engineered features): ROC-AUC **0.9819**, PR-AUC **0.8855**, F1 **0.8372**
+- Final model (HistGradientBoosting + engineered features): ROC-AUC **0.9807**, PR-AUC **0.8848**, F1 **0.8372**
 - Reviewing the top **10%** of assets captures **94.1%** of holdout failures — **9.4x** better yield than random review
 - Estimated cost savings vs reactive maintenance: **$185,000 (77.7%)**
-- Feature engineering impact: ROC-AUC +0.013, PR-AUC +0.033 vs same model without derived features
+- Feature engineering impact: ROC-AUC +0.006, PR-AUC +0.033 vs same model without derived features
 
 ## Skills demonstrated
 

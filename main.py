@@ -1,4 +1,3 @@
-
 """
 A single-file Flask application with a Modern "Bento Grid" Dashboard.
 
@@ -9,43 +8,61 @@ data simulation and backend logic.
 
 import os
 import random
+import time
 from collections import deque
 from datetime import datetime
 
+import joblib
 import pandas as pd
 from flask import Flask, jsonify, render_template_string
-from sklearn.ensemble import RandomForestClassifier
-from sklearn.model_selection import train_test_split
+
+from analysis.run_ai4i_case_study import (
+    MODEL_FEATURES_ENHANCED,
+    MODEL_PATH,
+    add_derived_features,
+)
 from case_study import case_study_bp
 
 # =============================================================================
-# 1. BACKEND: APPLICATION & ENRICHED DATA SIMULATION (UNCHANGED)
+# 1. BACKEND: APPLICATION & LIVE RISK SCORING
 # =============================================================================
+#
+# The dashboard scores live (simulated) telemetry against the same
+# HistGradientBoosting pipeline that is benchmarked in the offline case study
+# (see analysis/run_ai4i_case_study.py). Feature names/engineering are
+# imported from that module so the dashboard can never drift out of sync
+# with what the model was actually trained on.
 
 app = Flask(__name__)
 app.register_blueprint(case_study_bp)
 
-features_for_model = ['Temperature', 'Vibration', 'Current', 'Pressure', 'RPM', 'Energy']
-data = {feat: [random.uniform(1, 100) for _ in range(100)] for feat in features_for_model}
-data['Failure'] = [random.choice([0, 1]) for _ in range(100)]
-df = pd.DataFrame(data)
-X = df[features_for_model]
-y = df['Failure']
-X_train, _, y_train, _ = train_test_split(X, y, test_size=0.2, random_state=42)
+if not MODEL_PATH.exists():
+    raise FileNotFoundError(
+        f"Trained model not found at {MODEL_PATH}. "
+        "Run `python analysis/run_ai4i_case_study.py` first to train and persist it."
+    )
+risk_model = joblib.load(MODEL_PATH)
 
-model = RandomForestClassifier(n_estimators=50, random_state=42, max_depth=10)
-model.fit(X_train, y_train)
+# Approximate AI4I 2020 feature ranges/distribution, used to simulate plausible
+# live sensor readings that the real model can score meaningfully.
+MACHINE_TYPES = ["L", "M", "H"]
+MACHINE_TYPE_WEIGHTS = [0.6, 0.3, 0.1]
+MAX_RUL_HOURS = 48
 
 historical_data = deque(maxlen=8)
 event_log = deque(maxlen=10)
 production_actual = 0
 scrap_count = 0
+downtime_seconds = 0.0
+tool_wear_minutes = 0.0
+app_start_time = time.time()
+IDEAL_CYCLE_TIME_SECONDS = 12.0  # design-spec cycle time used for the OEE Performance component
 
 # =============================================================================
 # 2. FRONTEND: BENTO GRID TEMPLATE (Layout & Style FIXES)
 # =============================================================================
 
-HTML_TEMPLATE = '''
+HTML_TEMPLATE = """
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -136,7 +153,7 @@ HTML_TEMPLATE = '''
         .kpi-card {
             height: 130px; /* Fixed height for KPI cards */
         }
-        
+
         .kpi-card-title {
             font-size: 0.9rem;
             font-weight: 500;
@@ -221,11 +238,11 @@ HTML_TEMPLATE = '''
             <div class="col-lg-3 col-6"><div class="bento-card kpi-card text-center"><div class="kpi-card-title">OEE</div><div class="kpi-card-value" id="kpi-oee">0%</div><div class="kpi-card-trend text-success">+0.1% <i class="fas fa-arrow-up"></i></div></div></div>
             <div class="col-lg-3 col-6"><div class="bento-card kpi-card text-center"><div class="kpi-card-title">Net Production</div><div class="kpi-card-value" id="kpi-prod">0</div><div class="kpi-card-trend text-success">+5 <i class="fas fa-arrow-up"></i></div></div></div>
             <div class="col-lg-3 col-6"><div class="bento-card kpi-card text-center"><div class="kpi-card-title">Instant Cost</div><div class="kpi-card-value" id="kpi-cost">$0/hr</div><div class="kpi-card-trend text-danger">+0.5 <i class="fas fa-arrow-up"></i></div></div></div>
-            <div class="col-lg-3 col-6"><div class="bento-card kpi-card text-center"><div class="kpi-card-title">AI Forecast (RUL)</div><div class="kpi-card-value" id="kpi-rul">0 Hr</div><div class="kpi-card-trend text-secondary">-1hr <i class="fas fa-arrow-down"></i></div></div></div>
+            <div class="col-lg-3 col-6"><div class="bento-card kpi-card text-center"><div class="kpi-card-title">AI Forecast (RUL)</div><div class="kpi-card-value" id="kpi-rul" title="Heuristic estimate derived from the model's risk score — not a calibrated survival/RUL model.">0 Hr</div><div class="kpi-card-trend text-secondary">-1hr <i class="fas fa-arrow-down"></i></div></div></div>
 
             <!-- CHART ROW with fixed height cards and containers -->
-            <div class="col-lg-6"><div class="bento-card chart-card"><h5>Real-time Temperature Analysis</h5><p class="small text-muted mb-2">Sensor: THERM-L5</p><div class="chart-container"><canvas id="tempChart"></canvas></div></div></div>
-            <div class="col-lg-6"><div class="bento-card chart-card"><h5>Real-time Vibration Analysis</h5><p class="small text-muted mb-2">Sensor: PIEZO-V1</p><div class="chart-container"><canvas id="vibrationChart"></canvas></div></div></div>
+            <div class="col-lg-6"><div class="bento-card chart-card"><h5>Real-time Temperature Analysis</h5><p class="small text-muted mb-2">Process temperature (model input)</p><div class="chart-container"><canvas id="tempChart"></canvas></div></div></div>
+            <div class="col-lg-6"><div class="bento-card chart-card"><h5>Real-time Tool Wear Analysis</h5><p class="small text-muted mb-2">Tool wear accumulation (model input)</p><div class="chart-container"><canvas id="vibrationChart"></canvas></div></div></div>
 
             <!-- DETAIL ROW with fixed height cards -->
             <div class="col-lg-4"><div class="bento-card detail-card scrollable-content"><h6 class="mb-3">Shift Information</h6><div id="shift-info-panel"></div></div></div>
@@ -237,37 +254,37 @@ HTML_TEMPLATE = '''
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script>
         const chartDefaults = {
-            responsive: true, 
+            responsive: true,
             maintainAspectRatio: false, // CRITICAL: Allows chart to fill container height
             animation: false,
             plugins: { legend: { display: false } },
             scales: { x: { grid: { display: false }, ticks: { color: '#9ca3af'} }, y: { grid: { color: '#e5e7eb' }, ticks: { color: '#9ca3af' } } }
         };
         const tempChart = new Chart(document.getElementById('tempChart'), {
-            type: 'line', 
+            type: 'line',
             data: { labels: [], datasets: [{
-                data: [], 
-                borderColor: '#ef4444', 
+                data: [],
+                borderColor: '#ef4444',
                 tension: 0.4,           // Makes lines curved
                 borderWidth: 2,         // Sets line thickness
-                pointRadius: 0, 
-                fill: true, 
+                pointRadius: 0,
+                fill: true,
                 backgroundColor: 'rgba(239, 68, 68, 0.05)'
-            }] }, 
+            }] },
             options: { ...chartDefaults, scales: { ...chartDefaults.scales, y: { ...chartDefaults.scales.y, ticks: { callback: value => value + '°C' } } } }
         });
         const vibrationChart = new Chart(document.getElementById('vibrationChart'), {
-            type: 'line', 
+            type: 'line',
             data: { labels: [], datasets: [{
-                data: [], 
-                borderColor: '#3b82f6', 
+                data: [],
+                borderColor: '#3b82f6',
                 tension: 0.4,           // Makes lines curved
                 borderWidth: 2,         // Sets line thickness
-                pointRadius: 0, 
-                fill: true, 
+                pointRadius: 0,
+                fill: true,
                 backgroundColor: 'rgba(59, 130, 246, 0.05)'
-            }] }, 
-            options: { ...chartDefaults, scales: { ...chartDefaults.scales, y: { ...chartDefaults.scales.y, ticks: { callback: value => value + ' mm/s' } } } }
+            }] },
+            options: { ...chartDefaults, scales: { ...chartDefaults.scales, y: { ...chartDefaults.scales.y, ticks: { callback: value => value + ' min' } } } }
         });
 
         async function fetchData() {
@@ -290,6 +307,8 @@ HTML_TEMPLATE = '''
                 <div class="info-list-item"><span class="label">Operator</span><span class="value">${current.Operator}</span></div>
                 <div class="info-list-item"><span class="label">Cycle Time</span><span class="value">${current.Cycle_Time.toFixed(1)}s</span></div>
                 <div class="info-list-item"><span class="label">Power Factor</span><span class="value">${current.Power_Factor.toFixed(2)}</span></div>
+                <div class="info-list-item"><span class="label">Machine Type</span><span class="value">${current.Type}</span></div>
+                <div class="info-list-item"><span class="label">Model Risk Score</span><span class="value">${current.RiskScore.toFixed(4)}</span></div>
             `;
 
             // --- Update Health Progress Bars with conditional colors ---
@@ -317,7 +336,7 @@ HTML_TEMPLATE = '''
                 chart.data.labels.push(label);
             });
             tempChart.data.datasets[0].data.push(current.Temperature);
-            vibrationChart.data.datasets[0].data.push(current.Vibration);
+            vibrationChart.data.datasets[0].data.push(current.Tool_Wear);
             tempChart.update();
             vibrationChart.update();
 
@@ -335,74 +354,142 @@ HTML_TEMPLATE = '''
     </script>
 </body>
 </html>
-'''
+"""
 
 # =============================================================================
 # 3. BACKEND API & ROUTES (UNCHANGED)
 # =============================================================================
 
+
 @app.route("/")
 def index():
     return render_template_string(HTML_TEMPLATE)
 
+
 @app.route("/api/data")
 def get_data():
-    global production_actual, scrap_count
+    global production_actual, scrap_count, downtime_seconds, tool_wear_minutes
 
     # Simulate Production & MES Data
     production_actual += random.randint(0, 3)
-    if random.random() < 0.02: scrap_count += 1
+    if random.random() < 0.02:
+        scrap_count += 1
+    if random.random() < 0.05:
+        downtime_seconds += random.uniform(1.0, 4.0)  # simulated micro-stoppage (jam, adjustment)
+
+    # OEE = Availability x Performance x Quality (real formula, not a random number)
+    elapsed_seconds = max(time.time() - app_start_time, 1.0)
+    run_time_seconds = max(elapsed_seconds - downtime_seconds, 1.0)
+    availability = run_time_seconds / elapsed_seconds
+    performance = min((IDEAL_CYCLE_TIME_SECONDS * production_actual) / run_time_seconds, 1.0)
+    good_count = max(production_actual - scrap_count, 0)
+    quality = good_count / production_actual if production_actual else 1.0
+    oee = availability * performance * quality
+
     production_stats = {
-        'target': 1000, 'actual': production_actual, 'scrap': scrap_count, 'oee': random.uniform(92.0, 98.5)
+        "target": 1000,
+        "actual": production_actual,
+        "scrap": scrap_count,
+        "availability": round(availability * 100, 2),
+        "performance": round(performance * 100, 2),
+        "quality": round(quality * 100, 2),
+        "oee": round(oee * 100, 2),
     }
 
-    # Simulate Enriched Sensor & Metadata
+    # ── Simulate AI4I-schema telemetry (the actual model inputs) ─────────────
+    # Tool wear accumulates across ticks and resets when a preventive
+    # maintenance / tool-change event fires, so RiskScore genuinely tracks
+    # a degrading-then-reset wear cycle instead of pure IID noise.
+    tool_wear_minutes += random.uniform(0.5, 2.5)
+    if tool_wear_minutes > 230 and random.random() < 0.15:
+        tool_wear_minutes = 0.0
+        event_log.append(
+            {
+                "timestamp": datetime.now().strftime("%H:%M:%S"),
+                "message": "INFO: Tool replaced during preventive maintenance",
+            }
+        )
+
+    machine_type = random.choices(MACHINE_TYPES, weights=MACHINE_TYPE_WEIGHTS, k=1)[0]
+    air_temp_k = random.uniform(295.0, 304.0)
+    process_temp_k = air_temp_k + random.uniform(8.0, 12.0)
+    rotational_speed_rpm = random.uniform(1168.0, 2886.0)
+    torque_nm = random.uniform(3.0, 77.0)
+
+    raw_row = pd.DataFrame(
+        [
+            {
+                "Type": machine_type,
+                "Air temperature [K]": air_temp_k,
+                "Process temperature [K]": process_temp_k,
+                "Rotational speed [rpm]": rotational_speed_rpm,
+                "Torque [Nm]": torque_nm,
+                "Tool wear [min]": tool_wear_minutes,
+            }
+        ]
+    )
+    feature_row = add_derived_features(raw_row)[MODEL_FEATURES_ENHANCED]
+    risk_score = float(risk_model.predict_proba(feature_row)[:, 1][0])
+
+    # Heuristic RUL derived from the real model's risk score (linear decay from
+    # MAX_RUL_HOURS at risk=0 to 0 at risk=1). This is NOT a calibrated
+    # survival/RUL regression — it is an illustrative, monotonic proxy meant
+    # to be honest about what it is while still being driven by the real model.
+    rul_hours = max(1, round(MAX_RUL_HOURS * (1 - risk_score)))
+
+    # Simulate Enriched Sensor & Metadata (plant-context flavor telemetry,
+    # not fed to the risk model)
     current_val = random.uniform(3.0, 4.9)
     voltage_val = random.uniform(218.0, 223.0)
 
     reading = {
-        'Timestamp': datetime.now().strftime("%H:%M:%S"),
-        'Temperature': round(random.uniform(65.0, 85.0), 1),
-        'Vibration': round(random.uniform(0.7, 2.5), 2),
-        'Current': round(current_val, 2),
-        'Pressure': round(random.uniform(30.0, 42.0), 1),
-        'RPM': int(random.uniform(1800, 2500)),
-        'Energy': round(random.uniform(12.0, 17.5), 2),
-        'Spindle_Load': round(random.uniform(60.0, 95.0), 1),
-        'Voltage': round(voltage_val, 1),
-        'Hydraulic_Pressure': round(random.uniform(115.0, 148.0), 1),
-        'Power_Factor': round(random.uniform(0.88, 0.99), 2),
-        'Cycle_Time': round(random.uniform(11.5, 14.2), 1),
-        'Shift_ID': "SHIFT-A" if 8 <= datetime.now().hour < 20 else "SHIFT-B",
-        'Operator': "John Doe" if 8 <= datetime.now().hour < 20 else "Jane Smith",
-        'Energy_Cost_Per_Hour': (current_val * voltage_val * 0.12) / 1000, # Example cost calc
-        'RUL': int(48 - (production_actual / 250)), # Remaining Useful Life in hours
+        "Timestamp": datetime.now().strftime("%H:%M:%S"),
+        "Type": machine_type,
+        "Temperature": round(process_temp_k - 273.15, 1),  # process temp, Kelvin -> Celsius
+        "Tool_Wear": round(tool_wear_minutes, 1),
+        "Torque": round(torque_nm, 1),
+        "Rotational_Speed": round(rotational_speed_rpm, 0),
+        "Current": round(current_val, 2),
+        "Pressure": round(random.uniform(30.0, 42.0), 1),
+        "Energy": round(random.uniform(12.0, 17.5), 2),
+        "Spindle_Load": round(random.uniform(60.0, 95.0), 1),
+        "Voltage": round(voltage_val, 1),
+        "Hydraulic_Pressure": round(random.uniform(115.0, 148.0), 1),
+        "Power_Factor": round(random.uniform(0.88, 0.99), 2),
+        "Cycle_Time": round(random.uniform(11.5, 14.2), 1),
+        "Shift_ID": "SHIFT-A" if 8 <= datetime.now().hour < 20 else "SHIFT-B",
+        "Operator": "John Doe" if 8 <= datetime.now().hour < 20 else "Jane Smith",
+        "Energy_Cost_Per_Hour": (current_val * voltage_val * 0.12) / 1000,  # Example cost calc
+        "RUL": rul_hours,
+        "RiskScore": round(risk_score, 4),
     }
 
-    # AI Risk Prediction
-    df_live = pd.DataFrame([reading], columns=features_for_model)
-    risk_score = model.predict_proba(df_live)[:, 1][0]
-    reading['RiskScore'] = round(risk_score, 4)
-
     historical_data.append(reading)
-    
-    # Simulate System Events
-    if random.random() < 0.2: 
-        event_log.append({
-            'timestamp': datetime.now().strftime("%H:%M:%S"),
-            'message': random.choice(['INFO: Cycle OK', 'WARN: Temp high', 'INFO: Pressure nominal'])
-        })
 
-    return jsonify({
-        'current_reading': reading,
-        'production_stats': production_stats,
-        'event_log': list(event_log)
-    })
+    # Simulate System Events
+    if random.random() < 0.2:
+        event_log.append(
+            {
+                "timestamp": datetime.now().strftime("%H:%M:%S"),
+                "message": random.choice(
+                    ["INFO: Cycle OK", "WARN: Temp high", "INFO: Pressure nominal"]
+                ),
+            }
+        )
+
+    return jsonify(
+        {
+            "current_reading": reading,
+            "production_stats": production_stats,
+            "event_log": list(event_log),
+        }
+    )
+
 
 # =============================================================================
 # 4. APPLICATION RUNNER (UNCHANGED)
 # =============================================================================
 
-if __name__ == '__main__':
-    port = int(os.environ.get('PORT', 8080))
-    app.run(host='0.0.0.0', port=port)
+if __name__ == "__main__":
+    port = int(os.environ.get("PORT", 8080))
+    app.run(host="0.0.0.0", port=port)

@@ -30,12 +30,12 @@
       "unplanned_failure_cost": 4000,
       "preventive_maintenance_cost": 600,
       "holdout_failures": 29,
-      "captured_failures": 28,
-      "missed_failures": 1,
+      "captured_failures": 29,
+      "missed_failures": 0,
       "reactive_baseline_cost": 116000,
-      "risk_queue_cost": 27800,
-      "savings_vs_reactive": 88200,
-      "savings_share": 0.7603
+      "risk_queue_cost": 24400,
+      "savings_vs_reactive": 91600,
+      "savings_share": 0.7897
     },
     {
       "failure_code": "PWF",
@@ -90,5 +90,5 @@
       "savings_share": 0.1733
     }
   ],
-  "total_per_mode_savings": 175900
+  "total_per_mode_savings": 179300
 }

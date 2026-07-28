@@ -49,7 +49,7 @@ Three derived features capture cross-sensor interactions:
 | `thermal_stress` | (Process temp - Air temp) / Air temp | Relative heat load better than absolute temperature |
 | `tool_wear_load_ratio` | Tool wear / Torque | Wear rate under load — flags accelerated degradation |
 
-Impact vs same model without derived features: ROC-AUC +0.013, PR-AUC +0.033, F1 +0.034.
+Impact vs same model without derived features: ROC-AUC +0.006, PR-AUC +0.033, F1 +0.027.
 
 ---
 
@@ -70,8 +70,8 @@ All four models benchmarked with raw features (before feature engineering):
 |-------|---------|--------|----|
 | Dummy baseline | 0.500 | 0.034 | 0.000 |
 | Logistic regression | 0.907 | 0.382 | 0.242 |
-| Random forest | 0.961 | 0.772 | 0.717 |
-| **HistGradientBoosting** | **0.969** | **0.852** | **0.803** |
+| Random forest | 0.965 | 0.762 | 0.695 |
+| **HistGradientBoosting** | **0.975** | **0.852** | **0.810** |
 
 HistGradientBoosting selected for highest PR-AUC and F1.
 
@@ -83,13 +83,13 @@ HistGradientBoosting with enhanced (derived) features:
 
 | Metric | Value |
 |--------|-------|
-| ROC-AUC | 0.9819 |
-| PR-AUC | 0.8855 |
+| ROC-AUC | 0.9807 |
+| PR-AUC | 0.8848 |
 | Precision | 0.8852 |
 | Recall | 0.7941 |
 | F1 | 0.8372 |
 | Accuracy | 0.9895 |
-| Calibration ECE | 0.0017 |
+| Calibration ECE | 0.0014 |
 
 **Confusion matrix** (holdout, n=2,000):
 
@@ -140,4 +140,4 @@ Assumptions: $3,500 unplanned failure cost, $500 scheduled maintenance cost, $35
 - The cost model is illustrative; real maintenance economics vary significantly by plant, equipment, and failure type
 - Random failures (RNF) have low model separability — 25% capture rate at 10% budget is an acknowledged limitation
 - Local attributions use median-ablation, not SHAP — may underestimate interaction effects
-- The live dashboard uses synthetic telemetry rather than a deployed production stream
+- The live dashboard simulates plausible AI4I-schema telemetry and scores it with the real trained pipeline (not a separate toy model); it is not connected to a deployed production sensor stream

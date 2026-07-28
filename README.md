@@ -64,7 +64,7 @@ Three cross-sensor features were derived to capture interaction effects that ind
 | `thermal_stress` | (Process temp - Air temp) / Air temp | Relative thermal load under operating conditions |
 | `tool_wear_load_ratio` | Tool wear / Torque | Wear rate per unit of mechanical load |
 
-These features improve the final model: ROC-AUC 0.9686 to **0.9819**, PR-AUC 0.8522 to **0.8855**.
+These features improve the final model: ROC-AUC 0.9748 to **0.9807**, PR-AUC 0.8518 to **0.8848**.
 
 ---
 
@@ -78,8 +78,8 @@ Four models benchmarked on the holdout using the **raw feature set** (before der
 |-------|---------|--------|----|
 | Dummy baseline | 0.500 | 0.034 | 0.000 |
 | Logistic regression | 0.907 | 0.382 | 0.242 |
-| Random forest | 0.961 | 0.772 | 0.717 |
-| **HistGradientBoosting** (selected) | **0.969** | **0.852** | **0.803** |
+| Random forest | 0.965 | 0.762 | 0.695 |
+| **HistGradientBoosting** (selected) | **0.975** | **0.852** | **0.810** |
 
 HistGradientBoosting selected for highest PR-AUC and F1 on the imbalanced holdout.
 
@@ -101,12 +101,12 @@ After adding derived features, HistGradientBoosting achieves:
 
 | Metric | Value |
 |--------|-------|
-| ROC-AUC | **0.9819** |
-| PR-AUC | **0.8855** |
+| ROC-AUC | **0.9807** |
+| PR-AUC | **0.8848** |
 | Precision | **0.8852** |
 | Recall | **0.7941** |
 | F1 | **0.8372** |
-| Calibration ECE | 0.0017 (well-calibrated) |
+| Calibration ECE | 0.0014 (well-calibrated) |
 
 ### Confusion matrix
 
@@ -134,13 +134,13 @@ RNF has the lowest separability — acknowledged as a model limitation.
 
 **Q2 — Models ranked by PR-AUC (correct metric for imbalanced data):**
 
-HistGradientBoosting 0.852 > RandomForest 0.772 > LogisticRegression 0.382 > Dummy 0.034
+HistGradientBoosting 0.852 > RandomForest 0.762 > LogisticRegression 0.382 > Dummy 0.034
 
 **Q3 — Review queue ROI:**
 
 | Budget | Failures caught | Yield lift | Assets per failure caught |
 |--------|----------------|-----------|--------------------------|
-| 5% — 100 assets | 88.2% | 17.7x | 1.7 |
+| 5% — 100 assets | 89.7% | 17.9x | 1.6 |
 | 10% — 200 assets | 94.1% | 9.4x | 3.1 |
 | 15% — 300 assets | 95.6% | 6.4x | 4.6 |
 
@@ -190,7 +190,8 @@ smart-factory-app/
 │   ├── run_ai4i_case_study.py   # Full ML pipeline (downloads UCI dataset on first run)
 │   ├── generate_visuals.py      # Model comparison, feature importance, review queue curve
 │   ├── generate_eda.py          # EDA charts: class balance, failure modes, confusion matrix
-│   └── sql_queries.py           # DuckDB SQL analysis on JSON artifacts
+│   ├── sql_queries.py           # DuckDB SQL analysis on JSON artifacts
+│   └── artifacts/model.pkl      # Persisted final pipeline — also scored live by main.py
 ├── docs/
 │   ├── assets/                  # All PNG charts (9 files)
 │   ├── data/ai4i-case-study/    # JSON artifacts + sql-analysis.json
@@ -198,10 +199,12 @@ smart-factory-app/
 │   └── hiring-summary.md
 ├── tests/
 │   ├── test_case_study.py       # Route and integration tests
+│   ├── test_dashboard_model.py  # Live dashboard scores against the real trained pipeline
 │   └── test_artifacts.py        # Data quality, metrics range, asset presence (27 tests)
 ├── main.py
 ├── case_study.py
-└── requirements.txt
+├── requirements.txt
+└── requirements-dev.txt         # + ruff, black
 ```
 
 ---
@@ -213,7 +216,7 @@ python -m venv .venv
 # Windows:  .venv\Scripts\activate
 # macOS/Linux:  source .venv/bin/activate
 
-pip install -r requirements.txt
+pip install -r requirements-dev.txt   # or requirements.txt if you don't need lint/format tooling
 
 # Generate all charts from JSON artifacts (no dataset download needed)
 python analysis/generate_eda.py
@@ -222,10 +225,14 @@ python analysis/generate_visuals.py
 # Run SQL analysis
 python analysis/sql_queries.py
 
-# Run full ML benchmark (downloads UCI dataset ~500 KB on first run)
+# Run full ML benchmark (downloads UCI dataset ~500 KB on first run).
+# This also persists the final pipeline to analysis/artifacts/model.pkl,
+# which main.py loads to score the live dashboard — a pre-trained copy is
+# already committed, so this step is optional unless you want to retrain.
 python analysis/run_ai4i_case_study.py
 
-# Start the dashboard
+# Start the dashboard (scores simulated AI4I-schema telemetry with the
+# real trained pipeline above — not a separate toy model)
 python main.py
 ```
 
@@ -236,8 +243,13 @@ App: `http://127.0.0.1:8080` | Case-study route: `http://127.0.0.1:8080/case-stu
 ## Tests
 
 ```bash
-# All 27 tests: routes, artifact contracts, metrics thresholds, chart file presence
+# All 34 tests: routes, artifact contracts, metrics thresholds, chart file
+# presence, and live dashboard <-> real model integration
 python -m unittest discover -s tests -v
+
+# Lint and format check
+ruff check .
+black --check .
 
 # Syntax check all modules
 python -m py_compile main.py case_study.py \
@@ -264,9 +276,10 @@ python -m py_compile main.py case_study.py \
 ## What This Proves
 
 - Class imbalance identified up front; PR-AUC and recall drive metric selection throughout
-- Feature engineering adds measurable, documented value (ROC +0.013, PR-AUC +0.033)
+- Feature engineering adds measurable, documented value (ROC +0.006, PR-AUC +0.033)
 - SQL proficiency: DuckDB analytical queries on structured JSON artifacts
 - Model output translated into a ranked maintenance queue with quantified business ROI
+- The live dashboard scores simulated telemetry with the same trained pipeline benchmarked in the offline case study — no separate, disconnected demo model
 - End-to-end analytical thinking: EDA to feature engineering to model selection to business framing
 
 ---
@@ -274,9 +287,10 @@ python -m py_compile main.py case_study.py \
 ## Limitations
 
 - The UCI AI4I dataset is simulated — metrics are benchmark evidence, not plant-specific deployment claims
-- The live dashboard uses synthetic telemetry, not a deployed production stream
+- The live dashboard simulates plausible AI4I-schema telemetry rather than reading a deployed production sensor stream (the risk model itself is real, not a toy)
 - The cost model is illustrative; real maintenance economics vary by plant and equipment type
 - Random failures (RNF) have low separability — 25% capture rate is an acknowledged limitation
+- The dashboard's RUL figure is a simple heuristic derived from the model's risk score, not a calibrated survival/RUL regression
 
 ---
 

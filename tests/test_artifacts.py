@@ -131,14 +131,17 @@ class ReviewQueueTests(unittest.TestCase):
         if b5 is None:
             self.skipTest("No 5% budget entry found")
         self.assertGreaterEqual(
-            b5["failure_capture_rate"], 0.80,
+            b5["failure_capture_rate"],
+            0.80,
             f"5% budget should capture at least 80% of failures, got {b5['failure_capture_rate']}",
         )
 
     def test_yield_lift_above_baseline(self):
         for b in self.data["review_budgets"]:
             with self.subTest(fraction=b["review_fraction"]):
-                self.assertGreater(b["yield_lift_vs_random"], 1.0, "Yield lift must exceed 1x random")
+                self.assertGreater(
+                    b["yield_lift_vs_random"], 1.0, "Yield lift must exceed 1x random"
+                )
 
 
 class DatasetProfileTests(unittest.TestCase):
@@ -153,7 +156,9 @@ class DatasetProfileTests(unittest.TestCase):
         self.assertEqual(rows, 10000, f"Expected 10000 rows, got {rows}")
 
     def test_failure_rate_reasonable(self):
-        rate = self.profile.get("target_distribution", {}).get("failure", 0) / self.profile.get("row_count", 1)
+        rate = self.profile.get("target_distribution", {}).get("failure", 0) / self.profile.get(
+            "row_count", 1
+        )
         self.assertGreater(rate, 0.02)
         self.assertLess(rate, 0.10)
 

@@ -55,20 +55,20 @@
       "results": [
         {
           "model": "hist_gradient_boosting",
-          "roc_auc": 0.9686,
-          "pr_auc": 0.8522,
-          "f1": 0.8033,
-          "precision_score": 0.9074,
+          "roc_auc": 0.9748,
+          "pr_auc": 0.8518,
+          "f1": 0.8099,
+          "precision_score": 0.9245,
           "recall_score": 0.7206,
           "pr_auc_rank": 1
         },
         {
           "model": "random_forest",
-          "roc_auc": 0.9611,
-          "pr_auc": 0.7724,
-          "f1": 0.7167,
-          "precision_score": 0.8269,
-          "recall_score": 0.6324,
+          "roc_auc": 0.9651,
+          "pr_auc": 0.7618,
+          "f1": 0.6949,
+          "precision_score": 0.82,
+          "recall_score": 0.6029,
           "pr_auc_rank": 2
         },
         {
@@ -99,10 +99,10 @@
         {
           "review_budget_pct": 5.0,
           "reviewed_assets": 100,
-          "captured_failures": 60,
-          "failure_capture_rate_pct": 88.2,
-          "yield_lift_vs_random": 17.65,
-          "assets_per_failure_caught": 1.7
+          "captured_failures": 61,
+          "failure_capture_rate_pct": 89.7,
+          "yield_lift_vs_random": 17.94,
+          "assets_per_failure_caught": 1.6
         },
         {
           "review_budget_pct": 10.0,
@@ -129,32 +129,32 @@
       "results": [
         {
           "feature": "Rotational speed [rpm]",
-          "importance": 0.5176,
-          "share_of_total_pct": 32.7,
+          "importance": 0.5247,
+          "share_of_total_pct": 33.2,
           "importance_rank": 1
         },
         {
           "feature": "thermal_stress",
-          "importance": 0.4664,
-          "share_of_total_pct": 29.5,
+          "importance": 0.4531,
+          "share_of_total_pct": 28.6,
           "importance_rank": 2
         },
         {
           "feature": "Tool wear [min]",
-          "importance": 0.2498,
-          "share_of_total_pct": 15.8,
+          "importance": 0.2738,
+          "share_of_total_pct": 17.3,
           "importance_rank": 3
         },
         {
           "feature": "mechanical_load",
-          "importance": 0.1687,
-          "share_of_total_pct": 10.7,
+          "importance": 0.1645,
+          "share_of_total_pct": 10.4,
           "importance_rank": 4
         },
         {
           "feature": "Torque [Nm]",
-          "importance": 0.1547,
-          "share_of_total_pct": 9.8,
+          "importance": 0.1431,
+          "share_of_total_pct": 9.0,
           "importance_rank": 5
         }
       ]

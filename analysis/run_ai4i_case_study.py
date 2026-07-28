@@ -7,9 +7,10 @@ import zipfile
 from pathlib import Path
 from urllib.request import urlretrieve
 
+import joblib
 import numpy as np
 import pandas as pd
-from sklearn.calibration import CalibratedClassifierCV, calibration_curve
+from sklearn.calibration import calibration_curve
 from sklearn.compose import ColumnTransformer
 from sklearn.dummy import DummyClassifier
 from sklearn.ensemble import HistGradientBoostingClassifier, RandomForestClassifier
@@ -20,7 +21,6 @@ from sklearn.metrics import (
     accuracy_score,
     average_precision_score,
     confusion_matrix,
-    f1_score,
     precision_recall_fscore_support,
     roc_auc_score,
 )
@@ -31,6 +31,8 @@ from sklearn.preprocessing import OneHotEncoder, StandardScaler
 ROOT = Path(__file__).resolve().parents[1]
 CACHE_DIR = ROOT / "analysis" / ".cache"
 OUTPUT_DIR = ROOT / "docs" / "data" / "ai4i-case-study"
+MODEL_DIR = ROOT / "analysis" / "artifacts"
+MODEL_PATH = MODEL_DIR / "model.pkl"
 DATASET_URL = "https://cdn.uci-ics-mlr-prod.aws.uci.edu/601/ai4i%2B2020%2Bpredictive%2Bmaintenance%2Bdataset.zip"
 DATASET_DOI = "10.24432/C5HS5C"
 DATASET_NAME = "AI4I 2020 Predictive Maintenance Dataset"
@@ -94,9 +96,9 @@ def add_derived_features(df: pd.DataFrame) -> pd.DataFrame:
     # Proxy for mechanical power delivered to the spindle
     df["mechanical_load"] = df["Torque [Nm]"] * df["Rotational speed [rpm]"]
     # Relative temperature difference between process and ambient
-    df["thermal_stress"] = (
-        df["Process temperature [K]"] - df["Air temperature [K]"]
-    ) / df["Air temperature [K]"]
+    df["thermal_stress"] = (df["Process temperature [K]"] - df["Air temperature [K]"]) / df[
+        "Air temperature [K]"
+    ]
     # Tool wear accumulated per unit of applied torque (degradation rate proxy)
     df["tool_wear_load_ratio"] = df["Tool wear [min]"] / (df["Torque [Nm]"].clip(lower=1e-6))
     return df
@@ -225,10 +227,14 @@ def build_review_queue(probabilities: pd.Series, targets: pd.Series) -> list[dic
                 "review_fraction": fraction,
                 "reviewed_assets": reviewed,
                 "captured_failures": captured_failures,
-                "failure_capture_rate": to_float(captured_failures / total_failures) if total_failures else 0.0,
+                "failure_capture_rate": (
+                    to_float(captured_failures / total_failures) if total_failures else 0.0
+                ),
                 "review_yield": to_float(review_yield),
                 "random_review_yield": to_float(baseline_failure_rate),
-                "yield_lift_vs_random": to_float(review_yield / baseline_failure_rate) if baseline_failure_rate else 0.0,
+                "yield_lift_vs_random": (
+                    to_float(review_yield / baseline_failure_rate) if baseline_failure_rate else 0.0
+                ),
             }
         )
     return budgets
@@ -264,16 +270,20 @@ def compute_local_feature_attribution(
             ablated = row.copy()
             ablated[feat] = reference_medians[feat]
             ablated_prob = float(pipeline.predict_proba(ablated.to_frame().T)[0, 1])
-            attributions.append({
-                "feature": feat,
-                "contribution": to_float(base_prob - ablated_prob),
-            })
+            attributions.append(
+                {
+                    "feature": feat,
+                    "contribution": to_float(base_prob - ablated_prob),
+                }
+            )
         attributions.sort(key=lambda a: abs(a["contribution"]), reverse=True)
-        results.append({
-            "sample_index": int(idx),
-            "predicted_probability": to_float(base_prob),
-            "top_features": attributions[:5],
-        })
+        results.append(
+            {
+                "sample_index": int(idx),
+                "predicted_probability": to_float(base_prob),
+                "top_features": attributions[:5],
+            }
+        )
     return results
 
 
@@ -295,14 +305,19 @@ def build_multiclass_failure_models(
         n_neg = int((y_tr == 0).sum())
         scale_pos = n_neg / max(n_pos, 1)
 
-        model = Pipeline([
-            ("pre", build_preprocessor_enhanced()),
-            ("model", HistGradientBoostingClassifier(
-                random_state=RANDOM_SEED,
-                max_depth=4,
-                min_samples_leaf=5,
-            )),
-        ])
+        model = Pipeline(
+            [
+                ("pre", build_preprocessor_enhanced()),
+                (
+                    "model",
+                    HistGradientBoostingClassifier(
+                        random_state=RANDOM_SEED,
+                        max_depth=4,
+                        min_samples_leaf=5,
+                    ),
+                ),
+            ]
+        )
         sample_weight = np.where(y_tr == 1, scale_pos, 1.0)
         model.fit(x_train, y_tr, model__sample_weight=sample_weight)
 
@@ -321,18 +336,20 @@ def build_multiclass_failure_models(
         roc = to_float(roc_auc_score(y_te, proba)) if total > 0 and total < len(y_te) else None
         pr = to_float(average_precision_score(y_te, proba)) if total > 0 else None
 
-        results.append({
-            "failure_code": col,
-            "label": FAILURE_LABELS[col],
-            "train_failures": n_pos,
-            "holdout_failures": total,
-            "roc_auc": roc,
-            "pr_auc": pr,
-            "precision": to_float(precision),
-            "recall": to_float(recall),
-            "f1": to_float(f1),
-            "capture_rate_at_10pct_budget": to_float(captured / total) if total else 0.0,
-        })
+        results.append(
+            {
+                "failure_code": col,
+                "label": FAILURE_LABELS[col],
+                "train_failures": n_pos,
+                "holdout_failures": total,
+                "roc_auc": roc,
+                "pr_auc": pr,
+                "precision": to_float(precision),
+                "recall": to_float(recall),
+                "f1": to_float(f1),
+                "capture_rate_at_10pct_budget": to_float(captured / total) if total else 0.0,
+            }
+        )
     return results
 
 
@@ -389,19 +406,21 @@ def build_per_mode_cost_model(
         )
         savings = reactive_cost - risk_queue_cost
 
-        cost_rows.append({
-            "failure_code": col,
-            "label": mode["label"],
-            "unplanned_failure_cost": costs["unplanned_cost"],
-            "preventive_maintenance_cost": costs["preventive_cost"],
-            "holdout_failures": holdout,
-            "captured_failures": captured,
-            "missed_failures": missed,
-            "reactive_baseline_cost": reactive_cost,
-            "risk_queue_cost": risk_queue_cost,
-            "savings_vs_reactive": savings,
-            "savings_share": to_float(savings / reactive_cost) if reactive_cost else 0.0,
-        })
+        cost_rows.append(
+            {
+                "failure_code": col,
+                "label": mode["label"],
+                "unplanned_failure_cost": costs["unplanned_cost"],
+                "preventive_maintenance_cost": costs["preventive_cost"],
+                "holdout_failures": holdout,
+                "captured_failures": captured,
+                "missed_failures": missed,
+                "reactive_baseline_cost": reactive_cost,
+                "risk_queue_cost": risk_queue_cost,
+                "savings_vs_reactive": savings,
+                "savings_share": to_float(savings / reactive_cost) if reactive_cost else 0.0,
+            }
+        )
 
     return sorted(cost_rows, key=lambda r: r["savings_vs_reactive"], reverse=True)
 
@@ -461,7 +480,9 @@ def main() -> None:
 
     review_budgets = build_review_queue(probabilities, y_test)
     primary_queue = next(bucket for bucket in review_budgets if bucket["review_fraction"] == 0.10)
-    queue_index = probabilities.sort_values(ascending=False).head(primary_queue["reviewed_assets"]).index
+    queue_index = (
+        probabilities.sort_values(ascending=False).head(primary_queue["reviewed_assets"]).index
+    )
     queue_rows = df_test.loc[queue_index]
 
     # ── Permutation feature importance (enhanced feature set) ────────────────
@@ -480,14 +501,10 @@ def main() -> None:
         key=lambda item: item[1],
         reverse=True,
     ):
-        feature_importance.append(
-            {"feature": feature_name, "importance": to_float(importance)}
-        )
+        feature_importance.append({"feature": feature_name, "importance": to_float(importance)})
 
     # ── Local feature attribution for top high-risk predictions ─────────────
-    top_risk_samples = xenh_test.loc[
-        probabilities.sort_values(ascending=False).head(10).index
-    ]
+    top_risk_samples = xenh_test.loc[probabilities.sort_values(ascending=False).head(10).index]
     local_attributions = compute_local_feature_attribution(
         final_pipeline,
         top_risk_samples,
@@ -497,9 +514,7 @@ def main() -> None:
 
     # ── Per-failure-mode binary models (multiclass breakdown) ────────────────
     print("Training per-failure-mode models...")
-    multiclass_results = build_multiclass_failure_models(
-        xenh_train, df_train, xenh_test, df_test
-    )
+    multiclass_results = build_multiclass_failure_models(xenh_train, df_train, xenh_test, df_test)
 
     # ── Probability calibration ──────────────────────────────────────────────
     calibration_data = build_calibration_data(probabilities.values, y_test)
@@ -518,7 +533,9 @@ def main() -> None:
                 "label": FAILURE_LABELS[column],
                 "holdout_failures": holdout_failures,
                 "captured_in_top_10_percent_queue": captured_failures,
-                "capture_rate": to_float(captured_failures / holdout_failures) if holdout_failures else 0.0,
+                "capture_rate": (
+                    to_float(captured_failures / holdout_failures) if holdout_failures else 0.0
+                ),
             }
         )
 
@@ -641,9 +658,7 @@ def main() -> None:
                 "risk_score": to_float(probabilities.loc[index]),
                 "machine_failure": int(row["Machine failure"]),
                 "failure_modes": [
-                    FAILURE_LABELS[column]
-                    for column in FAILURE_COLUMNS
-                    if int(row[column]) == 1
+                    FAILURE_LABELS[column] for column in FAILURE_COLUMNS if int(row[column]) == 1
                 ],
             }
             for index, row in queue_rows.head(12).iterrows()
@@ -660,7 +675,9 @@ def main() -> None:
         "random_review_cost": random_review_cost,
         "risk_queue_cost": risk_queue_cost,
         "savings_vs_reactive": reactive_cost - risk_queue_cost,
-        "savings_vs_reactive_share": to_float((reactive_cost - risk_queue_cost) / reactive_cost) if reactive_cost else 0.0,
+        "savings_vs_reactive_share": (
+            to_float((reactive_cost - risk_queue_cost) / reactive_cost) if reactive_cost else 0.0
+        ),
     }
 
     dataset_profile = {
@@ -713,11 +730,20 @@ def main() -> None:
     write_json(OUTPUT_DIR / "calibration.json", calibration_data)
     write_json(OUTPUT_DIR / "cost-model.json", per_mode_cost_model)
 
+    # ── Persist the final trained pipeline for reuse outside this script ─────
+    # (e.g. by the live dashboard in main.py, so it scores against the same
+    # model that was benchmarked here instead of a separate ad-hoc model).
+    MODEL_DIR.mkdir(parents=True, exist_ok=True)
+    joblib.dump(final_pipeline, MODEL_PATH)
+
     print(f"Wrote case-study artifacts to {OUTPUT_DIR}")
-    print(f"  Binary model  — ROC-AUC: {summary['final_model']['roc_auc']}  PR-AUC: {summary['final_model']['pr_auc']}")
+    print(
+        f"  Binary model  — ROC-AUC: {summary['final_model']['roc_auc']}  PR-AUC: {summary['final_model']['pr_auc']}"
+    )
     print(f"  Calibration   — ECE: {calibration_data['expected_calibration_error']}")
     print(f"  Per-mode models trained: {len(multiclass_results)}")
-    print(f"  New artifacts: failure-mode-multiclass.json, calibration.json, cost-model.json")
+    print("  New artifacts: failure-mode-multiclass.json, calibration.json, cost-model.json")
+    print(f"  Model artifact: {MODEL_PATH.relative_to(ROOT)}")
 
 
 if __name__ == "__main__":

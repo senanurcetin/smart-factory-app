@@ -1,7 +1,8 @@
-Flask
-scikit-learn
-pandas
-numpy
-scipy
-matplotlib
-duckdb
+Flask==3.1.3
+scikit-learn==1.9.0
+pandas==3.0.3
+numpy==2.4.6
+scipy==1.17.1
+matplotlib==3.11.0
+duckdb==1.5.4
+joblib==1.5.3

@@ -10,9 +10,10 @@ import json
 from pathlib import Path
 
 import matplotlib
+
 matplotlib.use("Agg")
-import matplotlib.pyplot as plt
 import matplotlib.patches as mpatches
+import matplotlib.pyplot as plt
 import numpy as np
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -67,15 +68,25 @@ def model_comparison():
         h = bar.get_height()
         if h > 0.01:
             ax.text(
-                bar.get_x() + bar.get_width() / 2, h + 0.012,
-                f"{h:.3f}", ha="center", va="bottom", fontsize=7.5, color="#1E293B",
+                bar.get_x() + bar.get_width() / 2,
+                h + 0.012,
+                f"{h:.3f}",
+                ha="center",
+                va="bottom",
+                fontsize=7.5,
+                color="#1E293B",
             )
 
     ax.set_xticks(x)
     ax.set_xticklabels(models, fontsize=9)
     ax.set_ylim(0, 1.12)
     ax.set_ylabel("Score", fontsize=10)
-    ax.set_title("Model Benchmark Comparison — AI4I 2020 Dataset\n(* = selected model)", fontsize=12, fontweight="bold", pad=12)
+    ax.set_title(
+        "Model Benchmark Comparison — AI4I 2020 Dataset\n(* = selected model)",
+        fontsize=12,
+        fontweight="bold",
+        pad=12,
+    )
     ax.legend(fontsize=9, framealpha=0.7)
     ax.yaxis.grid(True, color=PALETTE["grid"], linewidth=0.8)
     ax.set_axisbelow(True)
@@ -100,11 +111,20 @@ def feature_importance():
     for bar, val in zip(bars, values[::-1]):
         offset = 0.008 if val >= 0 else -0.008
         ha = "left" if val >= 0 else "right"
-        ax.text(val + offset, bar.get_y() + bar.get_height() / 2, f"{val:.4f}", va="center", ha=ha, fontsize=8)
+        ax.text(
+            val + offset,
+            bar.get_y() + bar.get_height() / 2,
+            f"{val:.4f}",
+            va="center",
+            ha=ha,
+            fontsize=8,
+        )
 
     ax.axvline(0, color="#64748B", linewidth=0.8)
     ax.set_xlabel("Permutation Importance (avg precision scoring, 8 repeats)", fontsize=9)
-    ax.set_title("Feature Importance — HistGradientBoosting on AI4I", fontsize=12, fontweight="bold", pad=12)
+    ax.set_title(
+        "Feature Importance — HistGradientBoosting on AI4I", fontsize=12, fontweight="bold", pad=12
+    )
     ax.xaxis.grid(True, color=PALETTE["grid"], linewidth=0.8)
     ax.set_axisbelow(True)
     ax.spines["top"].set_visible(False)
@@ -128,22 +148,43 @@ def review_queue_curve():
     fig, ax = plt.subplots(figsize=(8, 5), facecolor=PALETTE["bg"])
     ax.set_facecolor(PALETTE["bg"])
 
-    ax.plot(fracs, capture, "o-", color=PALETTE["primary"], linewidth=2.2, markersize=7, label="Model (ranked queue)")
-    ax.plot([0] + random_line, [0] + random_line, "--", color=PALETTE["neutral"], linewidth=1.5, label="Random review baseline")
+    ax.plot(
+        fracs,
+        capture,
+        "o-",
+        color=PALETTE["primary"],
+        linewidth=2.2,
+        markersize=7,
+        label="Model (ranked queue)",
+    )
+    ax.plot(
+        [0] + random_line,
+        [0] + random_line,
+        "--",
+        color=PALETTE["neutral"],
+        linewidth=1.5,
+        label="Random review baseline",
+    )
 
     for b in budgets:
         ax.annotate(
             f"{b['failure_capture_rate']:.1%}  (x{b['yield_lift_vs_random']:.1f} lift)",
             xy=(b["review_fraction"], b["failure_capture_rate"]),
             xytext=(b["review_fraction"] + 0.006, b["failure_capture_rate"] - 0.045),
-            fontsize=8, color="#1E293B",
+            fontsize=8,
+            color="#1E293B",
         )
 
     ax.set_xlim(-0.01, 0.22)
     ax.set_ylim(-0.02, 1.08)
     ax.set_xlabel("Fraction of assets reviewed", fontsize=10)
     ax.set_ylabel("Failure capture rate", fontsize=10)
-    ax.set_title("Maintenance Review Queue — Failure Capture vs Budget", fontsize=12, fontweight="bold", pad=12)
+    ax.set_title(
+        "Maintenance Review Queue — Failure Capture vs Budget",
+        fontsize=12,
+        fontweight="bold",
+        pad=12,
+    )
     ax.legend(fontsize=9, framealpha=0.7)
     ax.yaxis.grid(True, color=PALETTE["grid"], linewidth=0.8)
     ax.xaxis.grid(True, color=PALETTE["grid"], linewidth=0.8)
@@ -173,13 +214,32 @@ def cost_model_bars():
     fig, ax = plt.subplots(figsize=(9, 5), facecolor=PALETTE["bg"])
     ax.set_facecolor(PALETTE["bg"])
 
-    ax.bar(x - width / 2, unplanned, width, label="Unplanned cost ($)", color=PALETTE["warn"], alpha=0.85)
-    ax.bar(x + width / 2, preventive, width, label="Preventive cost ($)", color=PALETTE["accent"], alpha=0.85)
+    ax.bar(
+        x - width / 2,
+        unplanned,
+        width,
+        label="Unplanned cost ($)",
+        color=PALETTE["warn"],
+        alpha=0.85,
+    )
+    ax.bar(
+        x + width / 2,
+        preventive,
+        width,
+        label="Preventive cost ($)",
+        color=PALETTE["accent"],
+        alpha=0.85,
+    )
 
     ax.set_xticks(x)
     ax.set_xticklabels(modes, fontsize=9, rotation=15, ha="right")
     ax.set_ylabel("Illustrative cost ($)", fontsize=10)
-    ax.set_title("Cost Model by Failure Mode — Illustrative Maintenance Economics", fontsize=11, fontweight="bold", pad=12)
+    ax.set_title(
+        "Cost Model by Failure Mode — Illustrative Maintenance Economics",
+        fontsize=11,
+        fontweight="bold",
+        pad=12,
+    )
     ax.legend(fontsize=9, framealpha=0.7)
     ax.yaxis.grid(True, color=PALETTE["grid"], linewidth=0.8)
     ax.set_axisbelow(True)
