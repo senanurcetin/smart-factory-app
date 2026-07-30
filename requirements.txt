@@ -7,3 +7,4 @@ matplotlib==3.11.0
 duckdb==1.5.4
 joblib==1.5.3
 shap==0.51.0
+gunicorn==26.0.0

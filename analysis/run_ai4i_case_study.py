@@ -1,9 +1,13 @@
 from __future__ import annotations
 
+import hashlib
 import json
+import logging
 import math
+import sys
 import time
 import zipfile
+from datetime import datetime, timezone
 from pathlib import Path
 from urllib.request import urlretrieve
 
@@ -11,6 +15,7 @@ import joblib
 import numpy as np
 import pandas as pd
 import shap
+import sklearn
 from sklearn.calibration import calibration_curve
 from sklearn.compose import ColumnTransformer
 from sklearn.dummy import DummyClassifier
@@ -28,6 +33,8 @@ from sklearn.metrics import (
 from sklearn.model_selection import RandomizedSearchCV, StratifiedKFold, train_test_split
 from sklearn.pipeline import Pipeline
 from sklearn.preprocessing import OneHotEncoder, StandardScaler
+
+logger = logging.getLogger(__name__)
 
 ROOT = Path(__file__).resolve().parents[1]
 CACHE_DIR = ROOT / "analysis" / ".cache"
@@ -78,10 +85,10 @@ REVIEW_COST_PER_ASSET = 35
 def ensure_dataset() -> None:
     CACHE_DIR.mkdir(parents=True, exist_ok=True)
     if not ZIP_PATH.exists():
-        print(f"Downloading {DATASET_NAME}...")
+        logger.info(f"Downloading {DATASET_NAME}...")
         urlretrieve(DATASET_URL, ZIP_PATH)
     if not CSV_PATH.exists():
-        print("Extracting dataset archive...")
+        logger.info("Extracting dataset archive...")
         with zipfile.ZipFile(ZIP_PATH, "r") as archive:
             archive.extractall(EXTRACT_DIR)
 
@@ -543,6 +550,26 @@ def tune_final_model(
     return best_params, summary
 
 
+def build_model_card(df: pd.DataFrame) -> dict:
+    """Minimal model card: enough to know when/how/on-what-data this model was
+    trained without standing up a full model registry for a portfolio project.
+    """
+    dataset_hash = hashlib.sha256(pd.util.hash_pandas_object(df, index=True).values).hexdigest()
+    return {
+        "trained_at_utc": datetime.now(timezone.utc).isoformat(timespec="seconds"),
+        "python_version": sys.version.split()[0],
+        "scikit_learn_version": sklearn.__version__,
+        "shap_version": shap.__version__,
+        "dataset": {
+            "name": DATASET_NAME,
+            "doi": DATASET_DOI,
+            "rows": int(len(df)),
+            "sha256": dataset_hash,
+        },
+        "random_seed": RANDOM_SEED,
+    }
+
+
 def main() -> None:
     df = load_dataset()
     df = add_derived_features(df)
@@ -577,7 +604,7 @@ def main() -> None:
     ]
 
     # ── Hyperparameter search for the final (enhanced-feature) architecture ──
-    print("Tuning final model hyperparameters...")
+    logger.info("Tuning final model hyperparameters...")
     tuned_params, tuning_summary = tune_final_model(xenh_train, y_train)
 
     # ── Final binary model with enhanced features ────────────────────────────
@@ -591,7 +618,7 @@ def main() -> None:
     final_pipeline.fit(xenh_train, y_train)
 
     # ── Split-robustness check using the same tuned architecture ─────────────
-    print("Running split-robustness check...")
+    logger.info("Running split-robustness check...")
     robustness_check = run_split_robustness_check(
         features_enhanced, target, seeds=[RANDOM_SEED, 7, 13, 99, 2024], model_params=tuned_params
     )
@@ -687,7 +714,7 @@ def main() -> None:
     )
 
     # ── Per-failure-mode binary models (multiclass breakdown) ────────────────
-    print("Training per-failure-mode models...")
+    logger.info("Training per-failure-mode models...")
     multiclass_results = build_multiclass_failure_models(xenh_train, df_train, xenh_test, df_test)
 
     # ── Probability calibration ──────────────────────────────────────────────
@@ -816,6 +843,7 @@ def main() -> None:
 
     model_selection = {
         "selected_model": final_model_name,
+        "model_card": build_model_card(df),
         "selection_reason": (
             "HistGradientBoosting with engineered features produced the strongest PR-AUC and F1 "
             "on the imbalanced holdout. Derived features (mechanical_load, thermal_stress, "
@@ -936,15 +964,16 @@ def main() -> None:
     MODEL_DIR.mkdir(parents=True, exist_ok=True)
     joblib.dump(final_pipeline, MODEL_PATH)
 
-    print(f"Wrote case-study artifacts to {OUTPUT_DIR}")
-    print(
+    logger.info(f"Wrote case-study artifacts to {OUTPUT_DIR}")
+    logger.info(
         f"  Binary model  — ROC-AUC: {summary['final_model']['roc_auc']}  PR-AUC: {summary['final_model']['pr_auc']}"
     )
-    print(f"  Calibration   — ECE: {calibration_data['expected_calibration_error']}")
-    print(f"  Per-mode models trained: {len(multiclass_results)}")
-    print("  New artifacts: failure-mode-multiclass.json, calibration.json, cost-model.json")
-    print(f"  Model artifact: {MODEL_PATH.relative_to(ROOT)}")
+    logger.info(f"  Calibration   — ECE: {calibration_data['expected_calibration_error']}")
+    logger.info(f"  Per-mode models trained: {len(multiclass_results)}")
+    logger.info("  New artifacts: failure-mode-multiclass.json, calibration.json, cost-model.json")
+    logger.info(f"  Model artifact: {MODEL_PATH.relative_to(ROOT)}")
 
 
 if __name__ == "__main__":
+    logging.basicConfig(level=logging.INFO, format="%(asctime)s [%(levelname)s] %(message)s")
     main()

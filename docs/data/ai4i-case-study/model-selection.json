@@ -1,5 +1,18 @@
 {
   "selected_model": "hist_gradient_boosting_enhanced",
+  "model_card": {
+    "trained_at_utc": "2026-07-30T12:43:23+00:00",
+    "python_version": "3.11.9",
+    "scikit_learn_version": "1.9.0",
+    "shap_version": "0.51.0",
+    "dataset": {
+      "name": "AI4I 2020 Predictive Maintenance Dataset",
+      "doi": "10.24432/C5HS5C",
+      "rows": 10000,
+      "sha256": "37a525b28d47dc3b5745e851b6ef2582ee5ff6d1a3112b8d2d56ca2f38b134c5"
+    },
+    "random_seed": 42
+  },
   "selection_reason": "HistGradientBoosting with engineered features produced the strongest PR-AUC and F1 on the imbalanced holdout. Derived features (mechanical_load, thermal_stress, tool_wear_load_ratio) add domain signal without external data requirements.",
   "benchmarks_considered": [
     {
@@ -10,7 +23,7 @@
       "precision": 0.0,
       "recall": 0.0,
       "f1": 0.0,
-      "training_seconds": 0.0121
+      "training_seconds": 0.0145
     },
     {
       "model": "logistic_regression",
@@ -20,7 +33,7 @@
       "precision": 0.1418,
       "recall": 0.8235,
       "f1": 0.2419,
-      "training_seconds": 0.0261
+      "training_seconds": 0.026
     },
     {
       "model": "random_forest",
@@ -30,7 +43,7 @@
       "precision": 0.82,
       "recall": 0.6029,
       "f1": 0.6949,
-      "training_seconds": 1.178
+      "training_seconds": 1.0331
     },
     {
       "model": "hist_gradient_boosting",
@@ -40,7 +53,7 @@
       "precision": 0.9245,
       "recall": 0.7206,
       "f1": 0.8099,
-      "training_seconds": 2.3108
+      "training_seconds": 2.9554
     }
   ],
   "feature_engineering_note": "Three derived features were added: mechanical_load (Torque \u00d7 RPM), thermal_stress ((Tprocess - Tair) / Tair), and tool_wear_load_ratio (wear / torque). These encode domain knowledge about failure mechanisms into the feature space.",

@@ -7,6 +7,7 @@ Outputs PNG charts to docs/assets/.
 from __future__ import annotations
 
 import json
+import logging
 from pathlib import Path
 
 import matplotlib
@@ -14,6 +15,8 @@ import matplotlib
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 import numpy as np
+
+logger = logging.getLogger(__name__)
 
 ROOT = Path(__file__).resolve().parents[1]
 DATA_DIR = ROOT / "docs" / "data" / "ai4i-case-study"
@@ -36,7 +39,7 @@ def _save(fig, name):
     out = ASSETS_DIR / name
     fig.savefig(out, dpi=150, bbox_inches="tight", facecolor=fig.get_facecolor())
     plt.close(fig)
-    print(f"  saved -> {out.relative_to(ROOT)}")
+    logger.info(f"  saved -> {out.relative_to(ROOT)}")
     return out
 
 
@@ -272,9 +275,10 @@ def eda_confusion_matrix():
 
 
 if __name__ == "__main__":
-    print("Generating EDA visualization assets...")
+    logging.basicConfig(level=logging.INFO, format="%(asctime)s [%(levelname)s] %(message)s")
+    logger.info("Generating EDA visualization assets...")
     eda_class_balance()
     eda_failure_modes()
     eda_product_type()
     eda_confusion_matrix()
-    print("Done.")
+    logger.info("Done.")

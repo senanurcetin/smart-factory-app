@@ -7,6 +7,7 @@ PNG charts to docs/assets/.  No dataset download or model training required.
 from __future__ import annotations
 
 import json
+import logging
 from pathlib import Path
 
 import matplotlib
@@ -15,6 +16,8 @@ matplotlib.use("Agg")
 import matplotlib.patches as mpatches
 import matplotlib.pyplot as plt
 import numpy as np
+
+logger = logging.getLogger(__name__)
 
 ROOT = Path(__file__).resolve().parents[1]
 DATA_DIR = ROOT / "docs" / "data" / "ai4i-case-study"
@@ -36,7 +39,7 @@ def _save(fig, name):
     out = ASSETS_DIR / name
     fig.savefig(out, dpi=150, bbox_inches="tight", facecolor=fig.get_facecolor())
     plt.close(fig)
-    print(f"  saved -> {out.relative_to(ROOT)}")
+    logger.info(f"  saved -> {out.relative_to(ROOT)}")
     return out
 
 
@@ -199,14 +202,14 @@ def review_queue_curve():
 
 def cost_model_bars():
     data = json.loads((DATA_DIR / "cost-model.json").read_text())
-    breakdown = data.get("failure_mode_cost_breakdown", [])
+    breakdown = data.get("modes", [])
     if not breakdown:
-        print("  skipped cost-model (no failure_mode_cost_breakdown key)")
+        logger.info("  skipped cost-model (no modes key)")
         return
 
-    modes = [b["failure_mode"] for b in breakdown]
-    unplanned = [b["unplanned_cost"] for b in breakdown]
-    preventive = [b["preventive_cost"] for b in breakdown]
+    modes = [b["label"] for b in breakdown]
+    unplanned = [b["unplanned_failure_cost"] for b in breakdown]
+    preventive = [b["preventive_maintenance_cost"] for b in breakdown]
 
     x = np.arange(len(modes))
     width = 0.38
@@ -250,9 +253,10 @@ def cost_model_bars():
 
 
 if __name__ == "__main__":
-    print("Generating portfolio visualization assets...")
+    logging.basicConfig(level=logging.INFO, format="%(asctime)s [%(levelname)s] %(message)s")
+    logger.info("Generating portfolio visualization assets...")
     model_comparison()
     feature_importance()
     review_queue_curve()
     cost_model_bars()
-    print("Done.")
+    logger.info("Done.")

@@ -1,0 +1,14 @@
+.git/
+.github/
+.venv/
+.claude/
+__pycache__/
+*.py[cod]
+analysis/.cache/
+tests/
+requirements-dev.txt
+pyproject.toml
+Dockerfile
+.dockerignore
+.gitignore
+README.md

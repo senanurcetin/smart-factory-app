@@ -8,9 +8,12 @@ Results are saved to docs/data/ai4i-case-study/sql-analysis.json.
 from __future__ import annotations
 
 import json
+import logging
 from pathlib import Path
 
 import duckdb
+
+logger = logging.getLogger(__name__)
 
 ROOT = Path(__file__).resolve().parents[1]
 DATA_DIR = ROOT / "docs" / "data" / "ai4i-case-study"
@@ -150,23 +153,23 @@ def run():
     }
 
     OUT_FILE.write_text(json.dumps(result, indent=2))
-    print(f"  saved -> {OUT_FILE.relative_to(ROOT)}")
+    logger.info(f"  saved -> {OUT_FILE.relative_to(ROOT)}")
 
     # Print summary to stdout for CI visibility
-    print("\n--- Q1: Failure mode ranking ---")
+    logger.info("\n--- Q1: Failure mode ranking ---")
     for r in result["queries"][0]["results"]:
-        print(
+        logger.info(
             f"  {r['failure_code']:4s}  {r['holdout_failures']:3d} holdout failures  "
             f"capture rate: {r['capture_rate_pct']}%"
         )
 
-    print("\n--- Q2: Model ranking by PR-AUC ---")
+    logger.info("\n--- Q2: Model ranking by PR-AUC ---")
     for r in result["queries"][1]["results"]:
-        print(f"  Rank {r['pr_auc_rank']}: {r['model']:35s}  PR-AUC={r['pr_auc']}")
+        logger.info(f"  Rank {r['pr_auc_rank']}: {r['model']:35s}  PR-AUC={r['pr_auc']}")
 
-    print("\n--- Q3: Review queue ROI ---")
+    logger.info("\n--- Q3: Review queue ROI ---")
     for r in result["queries"][2]["results"]:
-        print(
+        logger.info(
             f"  {r['review_budget_pct']:.0f}% budget  "
             f"capture={r['failure_capture_rate_pct']}%  "
             f"lift={r['yield_lift_vs_random']}x  "
@@ -175,6 +178,7 @@ def run():
 
 
 if __name__ == "__main__":
-    print("Running SQL analysis with DuckDB...")
+    logging.basicConfig(level=logging.INFO, format="%(asctime)s [%(levelname)s] %(message)s")
+    logger.info("Running SQL analysis with DuckDB...")
     run()
-    print("Done.")
+    logger.info("Done.")

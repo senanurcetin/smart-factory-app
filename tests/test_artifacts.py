@@ -74,6 +74,30 @@ class HyperparameterTuningTests(unittest.TestCase):
         self.assertGreater(len(tuning["best_params"]), 0)
 
 
+class ModelCardTests(unittest.TestCase):
+    """Minimal model-card metadata must be recorded for every trained model."""
+
+    @classmethod
+    def setUpClass(cls):
+        cls.model_card = _load("model-selection.json")["model_card"]
+
+    def test_required_fields_present(self):
+        required = {
+            "trained_at_utc",
+            "python_version",
+            "scikit_learn_version",
+            "shap_version",
+            "dataset",
+            "random_seed",
+        }
+        missing = required - set(self.model_card.keys())
+        self.assertEqual(missing, set(), f"Missing fields: {missing}")
+
+    def test_dataset_hash_recorded(self):
+        self.assertIn("sha256", self.model_card["dataset"])
+        self.assertEqual(len(self.model_card["dataset"]["sha256"]), 64)
+
+
 class MetricsRangeTests(unittest.TestCase):
     """Final model metrics must meet portfolio-grade thresholds."""
 
@@ -214,6 +238,7 @@ class VisualAssetTests(unittest.TestCase):
         "model-comparison.png",
         "feature-importance.png",
         "review-queue-curve.png",
+        "cost-model.png",
         # EDA charts
         "eda-class-balance.png",
         "eda-failure-modes.png",

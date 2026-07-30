@@ -187,13 +187,18 @@ From [`docs/data/ai4i-case-study/cost-simulation.json`](docs/data/ai4i-case-stud
 
 Assumptions are illustrative — demonstrates how model output translates into maintenance economics.
 
+![Cost model by failure mode](docs/assets/cost-model.png)
+
+Per-failure-mode cost breakdown (differentiated unplanned vs. preventive cost per mode): [`docs/data/ai4i-case-study/cost-model.json`](docs/data/ai4i-case-study/cost-model.json).
+
 ---
 
 ## Stack
 
 | Layer | Technology |
 |-------|-----------|
-| Application | Python 3.11, Flask |
+| Application | Python 3.11, Flask, gunicorn |
+| Deployment | Docker (multi-stage build) |
 | Analytics | Pandas, NumPy, SciPy, scikit-learn |
 | Explainability | SHAP (TreeExplainer) |
 | SQL analysis | DuckDB (in-memory, reads JSON natively) |
@@ -209,21 +214,21 @@ Assumptions are illustrative — demonstrates how model output translates into m
 smart-factory-app/
 ├── analysis/
 │   ├── run_ai4i_case_study.py   # Full ML pipeline (downloads UCI dataset on first run)
-│   ├── generate_visuals.py      # Model comparison, feature importance, review queue curve
+│   ├── generate_visuals.py      # Model comparison, feature importance, review queue, cost model
 │   ├── generate_eda.py          # EDA charts: class balance, failure modes, confusion matrix
 │   ├── sql_queries.py           # DuckDB SQL analysis on JSON artifacts
 │   └── artifacts/model.pkl      # Persisted final pipeline — also scored live by main.py
 ├── docs/
-│   ├── assets/                  # All PNG charts (9 files)
+│   ├── assets/                  # All chart/media assets (10 files)
 │   ├── data/ai4i-case-study/    # JSON artifacts + sql-analysis.json
-│   ├── case-study.md
-│   └── hiring-summary.md
+│   └── case-study.md
 ├── tests/
 │   ├── test_case_study.py       # Route and integration tests
 │   ├── test_dashboard_model.py  # Live dashboard scores against the real trained pipeline
-│   └── test_artifacts.py        # Data quality, metrics range, asset presence (33 tests)
+│   └── test_artifacts.py        # Data quality, metrics range, asset presence (35 tests)
 ├── main.py
 ├── case_study.py
+├── Dockerfile                   # Multi-stage build, served via gunicorn
 ├── requirements.txt
 └── requirements-dev.txt         # + ruff, black
 ```
@@ -261,12 +266,23 @@ App: `http://127.0.0.1:8080` | Case-study route: `http://127.0.0.1:8080/case-stu
 
 ---
 
+## Docker
+
+```bash
+docker build -t smart-factory-app .
+docker run -p 8080:8080 smart-factory-app
+```
+
+Multi-stage build, served by `gunicorn` (2 workers) instead of the Flask development server. The committed `analysis/artifacts/model.pkl` is baked into the image, so no dataset download or retraining is needed to run the container. Built and smoke-tested on every push via the `docker` job in CI ([`.github/workflows/ci.yml`](.github/workflows/ci.yml)).
+
+---
+
 ## Tests
 
 ```bash
-# All 40 tests: routes, artifact contracts, metrics thresholds, chart file
-# presence, hyperparameter-tuning/validation-robustness contracts, and live
-# dashboard <-> real model integration
+# All 42 tests: routes, artifact contracts, metrics thresholds, chart file
+# presence, hyperparameter-tuning/validation-robustness/model-card contracts,
+# and live dashboard <-> real model integration
 python -m unittest discover -s tests -v
 
 # Lint and format check
@@ -288,10 +304,37 @@ python -m py_compile main.py case_study.py \
 | Document | Contents |
 |----------|----------|
 | [`docs/case-study.md`](docs/case-study.md) | Full methodology, results, limitations |
-| [`docs/hiring-summary.md`](docs/hiring-summary.md) | Recruiter-facing one-page summary |
 | [`docs/data/ai4i-case-study/summary.json`](docs/data/ai4i-case-study/summary.json) | Final model metrics and confusion matrix |
 | [`docs/data/ai4i-case-study/sql-analysis.json`](docs/data/ai4i-case-study/sql-analysis.json) | DuckDB query results |
 | Local route | `http://127.0.0.1:8080/case-study` |
+
+---
+
+## Skills Demonstrated
+
+- **Exploratory data analysis**: class imbalance identification, failure mode profiling, product type distribution
+- **Feature engineering**: derived cross-sensor features (`mechanical_load`, `thermal_stress`, `tool_wear_load_ratio`), with impact isolated from hyperparameter tuning via a controlled comparison
+- **Hyperparameter tuning**: `RandomizedSearchCV` with PR-AUC as the search objective, results logged transparently
+- **Explainability**: SHAP TreeExplainer for interaction-aware local attribution, not a single-feature heuristic
+- **Validation rigor**: repeated stratified holdouts to confirm metric stability where time-aware/group splitting isn't applicable
+- **Model selection**: four-model benchmark with PR-AUC as primary metric for imbalanced data
+- **SQL**: DuckDB analytical queries on JSON artifacts — failure mode ranking, model comparison, queue ROI
+- **Business framing**: ranked review queue, cost model, operational maintenance economics
+- **Engineering practice**: pinned dependencies, lint/format CI gate, structured logging, a minimal model card, model persisted via joblib and served (not retrained ad hoc) by the live app
+- **Deployment**: multi-stage Dockerfile served by `gunicorn`; both the training pipeline and the image build are exercised in CI on every push
+- **Python stack**: pandas, NumPy, scikit-learn, SHAP, matplotlib, DuckDB, Flask, gunicorn
+
+---
+
+## Interview Talking Points
+
+1. Class imbalance is identified in EDA and drives every downstream decision — PR-AUC and recall over accuracy throughout.
+2. Feature engineering's value is isolated from hyperparameter tuning with a controlled comparison (same tuned params, raw vs. enhanced features) — a common conflation this project deliberately avoids.
+3. Headline metrics are backed by a 5-seed robustness check, not reported from a single split; the writeup shows the metric that varies more (PR-AUC) and by how much.
+4. SQL analysis is built directly into the pipeline: DuckDB queries on JSON artifacts show failure mode ranking, model comparison, and queue ROI in a reproducible, testable format.
+5. The project frames predictive maintenance as a **prioritization problem**, not a chart demo — connecting model output to a ranked queue and maintenance cost model.
+6. The live dashboard scores the same persisted model used in the offline benchmark (via joblib), not a disconnected demo model trained on random labels — a deliberate fix for a common portfolio-project credibility gap.
+7. Limitations are documented honestly: random failures (RNF) have 25% capture rate; the UCI dataset is simulated; the cost model is illustrative; SHAP and dashboard RUL are both explicitly labeled as approximations, not exact/calibrated outputs.
 
 ---
 
@@ -305,6 +348,7 @@ python -m py_compile main.py case_study.py \
 - SQL proficiency: DuckDB analytical queries on structured JSON artifacts
 - Model output translated into a ranked maintenance queue with quantified business ROI
 - The live dashboard scores simulated telemetry with the same trained pipeline benchmarked in the offline case study — no separate, disconnected demo model
+- Engineering hygiene: pinned dependencies, structured logging (not `print`), a minimal model card (training timestamp, library versions, dataset hash), a Dockerized deployment path, and CI that retrains the full pipeline and builds the image on every push — not just replaying static committed artifacts
 - End-to-end analytical thinking: EDA to feature engineering to model selection to business framing
 
 ---

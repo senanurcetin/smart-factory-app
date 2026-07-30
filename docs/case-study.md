@@ -154,6 +154,18 @@ From `docs/data/ai4i-case-study/cost-simulation.json`:
 
 Assumptions: $3,500 unplanned failure cost, $500 scheduled maintenance cost, $35 review cost per asset. All figures are illustrative.
 
+A separate per-failure-mode breakdown (differentiated unplanned/preventive cost per mode) is charted at `docs/assets/cost-model.png`, data in `docs/data/ai4i-case-study/cost-model.json`.
+
+---
+
+## Engineering & Deployment
+
+- **Reproducibility**: all dependencies pinned; `ruff`/`black` enforced in CI
+- **Model card**: every training run records a timestamp, Python/scikit-learn/SHAP versions, and a SHA-256 hash of the training data to `model-selection.json` → `model_card`
+- **Structured logging**: pipeline scripts use Python's `logging` module (timestamps, levels) instead of bare `print`
+- **CI runs the real pipeline**: `run_ai4i_case_study.py` (including the UCI dataset download, hyperparameter search, and robustness check) executes on every push — CI no longer just replays statically committed artifacts
+- **Deployment**: a multi-stage Dockerfile serves the app with `gunicorn`; the image build is exercised in CI on every push
+
 ---
 
 ## Limitations

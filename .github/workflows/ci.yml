@@ -38,6 +38,9 @@ jobs:
           python -m py_compile analysis/generate_eda.py
           python -m py_compile analysis/sql_queries.py
 
+      - name: Run full ML pipeline (downloads UCI dataset, retrains, re-persists model.pkl)
+        run: python analysis/run_ai4i_case_study.py
+
       - name: Generate EDA assets
         run: python analysis/generate_eda.py
 
@@ -58,3 +61,13 @@ jobs:
 
       - name: Import app
         run: python -c "import main; print(main.app.name)"
+
+  docker:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+
+      - name: Build Docker image
+        run: docker build -t smart-factory-app:ci .
