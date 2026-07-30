@@ -176,4 +176,5 @@ A separate per-failure-mode breakdown (differentiated unplanned/preventive cost 
 - SHAP attributions use an interventional TreeExplainer with a 200-row background sample — a close but not exact approximation of full-dataset Shapley values
 - AI4I 2020 has no time axis or asset-grouping structure to split on, so split stability is checked via repeated holdouts rather than time-aware or group-based cross-validation
 - The live dashboard simulates plausible AI4I-schema telemetry and scores it with the real trained pipeline (not a separate toy model); it is not connected to a deployed production sensor stream
+- The `docker` CI job builds the image but does not yet run a container smoke test (start + curl `/api/data`) — a successful build doesn't guarantee the app serves traffic correctly at runtime
 - The dashboard's RUL figure is a simple heuristic derived from the model's risk score, not a calibrated survival/RUL regression

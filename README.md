@@ -362,6 +362,7 @@ python -m py_compile main.py case_study.py \
 - The dashboard's RUL figure is a simple heuristic derived from the model's risk score, not a calibrated survival/RUL regression
 - SHAP attributions use an interventional TreeExplainer with a 200-row background sample — a close but not exact approximation of full-dataset Shapley values
 - AI4I 2020 has no time axis or asset-grouping structure to split on, so split stability is checked via repeated holdouts (see [Validation Robustness](#validation-robustness)) rather than time-aware or group-based cross-validation
+- The `docker` CI job builds the image but does not yet run a container smoke test (e.g. start the container and hit `/api/data`) — a successful build doesn't guarantee the app serves traffic correctly at runtime
 
 ---
 
