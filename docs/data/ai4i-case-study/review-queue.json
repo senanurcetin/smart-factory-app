@@ -30,49 +30,16 @@
   ],
   "top_queue_assets": [
     {
-      "product_id": "L52886",
-      "risk_score": 0.9951,
-      "machine_failure": 1,
-      "failure_modes": [
-        "Power failure"
-      ]
-    },
-    {
-      "product_id": "M23442",
-      "risk_score": 0.9924,
-      "machine_failure": 1,
-      "failure_modes": [
-        "Power failure"
-      ]
-    },
-    {
-      "product_id": "M23167",
-      "risk_score": 0.991,
-      "machine_failure": 1,
-      "failure_modes": [
-        "Power failure"
-      ]
-    },
-    {
-      "product_id": "M19030",
-      "risk_score": 0.99,
+      "product_id": "L51841",
+      "risk_score": 0.932,
       "machine_failure": 1,
       "failure_modes": [
         "Heat dissipation failure"
       ]
     },
     {
-      "product_id": "M19202",
-      "risk_score": 0.9898,
-      "machine_failure": 1,
-      "failure_modes": [
-        "Heat dissipation failure",
-        "Power failure"
-      ]
-    },
-    {
-      "product_id": "L51450",
-      "risk_score": 0.9896,
+      "product_id": "L51935",
+      "risk_score": 0.932,
       "machine_failure": 1,
       "failure_modes": [
         "Heat dissipation failure"
@@ -80,39 +47,39 @@
     },
     {
       "product_id": "M19287",
-      "risk_score": 0.9888,
+      "risk_score": 0.932,
       "machine_failure": 1,
       "failure_modes": [
         "Heat dissipation failure"
       ]
     },
     {
-      "product_id": "M23105",
-      "risk_score": 0.9884,
-      "machine_failure": 1,
-      "failure_modes": [
-        "Power failure"
-      ]
-    },
-    {
-      "product_id": "L51675",
-      "risk_score": 0.9874,
+      "product_id": "L51450",
+      "risk_score": 0.9308,
       "machine_failure": 1,
       "failure_modes": [
         "Heat dissipation failure"
       ]
     },
     {
-      "product_id": "L51261",
-      "risk_score": 0.9859,
+      "product_id": "M19030",
+      "risk_score": 0.9294,
       "machine_failure": 1,
       "failure_modes": [
         "Heat dissipation failure"
       ]
     },
     {
-      "product_id": "M19143",
-      "risk_score": 0.9859,
+      "product_id": "L51359",
+      "risk_score": 0.9286,
+      "machine_failure": 1,
+      "failure_modes": [
+        "Heat dissipation failure"
+      ]
+    },
+    {
+      "product_id": "L51724",
+      "risk_score": 0.9259,
       "machine_failure": 1,
       "failure_modes": [
         "Heat dissipation failure"
@@ -120,7 +87,39 @@
     },
     {
       "product_id": "H33979",
-      "risk_score": 0.9858,
+      "risk_score": 0.9254,
+      "machine_failure": 1,
+      "failure_modes": [
+        "Heat dissipation failure"
+      ]
+    },
+    {
+      "product_id": "M19478",
+      "risk_score": 0.9254,
+      "machine_failure": 1,
+      "failure_modes": [
+        "Heat dissipation failure"
+      ]
+    },
+    {
+      "product_id": "M19461",
+      "risk_score": 0.9235,
+      "machine_failure": 1,
+      "failure_modes": [
+        "Heat dissipation failure"
+      ]
+    },
+    {
+      "product_id": "M19309",
+      "risk_score": 0.9196,
+      "machine_failure": 1,
+      "failure_modes": [
+        "Heat dissipation failure"
+      ]
+    },
+    {
+      "product_id": "M19492",
+      "risk_score": 0.919,
       "machine_failure": 1,
       "failure_modes": [
         "Heat dissipation failure"

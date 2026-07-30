@@ -23,12 +23,55 @@ class ArtifactPresenceTests(unittest.TestCase):
         "cost-simulation.json",
         "dataset-profile.json",
         "failure-mode-breakdown.json",
+        "model-selection.json",
+        "validation-robustness.json",
     ]
 
     def test_all_artifacts_exist(self):
         for fname in self.REQUIRED:
             with self.subTest(file=fname):
                 self.assertTrue((DATA_DIR / fname).exists(), f"Missing artifact: {fname}")
+
+
+class ValidationRobustnessTests(unittest.TestCase):
+    """The repeated-holdout robustness check must cover multiple seeds and stay
+    consistent with the metric thresholds enforced elsewhere in this file."""
+
+    @classmethod
+    def setUpClass(cls):
+        cls.robustness = _load("validation-robustness.json")
+
+    def test_multiple_seeds_present(self):
+        self.assertGreaterEqual(len(self.robustness["per_seed_results"]), 5)
+
+    def test_roc_auc_mean_above_threshold(self):
+        self.assertGreaterEqual(self.robustness["roc_auc_mean"], 0.95)
+
+    def test_pr_auc_mean_above_threshold(self):
+        self.assertGreaterEqual(self.robustness["pr_auc_mean"], 0.75)
+
+    def test_per_seed_results_have_required_fields(self):
+        required = {"split_seed", "roc_auc", "pr_auc", "f1"}
+        for entry in self.robustness["per_seed_results"]:
+            with self.subTest(seed=entry.get("split_seed")):
+                missing = required - set(entry.keys())
+                self.assertEqual(missing, set(), f"Missing fields: {missing}")
+
+
+class HyperparameterTuningTests(unittest.TestCase):
+    """The final model's hyperparameters must be searched, not hardcoded guesses."""
+
+    @classmethod
+    def setUpClass(cls):
+        cls.model_selection = _load("model-selection.json")
+
+    def test_tuning_summary_present(self):
+        self.assertIn("hyperparameter_tuning", self.model_selection)
+
+    def test_tuning_summary_has_best_params(self):
+        tuning = self.model_selection["hyperparameter_tuning"]
+        self.assertIn("best_params", tuning)
+        self.assertGreater(len(tuning["best_params"]), 0)
 
 
 class MetricsRangeTests(unittest.TestCase):

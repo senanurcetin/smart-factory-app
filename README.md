@@ -64,7 +64,7 @@ Three cross-sensor features were derived to capture interaction effects that ind
 | `thermal_stress` | (Process temp - Air temp) / Air temp | Relative thermal load under operating conditions |
 | `tool_wear_load_ratio` | Tool wear / Torque | Wear rate per unit of mechanical load |
 
-These features improve the final model: ROC-AUC 0.9748 to **0.9807**, PR-AUC 0.8518 to **0.8848**.
+Isolated impact (same tuned hyperparameters, raw vs. enhanced features, so the delta is attributable to the three derived features alone): ROC-AUC **+0.018**, PR-AUC **+0.077**, F1 **+0.082**.
 
 ---
 
@@ -81,7 +81,7 @@ Four models benchmarked on the holdout using the **raw feature set** (before der
 | Random forest | 0.965 | 0.762 | 0.695 |
 | **HistGradientBoosting** (selected) | **0.975** | **0.852** | **0.810** |
 
-HistGradientBoosting selected for highest PR-AUC and F1 on the imbalanced holdout.
+HistGradientBoosting selected for highest PR-AUC and F1 on the imbalanced holdout. This table uses raw features and default hyperparameters for a fair four-model comparison; the deployed model additionally adds the derived features above and a tuned hyperparameter search (see [Final Model Performance](#final-model-performance)).
 
 ---
 
@@ -97,22 +97,42 @@ Rotational speed and `thermal_stress` dominate. Derived features rank in the top
 
 ## Final Model Performance
 
-After adding derived features, HistGradientBoosting achieves:
+HistGradientBoosting with derived features and a tuned hyperparameter search (`max_leaf_nodes=15`, `learning_rate=0.03`, `l2_regularization=1.0`, unrestricted `max_depth`; see [Hyperparameter Tuning](#hyperparameter-tuning)) achieves:
 
 | Metric | Value |
 |--------|-------|
-| ROC-AUC | **0.9807** |
-| PR-AUC | **0.8848** |
-| Precision | **0.8852** |
-| Recall | **0.7941** |
-| F1 | **0.8372** |
-| Calibration ECE | 0.0014 (well-calibrated) |
+| ROC-AUC | **0.9874** |
+| PR-AUC | **0.9019** |
+| Precision | **0.9273** |
+| Recall | **0.75** |
+| F1 | **0.8293** |
+| Calibration ECE | 0.007 (well-calibrated) |
 
 ### Confusion matrix
 
 ![Confusion matrix](docs/assets/eda-confusion-matrix.png)
 
-Out of 68 actual failures in the holdout: **54 correctly flagged (TP)**, 14 missed (FN), only 7 false alarms (FP).
+Out of 68 actual failures in the holdout: **51 correctly flagged (TP)**, 17 missed (FN), only 4 false alarms (FP). Tuning traded some recall for precision relative to the untuned model — see the Hyperparameter Tuning section for why PR-AUC (threshold-independent) was used as the search objective instead of F1.
+
+---
+
+## Hyperparameter Tuning
+
+The deployed model's hyperparameters were selected with `RandomizedSearchCV` (20 iterations, 5-fold stratified CV, scored on PR-AUC — the same primary metric used everywhere else in this repo) over `max_depth`, `learning_rate`, `l2_regularization`, and `max_leaf_nodes`. Full search config and results: [`docs/data/ai4i-case-study/model-selection.json`](docs/data/ai4i-case-study/model-selection.json).
+
+---
+
+## Explainability (SHAP)
+
+Local feature attribution for the top 10 highest-risk holdout predictions uses `shap.TreeExplainer` (interventional, probability-space) rather than a single-feature-ablation heuristic, so it correctly accounts for feature interactions (e.g. torque and tool wear jointly driving overstrain risk). Detail: [`docs/data/ai4i-case-study/feature-importance.json`](docs/data/ai4i-case-study/feature-importance.json) → `local_attributions_top10_high_risk`.
+
+---
+
+## Validation Robustness
+
+AI4I 2020 has no time axis or repeated-asset grouping — each of the 10,000 rows is one independently sampled machine snapshot with a unique Product ID — so time-aware or group-based (`GroupKFold`) splitting is not applicable to this dataset. Instead, the final architecture was re-fit across 5 independent stratified 80/20 splits to confirm the headline metrics aren't an artifact of one lucky split:
+
+**ROC-AUC 0.984 ± 0.004, PR-AUC 0.880 ± 0.032** across seeds. PR-AUC varies more than ROC-AUC across splits (expected — only ~68 failures land in each 20% holdout), so the single-split PR-AUC of 0.90 reported above sits on the higher end of that range rather than being a guaranteed number. Full per-seed results: [`docs/data/ai4i-case-study/validation-robustness.json`](docs/data/ai4i-case-study/validation-robustness.json).
 
 ---
 
@@ -175,6 +195,7 @@ Assumptions are illustrative — demonstrates how model output translates into m
 |-------|-----------|
 | Application | Python 3.11, Flask |
 | Analytics | Pandas, NumPy, SciPy, scikit-learn |
+| Explainability | SHAP (TreeExplainer) |
 | SQL analysis | DuckDB (in-memory, reads JSON natively) |
 | Visualization | Matplotlib |
 | Frontend | HTML, CSS, JavaScript |
@@ -200,7 +221,7 @@ smart-factory-app/
 ├── tests/
 │   ├── test_case_study.py       # Route and integration tests
 │   ├── test_dashboard_model.py  # Live dashboard scores against the real trained pipeline
-│   └── test_artifacts.py        # Data quality, metrics range, asset presence (27 tests)
+│   └── test_artifacts.py        # Data quality, metrics range, asset presence (33 tests)
 ├── main.py
 ├── case_study.py
 ├── requirements.txt
@@ -243,8 +264,9 @@ App: `http://127.0.0.1:8080` | Case-study route: `http://127.0.0.1:8080/case-stu
 ## Tests
 
 ```bash
-# All 34 tests: routes, artifact contracts, metrics thresholds, chart file
-# presence, and live dashboard <-> real model integration
+# All 40 tests: routes, artifact contracts, metrics thresholds, chart file
+# presence, hyperparameter-tuning/validation-robustness contracts, and live
+# dashboard <-> real model integration
 python -m unittest discover -s tests -v
 
 # Lint and format check
@@ -276,7 +298,10 @@ python -m py_compile main.py case_study.py \
 ## What This Proves
 
 - Class imbalance identified up front; PR-AUC and recall drive metric selection throughout
-- Feature engineering adds measurable, documented value (ROC +0.006, PR-AUC +0.033)
+- Feature engineering's marginal value is isolated from hyperparameter tuning (same tuned params, raw vs. enhanced features): ROC-AUC +0.018, PR-AUC +0.077, F1 +0.082
+- Hyperparameters are searched (`RandomizedSearchCV`, PR-AUC objective), not hardcoded guesses
+- Reported metrics are backed by a repeated-holdout robustness check across 5 seeds, not a single lucky split
+- Local explanations use SHAP (interaction-aware), not a single-feature-ablation heuristic
 - SQL proficiency: DuckDB analytical queries on structured JSON artifacts
 - Model output translated into a ranked maintenance queue with quantified business ROI
 - The live dashboard scores simulated telemetry with the same trained pipeline benchmarked in the offline case study — no separate, disconnected demo model
@@ -291,6 +316,8 @@ python -m py_compile main.py case_study.py \
 - The cost model is illustrative; real maintenance economics vary by plant and equipment type
 - Random failures (RNF) have low separability — 25% capture rate is an acknowledged limitation
 - The dashboard's RUL figure is a simple heuristic derived from the model's risk score, not a calibrated survival/RUL regression
+- SHAP attributions use an interventional TreeExplainer with a 200-row background sample — a close but not exact approximation of full-dataset Shapley values
+- AI4I 2020 has no time axis or asset-grouping structure to split on, so split stability is checked via repeated holdouts (see [Validation Robustness](#validation-robustness)) rather than time-aware or group-based cross-validation
 
 ---
 

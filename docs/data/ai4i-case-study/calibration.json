@@ -1,56 +1,46 @@
 {
   "n_bins": 10,
-  "expected_calibration_error": 0.0014,
+  "expected_calibration_error": 0.007,
   "reliability_diagram": [
     {
-      "predicted_probability_bin": 0.0001,
+      "predicted_probability_bin": 0.0023,
       "actual_failure_rate": 0.0,
-      "calibration_gap": -0.0001
+      "calibration_gap": -0.0023
     },
     {
-      "predicted_probability_bin": 0.0002,
+      "predicted_probability_bin": 0.0024,
       "actual_failure_rate": 0.0,
-      "calibration_gap": -0.0002
+      "calibration_gap": -0.0024
     },
     {
-      "predicted_probability_bin": 0.0002,
+      "predicted_probability_bin": 0.0025,
       "actual_failure_rate": 0.0,
-      "calibration_gap": -0.0002
+      "calibration_gap": -0.0025
     },
     {
-      "predicted_probability_bin": 0.0003,
+      "predicted_probability_bin": 0.003,
       "actual_failure_rate": 0.0,
-      "calibration_gap": -0.0003
+      "calibration_gap": -0.003
     },
     {
-      "predicted_probability_bin": 0.0004,
+      "predicted_probability_bin": 0.0037,
       "actual_failure_rate": 0.0,
-      "calibration_gap": -0.0004
+      "calibration_gap": -0.0037
     },
     {
-      "predicted_probability_bin": 0.0006,
+      "predicted_probability_bin": 0.0046,
+      "actual_failure_rate": 0.0151,
+      "calibration_gap": 0.0104
+    },
+    {
+      "predicted_probability_bin": 0.0095,
       "actual_failure_rate": 0.005,
-      "calibration_gap": 0.0044
+      "calibration_gap": -0.0045
     },
     {
-      "predicted_probability_bin": 0.0009,
-      "actual_failure_rate": 0.005,
-      "calibration_gap": 0.0041
-    },
-    {
-      "predicted_probability_bin": 0.0016,
-      "actual_failure_rate": 0.005,
-      "calibration_gap": 0.0034
-    },
-    {
-      "predicted_probability_bin": 0.0042,
-      "actual_failure_rate": 0.005,
-      "calibration_gap": 0.0008
-    },
-    {
-      "predicted_probability_bin": 0.3205,
+      "predicted_probability_bin": 0.2924,
       "actual_failure_rate": 0.32,
-      "calibration_gap": -0.0005
+      "calibration_gap": 0.0276
     }
   ],
   "interpretation": "ECE measures average gap between predicted probabilities and actual failure rates. Lower is better. Values below 0.05 indicate well-calibrated predictions."

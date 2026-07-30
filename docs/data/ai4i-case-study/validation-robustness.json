@@ -1,0 +1,40 @@
+{
+  "note": "AI4I 2020 has no time axis or repeated-asset grouping to split on (10,000 rows = 10,000 distinct machine snapshots), so time-aware or group-based cross-validation is not applicable. This instead confirms that the primary split (seed=42, used everywhere else in this repo) is not a lucky outlier by re-fitting the same model architecture across independent stratified 80/20 splits.",
+  "primary_split_seed": 42,
+  "per_seed_results": [
+    {
+      "split_seed": 42,
+      "roc_auc": 0.9874,
+      "pr_auc": 0.9019,
+      "f1": 0.8293
+    },
+    {
+      "split_seed": 7,
+      "roc_auc": 0.9755,
+      "pr_auc": 0.8345,
+      "f1": 0.7563
+    },
+    {
+      "split_seed": 13,
+      "roc_auc": 0.9861,
+      "pr_auc": 0.9272,
+      "f1": 0.8819
+    },
+    {
+      "split_seed": 99,
+      "roc_auc": 0.9861,
+      "pr_auc": 0.8584,
+      "f1": 0.7869
+    },
+    {
+      "split_seed": 2024,
+      "roc_auc": 0.9849,
+      "pr_auc": 0.8768,
+      "f1": 0.8065
+    }
+  ],
+  "roc_auc_mean": 0.984,
+  "roc_auc_std": 0.0043,
+  "pr_auc_mean": 0.8798,
+  "pr_auc_std": 0.0324
+}

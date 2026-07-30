@@ -129,32 +129,32 @@
       "results": [
         {
           "feature": "Rotational speed [rpm]",
-          "importance": 0.5247,
-          "share_of_total_pct": 33.2,
+          "importance": 0.4994,
+          "share_of_total_pct": 31.5,
           "importance_rank": 1
         },
         {
           "feature": "thermal_stress",
-          "importance": 0.4531,
-          "share_of_total_pct": 28.6,
+          "importance": 0.4568,
+          "share_of_total_pct": 28.8,
           "importance_rank": 2
         },
         {
           "feature": "Tool wear [min]",
-          "importance": 0.2738,
-          "share_of_total_pct": 17.3,
+          "importance": 0.2529,
+          "share_of_total_pct": 15.9,
           "importance_rank": 3
         },
         {
           "feature": "mechanical_load",
-          "importance": 0.1645,
-          "share_of_total_pct": 10.4,
+          "importance": 0.2091,
+          "share_of_total_pct": 13.2,
           "importance_rank": 4
         },
         {
           "feature": "Torque [Nm]",
-          "importance": 0.1431,
-          "share_of_total_pct": 9.0,
+          "importance": 0.1332,
+          "share_of_total_pct": 8.4,
           "importance_rank": 5
         }
       ]

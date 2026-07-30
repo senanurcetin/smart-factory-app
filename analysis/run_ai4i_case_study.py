@@ -10,6 +10,7 @@ from urllib.request import urlretrieve
 import joblib
 import numpy as np
 import pandas as pd
+import shap
 from sklearn.calibration import calibration_curve
 from sklearn.compose import ColumnTransformer
 from sklearn.dummy import DummyClassifier
@@ -24,7 +25,7 @@ from sklearn.metrics import (
     precision_recall_fscore_support,
     roc_auc_score,
 )
-from sklearn.model_selection import train_test_split
+from sklearn.model_selection import RandomizedSearchCV, StratifiedKFold, train_test_split
 from sklearn.pipeline import Pipeline
 from sklearn.preprocessing import OneHotEncoder, StandardScaler
 
@@ -240,47 +241,46 @@ def build_review_queue(probabilities: pd.Series, targets: pd.Series) -> list[dic
     return budgets
 
 
-def compute_local_feature_attribution(
+def compute_shap_local_attribution(
     pipeline: Pipeline,
     x_high_risk: pd.DataFrame,
-    feature_names: list[str],
-    x_reference: pd.DataFrame,
+    x_background: pd.DataFrame,
+    background_size: int = 200,
 ) -> list[dict]:
-    """Permutation-based local feature attribution for top high-risk predictions.
+    """SHAP (TreeExplainer, interventional, probability-space) local attribution
+    for top high-risk predictions.
 
-    For each sample, computes how much the predicted probability changes when
-    a feature is replaced with its median (numeric) or mode (categorical) value.
+    Replaces the earlier median-ablation approximation: SHAP values are exact
+    Shapley-value estimates for the fitted tree ensemble rather than a single-
+    feature perturbation heuristic, and correctly account for feature
+    interactions (e.g. torque and tool wear jointly driving overstrain risk).
     """
-    reference_medians = {}
-    for feat in feature_names:
-        if feat not in x_reference.columns:
-            continue
-        col = x_reference[feat]
-        if pd.api.types.is_numeric_dtype(col):
-            reference_medians[feat] = col.median()
-        else:
-            reference_medians[feat] = col.mode().iloc[0] if not col.mode().empty else col.iloc[0]
+    preprocessor = pipeline.named_steps["pre"]
+    model = pipeline.named_steps["model"]
+    encoded_feature_names = [
+        name.split("__", 1)[-1] for name in preprocessor.get_feature_names_out()
+    ]
+
+    background = preprocessor.transform(
+        x_background.sample(n=min(background_size, len(x_background)), random_state=RANDOM_SEED)
+    )
+    explainer = shap.TreeExplainer(model, background, model_output="probability")
+
+    x_transformed = preprocessor.transform(x_high_risk)
+    shap_values = explainer.shap_values(x_transformed)
+    base_probabilities = pipeline.predict_proba(x_high_risk)[:, 1]
+
     results = []
-    for idx, row in x_high_risk.iterrows():
-        base_prob = float(pipeline.predict_proba(row.to_frame().T)[0, 1])
-        attributions = []
-        for feat in feature_names:
-            if feat not in reference_medians:
-                continue
-            ablated = row.copy()
-            ablated[feat] = reference_medians[feat]
-            ablated_prob = float(pipeline.predict_proba(ablated.to_frame().T)[0, 1])
-            attributions.append(
-                {
-                    "feature": feat,
-                    "contribution": to_float(base_prob - ablated_prob),
-                }
-            )
+    for row_i, (idx, _) in enumerate(x_high_risk.iterrows()):
+        attributions = [
+            {"feature": feat, "contribution": to_float(shap_values[row_i, j])}
+            for j, feat in enumerate(encoded_feature_names)
+        ]
         attributions.sort(key=lambda a: abs(a["contribution"]), reverse=True)
         results.append(
             {
                 "sample_index": int(idx),
-                "predicted_probability": to_float(base_prob),
+                "predicted_probability": to_float(base_probabilities[row_i]),
                 "top_features": attributions[:5],
             }
         )
@@ -425,6 +425,124 @@ def build_per_mode_cost_model(
     return sorted(cost_rows, key=lambda r: r["savings_vs_reactive"], reverse=True)
 
 
+def run_split_robustness_check(
+    features_enhanced: pd.DataFrame,
+    target: pd.Series,
+    seeds: list[int],
+    model_params: dict,
+) -> dict:
+    """Re-fit the final (tuned) model architecture across independent stratified
+    holdouts to confirm the headline metrics aren't an artifact of one lucky split.
+
+    AI4I 2020 has no time axis or repeated-asset grouping — each of the 10,000
+    rows is one independently sampled machine-state snapshot with a unique
+    Product ID — so a time-aware or group-based (e.g. GroupKFold) split is not
+    meaningful for this dataset. Repeated stratified holdouts across several
+    seeds are the applicable robustness check instead.
+    """
+    per_seed_results = []
+    for seed in seeds:
+        x_train, x_test, y_train, y_test = train_test_split(
+            features_enhanced,
+            target,
+            test_size=0.20,
+            random_state=seed,
+            stratify=target,
+        )
+        pipeline = Pipeline(
+            [
+                ("pre", build_preprocessor_enhanced()),
+                ("model", HistGradientBoostingClassifier(random_state=RANDOM_SEED, **model_params)),
+            ]
+        )
+        pipeline.fit(x_train, y_train)
+        proba = pipeline.predict_proba(x_test)[:, 1]
+        predictions = (proba >= 0.5).astype(int)
+        _, _, f1, _ = precision_recall_fscore_support(
+            y_test, predictions, average="binary", zero_division=0
+        )
+        per_seed_results.append(
+            {
+                "split_seed": seed,
+                "roc_auc": to_float(roc_auc_score(y_test, proba)),
+                "pr_auc": to_float(average_precision_score(y_test, proba)),
+                "f1": to_float(f1),
+            }
+        )
+
+    roc_values = [r["roc_auc"] for r in per_seed_results]
+    pr_values = [r["pr_auc"] for r in per_seed_results]
+    return {
+        "note": (
+            "AI4I 2020 has no time axis or repeated-asset grouping to split on "
+            "(10,000 rows = 10,000 distinct machine snapshots), so time-aware or "
+            "group-based cross-validation is not applicable. This instead confirms "
+            "that the primary split (seed=42, used everywhere else in this repo) "
+            "is not a lucky outlier by re-fitting the same model architecture "
+            "across independent stratified 80/20 splits."
+        ),
+        "primary_split_seed": RANDOM_SEED,
+        "per_seed_results": per_seed_results,
+        "roc_auc_mean": to_float(float(np.mean(roc_values))),
+        "roc_auc_std": to_float(float(np.std(roc_values))),
+        "pr_auc_mean": to_float(float(np.mean(pr_values))),
+        "pr_auc_std": to_float(float(np.std(pr_values))),
+    }
+
+
+HGB_PARAM_DISTRIBUTIONS = {
+    "model__max_depth": [3, 4, 5, 6, None],
+    "model__learning_rate": [0.03, 0.05, 0.1, 0.15, 0.2],
+    "model__l2_regularization": [0.0, 0.1, 0.5, 1.0],
+    "model__max_leaf_nodes": [15, 31, 63],
+}
+
+
+def tune_final_model(
+    x_train: pd.DataFrame,
+    y_train: pd.Series,
+    n_iter: int = 20,
+) -> tuple[dict, dict]:
+    """Fixed-budget RandomizedSearchCV over the final architecture's hyperparameters.
+
+    Scored on PR-AUC (average precision) via 5-fold stratified CV, since PR-AUC
+    is the primary selection metric for this imbalanced target everywhere else
+    in this pipeline. Returns (best_params, a transparent summary for the
+    model-selection artifact).
+    """
+    pipeline = Pipeline(
+        [
+            ("pre", build_preprocessor_enhanced()),
+            ("model", HistGradientBoostingClassifier(random_state=RANDOM_SEED)),
+        ]
+    )
+    search = RandomizedSearchCV(
+        pipeline,
+        param_distributions=HGB_PARAM_DISTRIBUTIONS,
+        n_iter=n_iter,
+        scoring="average_precision",
+        cv=StratifiedKFold(n_splits=5, shuffle=True, random_state=RANDOM_SEED),
+        random_state=RANDOM_SEED,
+        n_jobs=-1,
+        refit=False,
+    )
+    search.fit(x_train, y_train)
+
+    best_params = {key.removeprefix("model__"): value for key, value in search.best_params_.items()}
+    summary = {
+        "search_method": "RandomizedSearchCV",
+        "n_iter": n_iter,
+        "cv_folds": 5,
+        "scoring": "average_precision (PR-AUC)",
+        "best_params": best_params,
+        "best_cv_pr_auc": to_float(search.best_score_),
+        "param_distributions": {
+            key.removeprefix("model__"): value for key, value in HGB_PARAM_DISTRIBUTIONS.items()
+        },
+    }
+    return best_params, summary
+
+
 def main() -> None:
     df = load_dataset()
     df = add_derived_features(df)
@@ -458,15 +576,25 @@ def main() -> None:
         for name, estimator in build_models().items()
     ]
 
+    # ── Hyperparameter search for the final (enhanced-feature) architecture ──
+    print("Tuning final model hyperparameters...")
+    tuned_params, tuning_summary = tune_final_model(xenh_train, y_train)
+
     # ── Final binary model with enhanced features ────────────────────────────
     final_model_name = "hist_gradient_boosting_enhanced"
     final_pipeline = Pipeline(
         [
             ("pre", build_preprocessor_enhanced()),
-            ("model", HistGradientBoostingClassifier(random_state=RANDOM_SEED, max_depth=5)),
+            ("model", HistGradientBoostingClassifier(random_state=RANDOM_SEED, **tuned_params)),
         ]
     )
     final_pipeline.fit(xenh_train, y_train)
+
+    # ── Split-robustness check using the same tuned architecture ─────────────
+    print("Running split-robustness check...")
+    robustness_check = run_split_robustness_check(
+        features_enhanced, target, seeds=[RANDOM_SEED, 7, 13, 99, 2024], model_params=tuned_params
+    )
 
     probabilities = pd.Series(final_pipeline.predict_proba(xenh_test)[:, 1], index=df_test.index)
     predictions = (probabilities >= 0.5).astype(int)
@@ -477,6 +605,53 @@ def main() -> None:
         zero_division=0,
     )
     matrix = confusion_matrix(y_test, predictions).astype(int).tolist()
+
+    # ── Isolate feature-engineering impact from hyperparameter tuning ────────
+    # Same tuned hyperparameters, raw vs. enhanced (derived) feature sets, so
+    # the reported delta is attributable to the three derived features alone.
+    raw_tuned_pipeline = Pipeline(
+        [
+            ("pre", build_preprocessor()),
+            ("model", HistGradientBoostingClassifier(random_state=RANDOM_SEED, **tuned_params)),
+        ]
+    )
+    raw_tuned_pipeline.fit(x_train, y_train)
+    raw_tuned_proba = raw_tuned_pipeline.predict_proba(x_test)[:, 1]
+    raw_tuned_pred = (raw_tuned_proba >= 0.5).astype(int)
+    _, _, raw_tuned_f1, _ = precision_recall_fscore_support(
+        y_test, raw_tuned_pred, average="binary", zero_division=0
+    )
+    feature_engineering_impact = {
+        "note": (
+            "The same tuned hyperparameters are applied to the raw and enhanced "
+            "(derived) feature sets, so this delta is attributable to the three "
+            "derived features alone, not conflated with hyperparameter tuning."
+        ),
+        "raw_features": {
+            "roc_auc": to_float(roc_auc_score(y_test, raw_tuned_proba)),
+            "pr_auc": to_float(average_precision_score(y_test, raw_tuned_proba)),
+            "f1": to_float(raw_tuned_f1),
+        },
+        "enhanced_features": {
+            "roc_auc": to_float(roc_auc_score(y_test, probabilities)),
+            "pr_auc": to_float(average_precision_score(y_test, probabilities)),
+            "f1": to_float(f1),
+        },
+    }
+    feature_engineering_impact["delta"] = {
+        "roc_auc": to_float(
+            feature_engineering_impact["enhanced_features"]["roc_auc"]
+            - feature_engineering_impact["raw_features"]["roc_auc"]
+        ),
+        "pr_auc": to_float(
+            feature_engineering_impact["enhanced_features"]["pr_auc"]
+            - feature_engineering_impact["raw_features"]["pr_auc"]
+        ),
+        "f1": to_float(
+            feature_engineering_impact["enhanced_features"]["f1"]
+            - feature_engineering_impact["raw_features"]["f1"]
+        ),
+    }
 
     review_budgets = build_review_queue(probabilities, y_test)
     primary_queue = next(bucket for bucket in review_budgets if bucket["review_fraction"] == 0.10)
@@ -503,12 +678,11 @@ def main() -> None:
     ):
         feature_importance.append({"feature": feature_name, "importance": to_float(importance)})
 
-    # ── Local feature attribution for top high-risk predictions ─────────────
+    # ── Local feature attribution for top high-risk predictions (SHAP) ───────
     top_risk_samples = xenh_test.loc[probabilities.sort_values(ascending=False).head(10).index]
-    local_attributions = compute_local_feature_attribution(
+    local_attributions = compute_shap_local_attribution(
         final_pipeline,
         top_risk_samples,
-        MODEL_FEATURES_ENHANCED,
         xenh_train,
     )
 
@@ -630,7 +804,13 @@ def main() -> None:
             "The UCI AI4I dataset is simulated, so it is better for benchmarking than for plant-specific deployment claims.",
             "The cost model is illustrative and meant to show how review logic can be translated into business tradeoffs.",
             "The app still serves a lightweight demo UI rather than a production monitoring stack.",
-            "Local feature attributions use median-ablation (not SHAP), which underestimates interaction effects.",
+            "Local feature attributions use SHAP TreeExplainer (interventional, probability-space, 200-row "
+            "background sample) rather than exact Shapley values over the full training set, so they are a "
+            "close but not perfect approximation.",
+            "AI4I 2020 has no time axis or repeated-asset grouping (each row is one independently sampled "
+            "machine-state snapshot), so time-aware or group-based splitting is not applicable; split "
+            "stability was instead checked via repeated stratified holdouts across 5 random seeds "
+            "(see validation-robustness.json).",
         ],
     }
 
@@ -647,7 +827,23 @@ def main() -> None:
             "thermal_stress ((Tprocess - Tair) / Tair), and tool_wear_load_ratio (wear / torque). "
             "These encode domain knowledge about failure mechanisms into the feature space."
         ),
-        "next_step": "Add time-aware validation or asset-level splits when the repo evolves from benchmark framing to deployment realism.",
+        "feature_engineering_impact": feature_engineering_impact,
+        "hyperparameter_tuning": tuning_summary,
+        "validation_robustness": {
+            "summary": (
+                f"ROC-AUC {robustness_check['roc_auc_mean']} ± {robustness_check['roc_auc_std']}, "
+                f"PR-AUC {robustness_check['pr_auc_mean']} ± {robustness_check['pr_auc_std']} "
+                f"across {len(robustness_check['per_seed_results'])} independent stratified splits."
+            ),
+            "detail_artifact": "validation-robustness.json",
+        },
+        "next_step": (
+            "AI4I 2020 is a static snapshot dataset with no run-to-failure time series, so it cannot "
+            "support real RUL (remaining-useful-life) regression. A natural next step is a separate, "
+            "clearly-labeled case study on a run-to-failure dataset (e.g. NASA C-MAPSS) for genuine "
+            "survival/RUL modeling, rather than the risk-score-derived heuristic used in the live "
+            "dashboard today."
+        ),
     }
 
     review_queue_payload = {
@@ -703,6 +899,9 @@ def main() -> None:
             "mechanical_load and thermal_stress capture cross-feature interactions "
             "that individual raw sensors cannot express independently."
         ),
+        "local_attribution_method": (
+            "SHAP TreeExplainer (interventional, probability-space, 200-row background sample)"
+        ),
         "local_attributions_top10_high_risk": local_attributions,
     }
 
@@ -729,6 +928,7 @@ def main() -> None:
     write_json(OUTPUT_DIR / "failure-mode-multiclass.json", multiclass_results)
     write_json(OUTPUT_DIR / "calibration.json", calibration_data)
     write_json(OUTPUT_DIR / "cost-model.json", per_mode_cost_model)
+    write_json(OUTPUT_DIR / "validation-robustness.json", robustness_check)
 
     # ── Persist the final trained pipeline for reuse outside this script ─────
     # (e.g. by the live dashboard in main.py, so it scores against the same

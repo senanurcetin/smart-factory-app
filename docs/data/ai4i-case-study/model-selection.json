@@ -10,7 +10,7 @@
       "precision": 0.0,
       "recall": 0.0,
       "f1": 0.0,
-      "training_seconds": 0.019
+      "training_seconds": 0.0121
     },
     {
       "model": "logistic_regression",
@@ -20,7 +20,7 @@
       "precision": 0.1418,
       "recall": 0.8235,
       "f1": 0.2419,
-      "training_seconds": 0.0399
+      "training_seconds": 0.0261
     },
     {
       "model": "random_forest",
@@ -30,7 +30,7 @@
       "precision": 0.82,
       "recall": 0.6029,
       "f1": 0.6949,
-      "training_seconds": 1.1354
+      "training_seconds": 1.178
     },
     {
       "model": "hist_gradient_boosting",
@@ -40,9 +40,71 @@
       "precision": 0.9245,
       "recall": 0.7206,
       "f1": 0.8099,
-      "training_seconds": 2.3962
+      "training_seconds": 2.3108
     }
   ],
   "feature_engineering_note": "Three derived features were added: mechanical_load (Torque \u00d7 RPM), thermal_stress ((Tprocess - Tair) / Tair), and tool_wear_load_ratio (wear / torque). These encode domain knowledge about failure mechanisms into the feature space.",
-  "next_step": "Add time-aware validation or asset-level splits when the repo evolves from benchmark framing to deployment realism."
+  "feature_engineering_impact": {
+    "note": "The same tuned hyperparameters are applied to the raw and enhanced (derived) feature sets, so this delta is attributable to the three derived features alone, not conflated with hyperparameter tuning.",
+    "raw_features": {
+      "roc_auc": 0.9696,
+      "pr_auc": 0.8252,
+      "f1": 0.7478
+    },
+    "enhanced_features": {
+      "roc_auc": 0.9874,
+      "pr_auc": 0.9019,
+      "f1": 0.8293
+    },
+    "delta": {
+      "roc_auc": 0.0178,
+      "pr_auc": 0.0767,
+      "f1": 0.0815
+    }
+  },
+  "hyperparameter_tuning": {
+    "search_method": "RandomizedSearchCV",
+    "n_iter": 20,
+    "cv_folds": 5,
+    "scoring": "average_precision (PR-AUC)",
+    "best_params": {
+      "max_leaf_nodes": 15,
+      "max_depth": null,
+      "learning_rate": 0.03,
+      "l2_regularization": 1.0
+    },
+    "best_cv_pr_auc": 0.8708,
+    "param_distributions": {
+      "max_depth": [
+        3,
+        4,
+        5,
+        6,
+        null
+      ],
+      "learning_rate": [
+        0.03,
+        0.05,
+        0.1,
+        0.15,
+        0.2
+      ],
+      "l2_regularization": [
+        0.0,
+        0.1,
+        0.5,
+        1.0
+      ],
+      "max_leaf_nodes": [
+        15,
+        31,
+        63
+      ]
+    }
+  },
+  "validation_robustness": {
+    "summary": "ROC-AUC 0.984 \u00b1 0.0043, PR-AUC 0.8798 \u00b1 0.0324 across 5 independent stratified splits.",
+    "detail_artifact": "validation-robustness.json"
+  },
+  "next_step": "AI4I 2020 is a static snapshot dataset with no run-to-failure time series, so it cannot support real RUL (remaining-useful-life) regression. A natural next step is a separate, clearly-labeled case study on a run-to-failure dataset (e.g. NASA C-MAPSS) for genuine survival/RUL modeling, rather than the risk-score-derived heuristic used in the live dashboard today."
 }
