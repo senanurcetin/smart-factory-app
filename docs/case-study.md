@@ -164,7 +164,7 @@ A separate per-failure-mode breakdown (differentiated unplanned/preventive cost 
 - **Model card**: every training run records a timestamp, Python/scikit-learn/SHAP versions, and a SHA-256 hash of the training data to `model-selection.json` → `model_card`
 - **Structured logging**: pipeline scripts use Python's `logging` module (timestamps, levels) instead of bare `print`
 - **CI runs the real pipeline**: `run_ai4i_case_study.py` (including the UCI dataset download, hyperparameter search, and robustness check) executes on every push — CI no longer just replays statically committed artifacts
-- **Deployment**: a multi-stage Dockerfile serves the app with `gunicorn`; the image build is exercised in CI on every push
+- **Deployment**: a multi-stage Dockerfile serves the app with `gunicorn`; the image build and a runtime smoke test (start the container, curl `/api/data`) are both exercised in CI on every push
 
 ---
 
@@ -176,5 +176,4 @@ A separate per-failure-mode breakdown (differentiated unplanned/preventive cost 
 - SHAP attributions use an interventional TreeExplainer with a 200-row background sample — a close but not exact approximation of full-dataset Shapley values
 - AI4I 2020 has no time axis or asset-grouping structure to split on, so split stability is checked via repeated holdouts rather than time-aware or group-based cross-validation
 - The live dashboard simulates plausible AI4I-schema telemetry and scores it with the real trained pipeline (not a separate toy model); it is not connected to a deployed production sensor stream
-- The `docker` CI job builds the image but does not yet run a container smoke test (start + curl `/api/data`) — a successful build doesn't guarantee the app serves traffic correctly at runtime
-- The dashboard's RUL figure is a simple heuristic derived from the model's risk score, not a calibrated survival/RUL regression
+- The dashboard's RUL figure remains a heuristic derived from this model's risk score; genuine RUL regression is demonstrated separately in `docs/rul-case-study.md`

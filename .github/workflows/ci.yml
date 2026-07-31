@@ -32,13 +32,15 @@ jobs:
 
       - name: Syntax check
         run: |
-          python -m py_compile main.py case_study.py
+          python -m py_compile main.py case_study.py rul_case_study.py
           python -m py_compile analysis/run_ai4i_case_study.py
           python -m py_compile analysis/generate_visuals.py
           python -m py_compile analysis/generate_eda.py
           python -m py_compile analysis/sql_queries.py
+          python -m py_compile analysis/run_cmapss_rul_case_study.py
+          python -m py_compile analysis/generate_cmapss_visuals.py
 
-      - name: Run full ML pipeline (downloads UCI dataset, retrains, re-persists model.pkl)
+      - name: Run full AI4I ML pipeline (downloads UCI dataset, retrains, re-persists model.pkl)
         run: python analysis/run_ai4i_case_study.py
 
       - name: Generate EDA assets
@@ -50,6 +52,12 @@ jobs:
       - name: Run SQL analysis
         run: python analysis/sql_queries.py
 
+      - name: Run C-MAPSS RUL pipeline (downloads NASA dataset, retrains, re-persists rul_model.pkl)
+        run: python analysis/run_cmapss_rul_case_study.py
+
+      - name: Generate C-MAPSS RUL visuals
+        run: python analysis/generate_cmapss_visuals.py
+
       - name: Artifact and metrics contract tests
         run: python -m unittest discover -s tests -p "test_artifacts.py" -v
 
@@ -58,6 +66,12 @@ jobs:
 
       - name: Dashboard <-> real model integration tests
         run: python -m unittest discover -s tests -p "test_dashboard_model.py" -v
+
+      - name: RUL artifact and metrics contract tests
+        run: python -m unittest discover -s tests -p "test_rul_artifacts.py" -v
+
+      - name: RUL route and integration tests
+        run: python -m unittest discover -s tests -p "test_rul_case_study.py" -v
 
       - name: Import app
         run: python -c "import main; print(main.app.name)"
@@ -71,3 +85,36 @@ jobs:
 
       - name: Build Docker image
         run: docker build -t smart-factory-app:ci .
+
+      - name: Runtime smoke test (start container, verify it actually serves traffic)
+        run: |
+          docker run -d --name smoke -p 8080:8080 smart-factory-app:ci
+
+          ready=""
+          for i in $(seq 1 15); do
+            if curl -sf http://localhost:8080/api/data > response.json; then
+              ready="1"
+              break
+            fi
+            sleep 2
+          done
+
+          if [ -z "$ready" ]; then
+            echo "Container never became ready on /api/data"
+            docker logs smoke
+            docker rm -f smoke
+            exit 1
+          fi
+
+          if ! grep -q "RiskScore" response.json; then
+            echo "Response from /api/data is missing RiskScore:"
+            cat response.json
+            docker logs smoke
+            docker rm -f smoke
+            exit 1
+          fi
+
+          echo "Smoke test passed:"
+          cat response.json
+          docker logs smoke
+          docker rm -f smoke

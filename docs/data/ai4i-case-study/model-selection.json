@@ -1,13 +1,13 @@
 {
   "selected_model": "hist_gradient_boosting_enhanced",
   "model_card": {
-    "trained_at_utc": "2026-07-30T12:43:23+00:00",
+    "trained_at_utc": "2026-07-31T08:06:25+00:00",
     "python_version": "3.11.9",
     "scikit_learn_version": "1.9.0",
     "shap_version": "0.51.0",
     "dataset": {
       "name": "AI4I 2020 Predictive Maintenance Dataset",
-      "doi": "10.24432/C5HS5C",
+      "reference": "10.24432/C5HS5C",
       "rows": 10000,
       "sha256": "37a525b28d47dc3b5745e851b6ef2582ee5ff6d1a3112b8d2d56ca2f38b134c5"
     },
@@ -23,7 +23,7 @@
       "precision": 0.0,
       "recall": 0.0,
       "f1": 0.0,
-      "training_seconds": 0.0145
+      "training_seconds": 0.014
     },
     {
       "model": "logistic_regression",
@@ -33,7 +33,7 @@
       "precision": 0.1418,
       "recall": 0.8235,
       "f1": 0.2419,
-      "training_seconds": 0.026
+      "training_seconds": 0.0256
     },
     {
       "model": "random_forest",
@@ -43,7 +43,7 @@
       "precision": 0.82,
       "recall": 0.6029,
       "f1": 0.6949,
-      "training_seconds": 1.0331
+      "training_seconds": 0.9112
     },
     {
       "model": "hist_gradient_boosting",
@@ -53,7 +53,7 @@
       "precision": 0.9245,
       "recall": 0.7206,
       "f1": 0.8099,
-      "training_seconds": 2.9554
+      "training_seconds": 2.1587
     }
   ],
   "feature_engineering_note": "Three derived features were added: mechanical_load (Torque \u00d7 RPM), thermal_stress ((Tprocess - Tair) / Tair), and tool_wear_load_ratio (wear / torque). These encode domain knowledge about failure mechanisms into the feature space.",
@@ -119,5 +119,5 @@
     "summary": "ROC-AUC 0.984 \u00b1 0.0043, PR-AUC 0.8798 \u00b1 0.0324 across 5 independent stratified splits.",
     "detail_artifact": "validation-robustness.json"
   },
-  "next_step": "AI4I 2020 is a static snapshot dataset with no run-to-failure time series, so it cannot support real RUL (remaining-useful-life) regression. A natural next step is a separate, clearly-labeled case study on a run-to-failure dataset (e.g. NASA C-MAPSS) for genuine survival/RUL modeling, rather than the risk-score-derived heuristic used in the live dashboard today."
+  "next_step": "Done: AI4I 2020 is a static snapshot dataset with no run-to-failure time series, so it cannot support real RUL (remaining-useful-life) regression. Genuine RUL regression is now demonstrated in a separate, clearly-labeled case study on NASA's C-MAPSS run-to-failure dataset \u2014 see docs/rul-case-study.md and /rul-case-study."
 }

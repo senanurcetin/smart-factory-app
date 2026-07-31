@@ -1,0 +1,74 @@
+{
+  "selected_model": "hist_gradient_boosting_regressor",
+  "selection_reason": "Consistent with the AI4I case study's model choice: a tree ensemble needs no feature scaling, trains in seconds on this dataset size, and supports exact/fast SHAP explanations via TreeExplainer.",
+  "model_card": {
+    "trained_at_utc": "2026-07-31T07:52:16+00:00",
+    "python_version": "3.11.9",
+    "scikit_learn_version": "1.9.0",
+    "shap_version": "0.51.0",
+    "dataset": {
+      "name": "NASA C-MAPSS Turbofan Engine Degradation Simulation (FD001)",
+      "reference": "A. Saxena, K. Goebel, D. Simon, N. Eklund, \"Damage Propagation Modeling for Aircraft Engine Run-to-Failure Simulation\", PHM08, Denver CO, 2008 (NASA Prognostics Center of Excellence Data Repository)",
+      "rows": 20631,
+      "sha256": "35ec8c0ecc5d8497f18b6c11836cda7dc68471e322c7ac345677232199516d59"
+    },
+    "random_seed": 42
+  },
+  "hyperparameter_tuning": {
+    "search_method": "RandomizedSearchCV",
+    "n_iter": 15,
+    "cv_folds": 5,
+    "cv_strategy": "GroupKFold grouped by unit_number \u2014 rows from the same engine never appear in both the train and validation side of a fold. This is the grouped/time-aware split AI4I's static, one-row-per-machine structure cannot support.",
+    "scoring": "neg_root_mean_squared_error",
+    "best_params": {
+      "max_leaf_nodes": 31,
+      "max_depth": 6,
+      "learning_rate": 0.05,
+      "l2_regularization": 0.5
+    },
+    "best_cv_rmse": 18.2949,
+    "param_distributions": {
+      "max_depth": [
+        3,
+        4,
+        5,
+        6,
+        null
+      ],
+      "learning_rate": [
+        0.03,
+        0.05,
+        0.1,
+        0.15,
+        0.2
+      ],
+      "l2_regularization": [
+        0.0,
+        0.1,
+        0.5,
+        1.0
+      ],
+      "max_leaf_nodes": [
+        15,
+        31,
+        63
+      ]
+    }
+  },
+  "feature_engineering_impact": {
+    "note": "Same tuned hyperparameters applied to raw sensor readings vs. rolling-window (mean/std) engineered features, so the delta is attributable to the rolling-window features alone.",
+    "raw_features": {
+      "rmse": 18.1154,
+      "phm08_score": 944.7926
+    },
+    "enhanced_features": {
+      "rmse": 18.0535,
+      "phm08_score": 837.6035
+    },
+    "delta": {
+      "rmse": 0.0619,
+      "phm08_score": 107.1891
+    }
+  },
+  "next_step": "Extend to FD002/FD004 (multiple operating conditions) to test whether the rolling-window feature set generalizes beyond a single flight regime."
+}

@@ -4,7 +4,7 @@
 ![Python](https://img.shields.io/badge/Python-3.11-blue)
 ![License](https://img.shields.io/badge/License-MIT-green)
 
-**Predictive-maintenance analytics case study** — end-to-end ML pipeline on the UCI AI4I 2020 dataset, including EDA, feature engineering, model selection, SQL analysis, review-queue design, and cost framing. Packaged with a Flask plant dashboard.
+**Predictive-maintenance analytics case study** — end-to-end ML pipeline on the UCI AI4I 2020 dataset, including EDA, feature engineering, model selection, SQL analysis, review-queue design, and cost framing. Packaged with a Flask plant dashboard, plus a [second case study](#rul-regression-nasa-c-mapss) demonstrating genuine remaining-useful-life (RUL) regression on NASA's C-MAPSS run-to-failure dataset.
 
 Demo: [Portfolio project entry](https://senanur-cetin.vercel.app/projects/smart-factory-app)
 
@@ -193,6 +193,26 @@ Per-failure-mode cost breakdown (differentiated unplanned vs. preventive cost pe
 
 ---
 
+## RUL Regression (NASA C-MAPSS)
+
+A **second, separate case study**. AI4I 2020 is a static snapshot dataset — one row per independently sampled machine, no time axis — so it cannot support genuine remaining-useful-life (RUL) regression. NASA's C-MAPSS turbofan degradation dataset is a real run-to-failure dataset, which makes real RUL regression possible, and its multi-cycle-per-engine structure also supports a proper **grouped** train/validation split (`GroupKFold` by engine) — the exact rigor technique AI4I's structure could not support.
+
+| Metric | Naive baseline (median RUL) | Tuned model |
+|--------|------------------------------|-------------|
+| RMSE (cycles) | 49.82 | **18.05** |
+| PHM08 score | 166,570.5 | **837.6** |
+
+**63.8% RMSE reduction** over the naive baseline, evaluated on NASA's own official test protocol (not a custom split) — an RMSE of ~18 cycles is consistent with published classical-ML results on this benchmark (FD001).
+
+![Model vs baseline](docs/assets/cmapss-model-vs-baseline.png)
+![Degradation trajectories](docs/assets/cmapss-degradation-trajectories.png)
+
+Full methodology, feature engineering, evaluation protocol, and limitations: [`docs/rul-case-study.md`](docs/rul-case-study.md). Live results page: `/rul-case-study` (linked from the dashboard sidebar). Raw artifacts: [`docs/data/cmapss-rul-case-study/`](docs/data/cmapss-rul-case-study/).
+
+*The live bento dashboard's own RUL tile intentionally stays a simple heuristic derived from the AI4I risk score — see [Engineering Decisions](#engineering-decisions) for why.*
+
+---
+
 ## Stack
 
 | Layer | Technology |
@@ -213,24 +233,34 @@ Per-failure-mode cost breakdown (differentiated unplanned vs. preventive cost pe
 ```
 smart-factory-app/
 ├── analysis/
-│   ├── run_ai4i_case_study.py   # Full ML pipeline (downloads UCI dataset on first run)
-│   ├── generate_visuals.py      # Model comparison, feature importance, review queue, cost model
-│   ├── generate_eda.py          # EDA charts: class balance, failure modes, confusion matrix
-│   ├── sql_queries.py           # DuckDB SQL analysis on JSON artifacts
-│   └── artifacts/model.pkl      # Persisted final pipeline — also scored live by main.py
+│   ├── _common.py                     # Shared helpers (to_float, write_json, model card)
+│   ├── run_ai4i_case_study.py         # AI4I ML pipeline (downloads UCI dataset on first run)
+│   ├── generate_visuals.py            # Model comparison, feature importance, review queue, cost model
+│   ├── generate_eda.py                # EDA charts: class balance, failure modes, confusion matrix
+│   ├── sql_queries.py                 # DuckDB SQL analysis on JSON artifacts
+│   ├── run_cmapss_rul_case_study.py   # RUL regression pipeline (downloads NASA dataset on first run)
+│   ├── generate_cmapss_visuals.py     # RUL trajectory, predicted-vs-actual, feature importance charts
+│   └── artifacts/                     # Persisted pipelines — also scored live by main.py
+│       ├── model.pkl                  # AI4I classifier
+│       └── rul_model.pkl              # C-MAPSS RUL regressor
 ├── docs/
-│   ├── assets/                  # All chart/media assets (10 files)
-│   ├── data/ai4i-case-study/    # JSON artifacts + sql-analysis.json
-│   └── case-study.md
+│   ├── assets/                        # All chart/media assets (14 files)
+│   ├── data/ai4i-case-study/          # AI4I JSON artifacts + sql-analysis.json
+│   ├── data/cmapss-rul-case-study/    # RUL JSON artifacts
+│   ├── case-study.md
+│   └── rul-case-study.md
 ├── tests/
-│   ├── test_case_study.py       # Route and integration tests
-│   ├── test_dashboard_model.py  # Live dashboard scores against the real trained pipeline
-│   └── test_artifacts.py        # Data quality, metrics range, asset presence (35 tests)
+│   ├── test_case_study.py             # AI4I route and integration tests
+│   ├── test_dashboard_model.py        # Live dashboard scores against the real trained pipeline
+│   ├── test_artifacts.py              # AI4I data quality, metrics range, asset presence (35 tests)
+│   ├── test_rul_case_study.py         # RUL route and integration tests
+│   └── test_rul_artifacts.py          # RUL data quality and metrics contract tests
 ├── main.py
 ├── case_study.py
-├── Dockerfile                   # Multi-stage build, served via gunicorn
+├── rul_case_study.py
+├── Dockerfile                         # Multi-stage build, served via gunicorn
 ├── requirements.txt
-└── requirements-dev.txt         # + ruff, black
+└── requirements-dev.txt               # + ruff, black
 ```
 
 ---
@@ -251,18 +281,24 @@ python analysis/generate_visuals.py
 # Run SQL analysis
 python analysis/sql_queries.py
 
-# Run full ML benchmark (downloads UCI dataset ~500 KB on first run).
+# Run full AI4I ML benchmark (downloads UCI dataset ~500 KB on first run).
 # This also persists the final pipeline to analysis/artifacts/model.pkl,
 # which main.py loads to score the live dashboard — a pre-trained copy is
 # already committed, so this step is optional unless you want to retrain.
 python analysis/run_ai4i_case_study.py
+
+# Run the RUL regression case study (downloads NASA C-MAPSS dataset ~12 MB
+# on first run). Persists analysis/artifacts/rul_model.pkl — also optional,
+# a pre-trained copy is already committed.
+python analysis/run_cmapss_rul_case_study.py
+python analysis/generate_cmapss_visuals.py
 
 # Start the dashboard (scores simulated AI4I-schema telemetry with the
 # real trained pipeline above — not a separate toy model)
 python main.py
 ```
 
-App: `http://127.0.0.1:8080` | Case-study route: `http://127.0.0.1:8080/case-study`
+App: `http://127.0.0.1:8080` | Case-study route: `http://127.0.0.1:8080/case-study` | RUL case-study route: `http://127.0.0.1:8080/rul-case-study`
 
 ---
 
@@ -273,16 +309,17 @@ docker build -t smart-factory-app .
 docker run -p 8080:8080 smart-factory-app
 ```
 
-Multi-stage build, served by `gunicorn` (2 workers) instead of the Flask development server. The committed `analysis/artifacts/model.pkl` is baked into the image, so no dataset download or retraining is needed to run the container. Built and smoke-tested on every push via the `docker` job in CI ([`.github/workflows/ci.yml`](.github/workflows/ci.yml)).
+Multi-stage build, served by `gunicorn` (2 workers) instead of the Flask development server. The committed `analysis/artifacts/model.pkl` and `rul_model.pkl` are both baked into the image, so no dataset download or retraining is needed to run the container. Built and smoke-tested on every push via the `docker` job in CI ([`.github/workflows/ci.yml`](.github/workflows/ci.yml)).
 
 ---
 
 ## Tests
 
 ```bash
-# All 42 tests: routes, artifact contracts, metrics thresholds, chart file
+# All 62 tests: routes, artifact contracts, metrics thresholds, chart file
 # presence, hyperparameter-tuning/validation-robustness/model-card contracts,
-# and live dashboard <-> real model integration
+# live dashboard <-> real model integration, and the RUL case study's own
+# artifact contracts and routes
 python -m unittest discover -s tests -v
 
 # Lint and format check
@@ -290,11 +327,13 @@ ruff check .
 black --check .
 
 # Syntax check all modules
-python -m py_compile main.py case_study.py \
+python -m py_compile main.py case_study.py rul_case_study.py \
     analysis/run_ai4i_case_study.py \
     analysis/generate_visuals.py \
     analysis/generate_eda.py \
-    analysis/sql_queries.py
+    analysis/sql_queries.py \
+    analysis/run_cmapss_rul_case_study.py \
+    analysis/generate_cmapss_visuals.py
 ```
 
 ---
@@ -303,10 +342,13 @@ python -m py_compile main.py case_study.py \
 
 | Document | Contents |
 |----------|----------|
-| [`docs/case-study.md`](docs/case-study.md) | Full methodology, results, limitations |
+| [`docs/case-study.md`](docs/case-study.md) | Full methodology, results, limitations (AI4I) |
+| [`docs/rul-case-study.md`](docs/rul-case-study.md) | Full methodology, results, limitations (C-MAPSS RUL) |
 | [`docs/data/ai4i-case-study/summary.json`](docs/data/ai4i-case-study/summary.json) | Final model metrics and confusion matrix |
 | [`docs/data/ai4i-case-study/sql-analysis.json`](docs/data/ai4i-case-study/sql-analysis.json) | DuckDB query results |
+| [`docs/data/cmapss-rul-case-study/summary.json`](docs/data/cmapss-rul-case-study/summary.json) | RUL model RMSE, PHM08 score, baseline comparison |
 | Local route | `http://127.0.0.1:8080/case-study` |
+| Local route | `http://127.0.0.1:8080/rul-case-study` |
 
 ---
 
@@ -322,6 +364,8 @@ python -m py_compile main.py case_study.py \
 - **Business framing**: ranked review queue, cost model, operational maintenance economics
 - **Engineering practice**: pinned dependencies, lint/format CI gate, structured logging, a minimal model card, model persisted via joblib and served (not retrained ad hoc) by the live app
 - **Deployment**: multi-stage Dockerfile served by `gunicorn`; both the training pipeline and the image build are exercised in CI on every push
+- **Genuine RUL regression**: a second case study on NASA C-MAPSS (a real run-to-failure dataset), including `GroupKFold` cross-validation grouped by engine — the grouped/time-aware split technique AI4I's dataset structure cannot support
+- **Knowing which rigor technique applies where**: same repo, two datasets, two different (correct) validation strategies — repeated holdouts for AI4I, grouped CV for C-MAPSS — chosen for what each dataset's structure actually supports, not applied uniformly by habit
 - **Python stack**: pandas, NumPy, scikit-learn, SHAP, matplotlib, DuckDB, Flask, gunicorn
 
 ---
@@ -335,6 +379,8 @@ python -m py_compile main.py case_study.py \
 5. The project frames predictive maintenance as a **prioritization problem**, not a chart demo — connecting model output to a ranked queue and maintenance cost model.
 6. The live dashboard scores the same persisted model used in the offline benchmark (via joblib), not a disconnected demo model trained on random labels — a deliberate fix for a common portfolio-project credibility gap.
 7. Limitations are documented honestly: random failures (RNF) have 25% capture rate; the UCI dataset is simulated; the cost model is illustrative; SHAP and dashboard RUL are both explicitly labeled as approximations, not exact/calibrated outputs.
+8. A second, separate case study demonstrates genuine RUL regression on NASA C-MAPSS — a real run-to-failure dataset, evaluated on its own official test protocol with `GroupKFold` cross-validation grouped by engine, beating a naive baseline by 63.8% RMSE.
+9. The two case studies deliberately use different validation strategies (repeated holdouts vs. grouped CV) because the two datasets' structures support different things — not because one recipe was copy-pasted onto both.
 
 ---
 
@@ -349,7 +395,30 @@ python -m py_compile main.py case_study.py \
 - Model output translated into a ranked maintenance queue with quantified business ROI
 - The live dashboard scores simulated telemetry with the same trained pipeline benchmarked in the offline case study — no separate, disconnected demo model
 - Engineering hygiene: pinned dependencies, structured logging (not `print`), a minimal model card (training timestamp, library versions, dataset hash), a Dockerized deployment path, and CI that retrains the full pipeline and builds the image on every push — not just replaying static committed artifacts
+- A second case study (NASA C-MAPSS) proves genuine RUL regression is understood, not just referenced as a limitation — including the `GroupKFold` grouping AI4I's dataset structure ruled out
 - End-to-end analytical thinking: EDA to feature engineering to model selection to business framing
+
+---
+
+## Engineering Decisions
+
+Trade-offs made in this project, and why — the reasoning matters more than the raw metrics:
+
+- **Public benchmark dataset (AI4I 2020) over real plant telemetry**: no access to a real plant's sensor stream for a portfolio project; AI4I is a well-documented, citable, reproducible substitute. The tradeoff (simulated data, no true time axis) is disclosed everywhere it matters rather than glossed over.
+- **PR-AUC as the primary selection metric**: the failure class is 3.39% of the dataset, so accuracy and even ROC-AUC can look deceptively good on a model that never flags a failure. PR-AUC and recall are what actually reward catching rare failures, and are used consistently across benchmarking, hyperparameter search, and robustness checks.
+- **Classical gradient boosting (HistGradientBoosting) over deep learning**: 10,000 rows doesn't benefit from a neural network; a tree ensemble trains in seconds, and `shap.TreeExplainer` gives exact/fast explanations for tree models versus the approximate methods deep nets require. Simpler tool, better fit for the data size and the explainability goal.
+- **`model.pkl`/`rul_model.pkl` committed directly to git, not a model registry**: appropriate at this repo's scale (two models, one deployment target). A real production system would use a registry (e.g. MLflow Model Registry) with versioning and rollback — noted as a scale-dependent simplification, not an oversight.
+- **Docker + gunicorn over a managed PaaS**: a managed platform (Heroku/Render/etc.) would hide the deployment story entirely. Owning the Dockerfile and the WSGI server choice is the point — it demonstrates the containerization step itself, which a one-click deploy would skip.
+- **The live dashboard's RUL stays a simple heuristic, not the full C-MAPSS regression model**: the dashboard simulates AI4I-schema telemetry (a CNC/machine-tool tabular snapshot); the [RUL case study](#rul-regression-nasa-c-mapss) runs on a completely different asset type (turbofan engine time-series). Wiring one into the other's live demo would mean fabricating a connection between two unrelated sensor schemas — dishonest for the sake of a flashier KPI tile. They stay as two clearly separated proof surfaces instead.
+
+### Production Considerations
+
+Out of scope to build for a benchmark case study, but worth being explicit about what a real deployment would need on top of what's here:
+
+- **Drift monitoring**: track incoming feature distributions against the training distribution (e.g. population stability index or a KS-test per feature) and alert when they diverge — this repo has no live sensor feed to monitor, so there's nothing to wire up yet.
+- **Retraining cadence**: both training/tuning/robustness-check pipelines already exist (`analysis/run_ai4i_case_study.py`, `analysis/run_cmapss_rul_case_study.py`) — a real deployment would just need a scheduler (cron, Airflow, etc.) to re-run them on a fixed cadence or on a drift trigger, and a promotion step before swapping the model artifacts.
+- **Model versioning & rollback**: replace the git-committed `model.pkl` with a registry that keeps prior versions retrievable, so a bad retrain can be rolled back without a git revert.
+- **Prediction & outcome monitoring**: track the live `RiskScore` distribution for sudden shifts, and periodically compare predicted failure-capture rate against actual outcomes once ground truth is available — the kind of silent degradation that offline metrics alone won't catch.
 
 ---
 
@@ -359,10 +428,9 @@ python -m py_compile main.py case_study.py \
 - The live dashboard simulates plausible AI4I-schema telemetry rather than reading a deployed production sensor stream (the risk model itself is real, not a toy)
 - The cost model is illustrative; real maintenance economics vary by plant and equipment type
 - Random failures (RNF) have low separability — 25% capture rate is an acknowledged limitation
-- The dashboard's RUL figure is a simple heuristic derived from the model's risk score, not a calibrated survival/RUL regression
+- The dashboard's RUL figure is a simple heuristic derived from the model's risk score, not a calibrated survival/RUL regression — genuine RUL regression is demonstrated separately (see [RUL Regression (C-MAPSS)](#rul-regression-nasa-c-mapss))
 - SHAP attributions use an interventional TreeExplainer with a 200-row background sample — a close but not exact approximation of full-dataset Shapley values
 - AI4I 2020 has no time axis or asset-grouping structure to split on, so split stability is checked via repeated holdouts (see [Validation Robustness](#validation-robustness)) rather than time-aware or group-based cross-validation
-- The `docker` CI job builds the image but does not yet run a container smoke test (e.g. start the container and hit `/api/data`) — a successful build doesn't guarantee the app serves traffic correctly at runtime
 
 ---
 

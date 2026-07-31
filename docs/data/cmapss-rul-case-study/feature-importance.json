@@ -1,0 +1,197 @@
+{
+  "method": "SHAP TreeExplainer (exact for tree ensembles) on the official test set",
+  "features": [
+    {
+      "feature": "sensor_4_roll_mean",
+      "mean_abs_shap": 9.7938
+    },
+    {
+      "feature": "sensor_9_roll_mean",
+      "mean_abs_shap": 6.3002
+    },
+    {
+      "feature": "sensor_11_roll_mean",
+      "mean_abs_shap": 5.6202
+    },
+    {
+      "feature": "sensor_15_roll_mean",
+      "mean_abs_shap": 4.7687
+    },
+    {
+      "feature": "sensor_3_roll_mean",
+      "mean_abs_shap": 2.3657
+    },
+    {
+      "feature": "sensor_14_roll_mean",
+      "mean_abs_shap": 2.224
+    },
+    {
+      "feature": "sensor_2_roll_mean",
+      "mean_abs_shap": 2.197
+    },
+    {
+      "feature": "sensor_21_roll_mean",
+      "mean_abs_shap": 1.3719
+    },
+    {
+      "feature": "sensor_20_roll_mean",
+      "mean_abs_shap": 1.0545
+    },
+    {
+      "feature": "sensor_9",
+      "mean_abs_shap": 0.9565
+    },
+    {
+      "feature": "sensor_17_roll_mean",
+      "mean_abs_shap": 0.9548
+    },
+    {
+      "feature": "sensor_6_roll_std",
+      "mean_abs_shap": 0.9176
+    },
+    {
+      "feature": "sensor_12_roll_mean",
+      "mean_abs_shap": 0.7122
+    },
+    {
+      "feature": "sensor_13_roll_mean",
+      "mean_abs_shap": 0.6787
+    },
+    {
+      "feature": "sensor_7_roll_mean",
+      "mean_abs_shap": 0.5973
+    },
+    {
+      "feature": "sensor_11",
+      "mean_abs_shap": 0.5533
+    },
+    {
+      "feature": "sensor_7",
+      "mean_abs_shap": 0.5315
+    },
+    {
+      "feature": "sensor_12",
+      "mean_abs_shap": 0.4362
+    },
+    {
+      "feature": "sensor_14",
+      "mean_abs_shap": 0.4323
+    },
+    {
+      "feature": "sensor_7_roll_std",
+      "mean_abs_shap": 0.419
+    },
+    {
+      "feature": "sensor_2",
+      "mean_abs_shap": 0.385
+    },
+    {
+      "feature": "sensor_8_roll_mean",
+      "mean_abs_shap": 0.3826
+    },
+    {
+      "feature": "sensor_20",
+      "mean_abs_shap": 0.3814
+    },
+    {
+      "feature": "sensor_13_roll_std",
+      "mean_abs_shap": 0.3262
+    },
+    {
+      "feature": "sensor_17_roll_std",
+      "mean_abs_shap": 0.2888
+    },
+    {
+      "feature": "sensor_8",
+      "mean_abs_shap": 0.2795
+    },
+    {
+      "feature": "sensor_15",
+      "mean_abs_shap": 0.2725
+    },
+    {
+      "feature": "sensor_4_roll_std",
+      "mean_abs_shap": 0.2682
+    },
+    {
+      "feature": "sensor_4",
+      "mean_abs_shap": 0.2612
+    },
+    {
+      "feature": "sensor_8_roll_std",
+      "mean_abs_shap": 0.2359
+    },
+    {
+      "feature": "sensor_9_roll_std",
+      "mean_abs_shap": 0.1932
+    },
+    {
+      "feature": "sensor_13",
+      "mean_abs_shap": 0.1699
+    },
+    {
+      "feature": "sensor_14_roll_std",
+      "mean_abs_shap": 0.1562
+    },
+    {
+      "feature": "sensor_21_roll_std",
+      "mean_abs_shap": 0.1319
+    },
+    {
+      "feature": "sensor_3_roll_std",
+      "mean_abs_shap": 0.1118
+    },
+    {
+      "feature": "sensor_12_roll_std",
+      "mean_abs_shap": 0.0933
+    },
+    {
+      "feature": "sensor_3",
+      "mean_abs_shap": 0.0854
+    },
+    {
+      "feature": "sensor_20_roll_std",
+      "mean_abs_shap": 0.081
+    },
+    {
+      "feature": "sensor_21",
+      "mean_abs_shap": 0.0646
+    },
+    {
+      "feature": "sensor_17",
+      "mean_abs_shap": 0.0605
+    },
+    {
+      "feature": "sensor_2_roll_std",
+      "mean_abs_shap": 0.0469
+    },
+    {
+      "feature": "setting_1",
+      "mean_abs_shap": 0.0426
+    },
+    {
+      "feature": "sensor_11_roll_std",
+      "mean_abs_shap": 0.0378
+    },
+    {
+      "feature": "setting_2",
+      "mean_abs_shap": 0.0286
+    },
+    {
+      "feature": "sensor_15_roll_std",
+      "mean_abs_shap": 0.0227
+    },
+    {
+      "feature": "sensor_6_roll_mean",
+      "mean_abs_shap": 0.0208
+    },
+    {
+      "feature": "setting_3",
+      "mean_abs_shap": 0.0
+    },
+    {
+      "feature": "sensor_6",
+      "mean_abs_shap": 0.0
+    }
+  ]
+}

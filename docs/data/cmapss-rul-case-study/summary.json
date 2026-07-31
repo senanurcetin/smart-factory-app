@@ -1,0 +1,49 @@
+{
+  "project": "RUL regression on a genuine run-to-failure dataset",
+  "portfolio_role": "second, separate case study \u2014 demonstrates real remaining-useful-life regression, which AI4I 2020's static snapshot structure cannot support",
+  "dataset": {
+    "name": "NASA C-MAPSS Turbofan Engine Degradation Simulation (FD001)",
+    "reference": "A. Saxena, K. Goebel, D. Simon, N. Eklund, \"Damage Propagation Modeling for Aircraft Engine Run-to-Failure Simulation\", PHM08, Denver CO, 2008 (NASA Prognostics Center of Excellence Data Repository)",
+    "subset": "FD001 (one operating condition, one fault mode)",
+    "train_units": 100,
+    "test_units": 100,
+    "train_rows": 20631
+  },
+  "target": {
+    "definition": "RUL = max_cycle_for_unit - current_cycle, capped at 125 cycles (standard C-MAPSS practice \u2014 early-life RUL is non-linear/uninformative)",
+    "evaluation_protocol": "Official held-out test set: exactly one row per test engine (its final observed cycle), scored against NASA's provided RUL_FD001.txt ground truth \u2014 the dataset's own designed evaluation protocol, not a custom split."
+  },
+  "sensors": {
+    "total": 21,
+    "kept_informative": 15,
+    "dropped_near_constant": [
+      "sensor_1",
+      "sensor_10",
+      "sensor_16",
+      "sensor_18",
+      "sensor_19",
+      "sensor_5"
+    ]
+  },
+  "final_model": {
+    "name": "HistGradientBoostingRegressor (rolling-window features, tuned)",
+    "rmse": 18.0535,
+    "phm08_score": 837.6035
+  },
+  "baseline": {
+    "name": "Naive: always predict median training RUL (103.0)",
+    "rmse": 49.8199,
+    "phm08_score": 166570.5426
+  },
+  "lift_vs_baseline": {
+    "rmse_reduction_pct": 63.7624,
+    "phm08_score_reduction_pct": 99.4971
+  },
+  "operational_takeaway": "A tuned gradient-boosting regressor on rolling-window sensor features substantially beats a naive median-RUL baseline on NASA's own held-out test protocol, using a grouped cross-validation strategy that AI4I's static dataset structure cannot support.",
+  "limitations": [
+    "FD001 is the simplest C-MAPSS subset (one operating condition, one fault mode) \u2014 FD002/FD004 (six conditions, two fault modes) are harder and not covered here.",
+    "The RUL cap (125 cycles) follows common practice but is a modeling choice, not a physical constant.",
+    "Per-cycle 'true RUL' shown in sample trajectory charts before an engine's final test cycle is a linear back-projection from the single officially truthed point, not an independently verified value.",
+    "This is a simulated benchmark (PHM08 challenge data), not flight data from a real fleet."
+  ]
+}

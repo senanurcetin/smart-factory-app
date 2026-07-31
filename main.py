@@ -22,6 +22,7 @@ from analysis.run_ai4i_case_study import (
     add_derived_features,
 )
 from case_study import case_study_bp
+from rul_case_study import rul_case_study_bp
 
 # =============================================================================
 # 1. BACKEND: APPLICATION & LIVE RISK SCORING
@@ -35,6 +36,7 @@ from case_study import case_study_bp
 
 app = Flask(__name__)
 app.register_blueprint(case_study_bp)
+app.register_blueprint(rul_case_study_bp)
 
 if not MODEL_PATH.exists():
     raise FileNotFoundError(
@@ -223,6 +225,7 @@ HTML_TEMPLATE = """
         <nav class="sidebar-nav">
             <a href="#" class="active"><i class="fas fa-tachometer-alt"></i> Dashboard</a>
             <a href="/case-study"><i class="fas fa-chart-line"></i> Case Study</a>
+            <a href="/rul-case-study"><i class="fas fa-hourglass-half"></i> RUL Case Study</a>
             <a href="#"><i class="fas fa-cogs"></i> Settings</a>
         </nav>
          <div class="sidebar-footer">
@@ -238,7 +241,7 @@ HTML_TEMPLATE = """
             <div class="col-lg-3 col-6"><div class="bento-card kpi-card text-center"><div class="kpi-card-title">OEE</div><div class="kpi-card-value" id="kpi-oee">0%</div><div class="kpi-card-trend text-success">+0.1% <i class="fas fa-arrow-up"></i></div></div></div>
             <div class="col-lg-3 col-6"><div class="bento-card kpi-card text-center"><div class="kpi-card-title">Net Production</div><div class="kpi-card-value" id="kpi-prod">0</div><div class="kpi-card-trend text-success">+5 <i class="fas fa-arrow-up"></i></div></div></div>
             <div class="col-lg-3 col-6"><div class="bento-card kpi-card text-center"><div class="kpi-card-title">Instant Cost</div><div class="kpi-card-value" id="kpi-cost">$0/hr</div><div class="kpi-card-trend text-danger">+0.5 <i class="fas fa-arrow-up"></i></div></div></div>
-            <div class="col-lg-3 col-6"><div class="bento-card kpi-card text-center"><div class="kpi-card-title">AI Forecast (RUL)</div><div class="kpi-card-value" id="kpi-rul" title="Heuristic estimate derived from the model's risk score — not a calibrated survival/RUL model.">0 Hr</div><div class="kpi-card-trend text-secondary">-1hr <i class="fas fa-arrow-down"></i></div></div></div>
+            <div class="col-lg-3 col-6"><div class="bento-card kpi-card text-center"><div class="kpi-card-title">AI Forecast (RUL)</div><div class="kpi-card-value" id="kpi-rul" title="Heuristic estimate derived from the model's risk score — not a calibrated survival/RUL model. See the RUL Case Study for genuine RUL regression.">0 Hr</div><div class="kpi-card-trend text-secondary">-1hr <i class="fas fa-arrow-down"></i></div></div></div>
 
             <!-- CHART ROW with fixed height cards and containers -->
             <div class="col-lg-6"><div class="bento-card chart-card"><h5>Real-time Temperature Analysis</h5><p class="small text-muted mb-2">Process temperature (model input)</p><div class="chart-container"><canvas id="tempChart"></canvas></div></div></div>
