@@ -57,6 +57,12 @@ CASE_STUDY_TEMPLATE = (
             border: 1px solid var(--border);
             border-radius: 20px;
             backdrop-filter: blur(14px);
+            transition: border-color 0.2s, transform 0.2s, box-shadow 0.2s;
+        }
+        .panel:hover {
+            border-color: rgba(96, 165, 250, 0.4);
+            transform: translateY(-2px);
+            box-shadow: 0 10px 24px -8px rgba(0, 0, 0, 0.35);
         }
         .hero {
             padding: 28px;
@@ -89,6 +95,11 @@ CASE_STUDY_TEMPLATE = (
             background: var(--panel-soft);
             border: 1px solid rgba(96, 165, 250, 0.16);
             border-radius: 16px;
+            transition: border-color 0.2s, transform 0.2s;
+        }
+        .metric:hover {
+            border-color: rgba(94, 234, 212, 0.5);
+            transform: translateY(-2px);
         }
         .metric-label {
             color: var(--muted);
@@ -134,7 +145,7 @@ CASE_STUDY_TEMPLATE = (
             font-size: 0.95rem;
         }
         th, td {
-            padding: 10px 0;
+            padding: 10px 8px;
             border-bottom: 1px solid rgba(159, 180, 209, 0.18);
             text-align: left;
         }
@@ -144,7 +155,17 @@ CASE_STUDY_TEMPLATE = (
             letter-spacing: 0.08em;
             text-transform: uppercase;
         }
+        tbody tr { transition: background-color 0.15s; }
+        tbody tr:nth-child(even) { background: rgba(96, 165, 250, 0.05); }
+        tbody tr:hover { background: rgba(94, 234, 212, 0.08); }
         .mono { font-family: 'IBM Plex Mono', monospace; }
+        .chart-caption {
+            display: block;
+            margin-top: 8px;
+            color: var(--muted);
+            font-size: 0.8rem;
+            text-align: center;
+        }
         .footer-note {
             margin-top: 18px;
             color: var(--muted);
@@ -222,12 +243,15 @@ CASE_STUDY_TEMPLATE = (
             <div class="chart-gallery">
                 <figure class="chart-frame" style="margin: 0;">
                     <img src="/assets/eda-class-balance.png" alt="Class balance: 96.6% normal vs 3.39% failure">
+                    <figcaption class="chart-caption">Class balance</figcaption>
                 </figure>
                 <figure class="chart-frame" style="margin: 0;">
                     <img src="/assets/eda-failure-modes.png" alt="Failure mode distribution across TWF, HDF, PWF, OSF, RNF">
+                    <figcaption class="chart-caption">Failure mode distribution</figcaption>
                 </figure>
                 <figure class="chart-frame" style="margin: 0;">
                     <img src="/assets/eda-type-distribution.png" alt="Product type distribution: Type L, M, H">
+                    <figcaption class="chart-caption">Product type distribution</figcaption>
                 </figure>
             </div>
             <p class="footer-note">96.6% of the 10,000 rows are normal operation — 3.39% failure rate drives the PR-AUC-first evaluation strategy used throughout this case study.</p>
@@ -268,9 +292,11 @@ CASE_STUDY_TEMPLATE = (
                 <div class="chart-gallery" style="margin-top: 16px;">
                     <figure class="chart-frame" style="margin: 0;">
                         <img src="/assets/model-comparison.png" alt="PR-AUC, ROC-AUC and F1 comparison across the four benchmarked models">
+                        <figcaption class="chart-caption">Benchmark comparison</figcaption>
                     </figure>
                     <figure class="chart-frame" style="margin: 0;">
                         <img src="/assets/eda-confusion-matrix.png" alt="Confusion matrix for the final tuned model on the holdout set">
+                        <figcaption class="chart-caption">Confusion matrix (holdout)</figcaption>
                     </figure>
                 </div>
                 <p class="footer-note">{{ model_selection.selection_reason }}</p>
@@ -302,6 +328,7 @@ CASE_STUDY_TEMPLATE = (
                 </table>
                 <figure class="chart-frame">
                     <img src="/assets/review-queue-curve.png" alt="Failure capture rate vs. review budget curve">
+                    <figcaption class="chart-caption">Capture rate vs. review budget</figcaption>
                 </figure>
                 <p class="footer-note">At the selected `10%` queue, the model captures {{ summary.review_queue.failure_capture_rate }} of holdout failures while reviewing only {{ summary.review_queue.reviewed_assets }} assets.</p>
             </div>
@@ -317,6 +344,7 @@ CASE_STUDY_TEMPLATE = (
                 </table>
                 <figure class="chart-frame">
                     <img src="/assets/cost-model.png" alt="Per-failure-mode cost breakdown across scenarios">
+                    <figcaption class="chart-caption">Cost breakdown by scenario</figcaption>
                 </figure>
                 <p class="footer-note">This is an illustrative planning model, not a production claim. It exists to show how a classifier can be translated into maintenance economics.</p>
             </div>
@@ -353,6 +381,7 @@ CASE_STUDY_TEMPLATE = (
                 {% endfor %}
                 <figure class="chart-frame">
                     <img src="/assets/feature-importance.png" alt="Permutation importance ranking of model features">
+                    <figcaption class="chart-caption">Permutation importance</figcaption>
                 </figure>
                 <p class="footer-note">Permutation importance uses average precision as the scoring function to stay aligned with the imbalanced maintenance target.</p>
             </div>

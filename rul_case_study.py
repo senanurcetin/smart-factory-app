@@ -57,6 +57,12 @@ RUL_CASE_STUDY_TEMPLATE = (
             border: 1px solid var(--border);
             border-radius: 20px;
             backdrop-filter: blur(14px);
+            transition: border-color 0.2s, transform 0.2s, box-shadow 0.2s;
+        }
+        .panel:hover {
+            border-color: rgba(96, 165, 250, 0.4);
+            transform: translateY(-2px);
+            box-shadow: 0 10px 24px -8px rgba(0, 0, 0, 0.35);
         }
         .hero {
             padding: 28px;
@@ -89,6 +95,11 @@ RUL_CASE_STUDY_TEMPLATE = (
             background: var(--panel-soft);
             border: 1px solid rgba(96, 165, 250, 0.16);
             border-radius: 16px;
+            transition: border-color 0.2s, transform 0.2s;
+        }
+        .metric:hover {
+            border-color: rgba(94, 234, 212, 0.5);
+            transform: translateY(-2px);
         }
         .metric-label {
             color: var(--muted);
@@ -134,7 +145,7 @@ RUL_CASE_STUDY_TEMPLATE = (
             font-size: 0.95rem;
         }
         th, td {
-            padding: 10px 0;
+            padding: 10px 8px;
             border-bottom: 1px solid rgba(159, 180, 209, 0.18);
             text-align: left;
         }
@@ -144,7 +155,17 @@ RUL_CASE_STUDY_TEMPLATE = (
             letter-spacing: 0.08em;
             text-transform: uppercase;
         }
+        tbody tr { transition: background-color 0.15s; }
+        tbody tr:nth-child(even) { background: rgba(96, 165, 250, 0.05); }
+        tbody tr:hover { background: rgba(94, 234, 212, 0.08); }
         .mono { font-family: 'IBM Plex Mono', monospace; }
+        .chart-caption {
+            display: block;
+            margin-top: 8px;
+            color: var(--muted);
+            font-size: 0.8rem;
+            text-align: center;
+        }
         .footer-note {
             margin-top: 18px;
             color: var(--muted);
@@ -228,6 +249,7 @@ RUL_CASE_STUDY_TEMPLATE = (
                 <p class="footer-note">Dataset: {{ summary.dataset.name }}. {{ summary.dataset.reference }}.</p>
                 <figure class="chart-frame">
                     <img src="/assets/cmapss-degradation-trajectories.png" alt="Sample engine degradation trajectories across cycles">
+                    <figcaption class="chart-caption">Sample engine degradation trajectories</figcaption>
                 </figure>
             </div>
             <div class="panel">
@@ -256,9 +278,11 @@ RUL_CASE_STUDY_TEMPLATE = (
                 <div class="chart-gallery" style="margin-top: 16px;">
                     <figure class="chart-frame" style="margin: 0;">
                         <img src="/assets/cmapss-model-vs-baseline.png" alt="RMSE comparison: tuned model vs naive median baseline">
+                        <figcaption class="chart-caption">Model vs. baseline RMSE</figcaption>
                     </figure>
                     <figure class="chart-frame" style="margin: 0;">
                         <img src="/assets/cmapss-predicted-vs-actual.png" alt="Predicted vs actual RUL scatter on the official test set">
+                        <figcaption class="chart-caption">Predicted vs. actual RUL</figcaption>
                     </figure>
                 </div>
                 <p class="footer-note">{{ model_selection.selection_reason }}</p>
@@ -301,6 +325,7 @@ RUL_CASE_STUDY_TEMPLATE = (
                 {% endfor %}
                 <figure class="chart-frame">
                     <img src="/assets/cmapss-feature-importance.png" alt="Mean absolute SHAP value ranking of RUL model features">
+                    <figcaption class="chart-caption">Mean |SHAP| feature importance</figcaption>
                 </figure>
                 <p class="footer-note">{{ feature_importance_method }}</p>
             </div>

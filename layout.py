@@ -33,6 +33,7 @@ SIDEBAR_CSS = """
         }
         .sidebar-logo i { color: #3b82f6; }
         .sidebar-nav a {
+            position: relative;
             display: flex;
             align-items: center;
             padding: 0.75rem 1rem;
@@ -41,11 +42,15 @@ SIDEBAR_CSS = """
             border-radius: 8px;
             font-weight: 500;
             margin-bottom: 0.5rem;
-            transition: background-color 0.2s;
+            transition: background-color 0.15s, color 0.15s, padding-left 0.15s;
         }
         .sidebar-nav a.active, .sidebar-nav a:hover {
             background-color: #1f2937;
             color: #f9fafb;
+            padding-left: 1.15rem;
+        }
+        .sidebar-nav a.active {
+            box-shadow: inset 3px 0 0 0 #3b82f6;
         }
         .sidebar-nav a i {
             width: 1.25em;
@@ -60,24 +65,29 @@ NAV_ITEMS = [
     ("rul-case-study", "/rul-case-study", "fa-hourglass-half", "RUL Case Study"),
 ]
 
+FOOTER_NAV_ITEMS = [
+    ("settings", "/settings", "fa-cogs", "Settings"),
+]
+
 
 def render_sidebar(active: str) -> str:
     """Render the sidebar nav HTML, marking `active` (one of the NAV_ITEMS
-    keys) as the current page."""
-    links = []
-    for key, href, icon, label in NAV_ITEMS:
+    or FOOTER_NAV_ITEMS keys) as the current page."""
+
+    def _link(key: str, href: str, icon: str, label: str) -> str:
         active_class = ' class="active"' if key == active else ""
-        links.append(f'<a href="{href}"{active_class}><i class="fas {icon}"></i> {label}</a>')
-    links_html = "\n            ".join(links)
+        return f'<a href="{href}"{active_class}><i class="fas {icon}"></i> {label}</a>'
+
+    links_html = "\n            ".join(_link(*item) for item in NAV_ITEMS)
+    footer_links_html = "\n                ".join(_link(*item) for item in FOOTER_NAV_ITEMS)
     return f"""<div class="sidebar">
         <div class="sidebar-logo"><i class="fas fa-bolt"></i> SmartFactory</div>
         <nav class="sidebar-nav">
             {links_html}
-            <a href="#"><i class="fas fa-cogs"></i> Settings</a>
         </nav>
         <div class="sidebar-footer">
             <nav class="sidebar-nav">
-                <a href="#"><i class="fas fa-user-circle"></i> Profile</a>
+                {footer_links_html}
             </nav>
         </div>
     </div>"""

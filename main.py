@@ -25,6 +25,7 @@ from analysis.run_ai4i_case_study import (
 from case_study import case_study_bp
 from layout import render_sidebar
 from rul_case_study import rul_case_study_bp
+from settings import settings_bp
 
 ASSETS_DIR = Path(__file__).resolve().parent / "docs" / "assets"
 
@@ -41,6 +42,7 @@ ASSETS_DIR = Path(__file__).resolve().parent / "docs" / "assets"
 app = Flask(__name__)
 app.register_blueprint(case_study_bp)
 app.register_blueprint(rul_case_study_bp)
+app.register_blueprint(settings_bp)
 
 if not MODEL_PATH.exists():
     raise FileNotFoundError(
@@ -75,6 +77,11 @@ HTML_TEMPLATE = """
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>SmartFactory - Bento Dashboard</title>
+    <script>
+        if (localStorage.getItem('sf_dashboard_theme') === 'dark') {
+            document.documentElement.setAttribute('data-theme', 'dark');
+        }
+    </script>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -90,13 +97,25 @@ HTML_TEMPLATE = """
             --text-muted: #6b7280;
             --border-color: #e5e7eb;
         }
+        :root[data-theme="dark"] {
+            --main-bg: #0f172a;
+            --card-bg: #1e293b;
+            --text-dark: #e5e7eb;
+            --text-muted: #94a3b8;
+            --border-color: #334155;
+        }
 
         body {
             background-color: var(--main-bg);
             font-family: 'Inter', sans-serif;
             color: var(--text-dark);
             margin: 0;
+            transition: background-color 0.2s, color 0.2s;
         }
+        [data-theme="dark"] .bento-card { box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.35), 0 2px 4px -2px rgb(0 0 0 / 0.35); }
+        [data-theme="dark"] .text-muted { color: var(--text-muted) !important; }
+        [data-theme="dark"] .dashboard-intro { background: rgba(59, 130, 246, 0.14); border-color: rgba(59, 130, 246, 0.35); }
+        [data-theme="dark"] .dashboard-intro p { color: #cbd5e1; }
 
         .sidebar {
             position: fixed;
@@ -220,6 +239,31 @@ HTML_TEMPLATE = """
         }
         .dashboard-intro a { color: #1d4ed8; font-weight: 600; }
 
+        .page-header { margin-bottom: 1.25rem; }
+        .page-title {
+            font-family: 'Inter', sans-serif;
+            font-size: 1.7rem;
+            font-weight: 700;
+            color: var(--text-dark);
+            margin: 0 0 4px 0;
+        }
+        .page-subtitle {
+            font-size: 0.92rem;
+            color: var(--text-muted);
+            margin: 0;
+        }
+
+        .bento-card {
+            transition: transform 0.18s ease, box-shadow 0.18s ease;
+        }
+        .bento-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px -6px rgb(0 0 0 / 0.15), 0 4px 8px -4px rgb(0 0 0 / 0.1);
+        }
+        [data-theme="dark"] .bento-card:hover {
+            box-shadow: 0 10px 24px -6px rgb(0 0 0 / 0.5), 0 4px 8px -4px rgb(0 0 0 / 0.4);
+        }
+
         .chart-card {
              height: 400px; /* Fixed height for chart cards */
         }
@@ -268,6 +312,10 @@ HTML_TEMPLATE = """
     {{ sidebar_html|safe }}
 
     <main class="main-content">
+        <div class="page-header">
+            <h1 class="page-title">Live Production Dashboard</h1>
+            <p class="page-subtitle">Real-time simulated telemetry, scored live by the trained AI4I model</p>
+        </div>
         <div class="dashboard-intro">
             <i class="fas fa-circle-info"></i>
             <p>
@@ -295,12 +343,16 @@ HTML_TEMPLATE = """
 
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script>
+        const isDarkTheme = document.documentElement.getAttribute('data-theme') === 'dark';
         const chartDefaults = {
             responsive: true,
             maintainAspectRatio: false, // CRITICAL: Allows chart to fill container height
             animation: false,
             plugins: { legend: { display: false } },
-            scales: { x: { grid: { display: false }, ticks: { color: '#9ca3af'} }, y: { grid: { color: '#e5e7eb' }, ticks: { color: '#9ca3af' } } }
+            scales: {
+                x: { grid: { display: false }, ticks: { color: '#9ca3af' } },
+                y: { grid: { color: isDarkTheme ? 'rgba(148, 163, 184, 0.15)' : '#e5e7eb' }, ticks: { color: '#9ca3af' } }
+            }
         };
         const tempChart = new Chart(document.getElementById('tempChart'), {
             type: 'line',
@@ -404,7 +456,8 @@ HTML_TEMPLATE = """
             logBox.scrollTop = logBox.scrollHeight;
         }
 
-        setInterval(fetchData, 2000);
+        const refreshMs = parseInt(localStorage.getItem('sf_refresh_ms'), 10) || 2000;
+        setInterval(fetchData, refreshMs);
         document.addEventListener('DOMContentLoaded', fetchData);
     </script>
 </body>
