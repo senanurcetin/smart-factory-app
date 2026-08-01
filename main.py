@@ -11,10 +11,11 @@ import random
 import time
 from collections import deque
 from datetime import datetime
+from pathlib import Path
 
 import joblib
 import pandas as pd
-from flask import Flask, jsonify, render_template_string
+from flask import Flask, jsonify, render_template_string, send_from_directory
 
 from analysis.run_ai4i_case_study import (
     MODEL_FEATURES_ENHANCED,
@@ -24,6 +25,8 @@ from analysis.run_ai4i_case_study import (
 from case_study import case_study_bp
 from layout import render_sidebar
 from rul_case_study import rul_case_study_bp
+
+ASSETS_DIR = Path(__file__).resolve().parent / "docs" / "assets"
 
 # =============================================================================
 # 1. BACKEND: APPLICATION & LIVE RISK SCORING
@@ -170,11 +173,52 @@ HTML_TEMPLATE = """
             margin: auto 0;
             line-height: 1.2;
         }
-        .kpi-card-trend {
-            font-size: 0.85rem;
-            font-weight: 500;
-            align-self: flex-end;
+        .kpi-card-caption {
+            font-size: 0.72rem;
+            font-weight: 600;
+            align-self: flex-start;
+            letter-spacing: 0.02em;
         }
+        .kpi-card-caption.is-model { color: #2563eb; }
+        .kpi-card-caption.is-sim { color: var(--text-muted); }
+
+        .risk-badge {
+            display: inline-block;
+            padding: 2px 10px;
+            border-radius: 999px;
+            font-size: 0.7rem;
+            font-weight: 700;
+            letter-spacing: 0.04em;
+            margin-left: 8px;
+            vertical-align: middle;
+        }
+        .risk-badge.risk-low { background: #dcfce7; color: #166534; }
+        .risk-badge.risk-medium { background: #fef9c3; color: #854d0e; }
+        .risk-badge.risk-high { background: #fee2e2; color: #991b1b; }
+
+        .dashboard-intro {
+            background: #eff6ff;
+            border: 1px solid #bfdbfe;
+            border-left: 4px solid #3b82f6;
+            border-radius: 12px;
+            padding: 1rem 1.25rem;
+            margin-bottom: 1.5rem;
+            display: flex;
+            gap: 0.9rem;
+            align-items: flex-start;
+        }
+        .dashboard-intro i {
+            color: #3b82f6;
+            font-size: 1.2rem;
+            margin-top: 0.15rem;
+        }
+        .dashboard-intro p {
+            margin: 0;
+            font-size: 0.92rem;
+            color: #1e3a5f;
+            line-height: 1.55;
+        }
+        .dashboard-intro a { color: #1d4ed8; font-weight: 600; }
 
         .chart-card {
              height: 400px; /* Fixed height for chart cards */
@@ -224,12 +268,19 @@ HTML_TEMPLATE = """
     {{ sidebar_html|safe }}
 
     <main class="main-content">
+        <div class="dashboard-intro">
+            <i class="fas fa-circle-info"></i>
+            <p>
+                <strong>What you're looking at:</strong> synthetic AI4I-schema sensor readings are generated every 2 seconds to imitate a running machine, then scored live by the same trained pipeline validated in the
+                <a href="/case-study">Case Study</a> (PR-AUC 0.90 on held-out data). The <strong>Failure Risk Score</strong> and <strong>RUL Forecast</strong> cards are genuine model outputs — everything else (OEE, production count, cost) is simulated plant telemetry used only to feed the model realistic inputs.
+            </p>
+        </div>
         <div class="row g-4">
             <!-- KPI ROW with fixed height cards -->
-            <div class="col-lg-3 col-6"><div class="bento-card kpi-card text-center"><div class="kpi-card-title">OEE</div><div class="kpi-card-value" id="kpi-oee">0%</div><div class="kpi-card-trend text-success">+0.1% <i class="fas fa-arrow-up"></i></div></div></div>
-            <div class="col-lg-3 col-6"><div class="bento-card kpi-card text-center"><div class="kpi-card-title">Net Production</div><div class="kpi-card-value" id="kpi-prod">0</div><div class="kpi-card-trend text-success">+5 <i class="fas fa-arrow-up"></i></div></div></div>
-            <div class="col-lg-3 col-6"><div class="bento-card kpi-card text-center"><div class="kpi-card-title">Instant Cost</div><div class="kpi-card-value" id="kpi-cost">$0/hr</div><div class="kpi-card-trend text-danger">+0.5 <i class="fas fa-arrow-up"></i></div></div></div>
-            <div class="col-lg-3 col-6"><div class="bento-card kpi-card text-center"><div class="kpi-card-title">AI Forecast (RUL)</div><div class="kpi-card-value" id="kpi-rul" title="Heuristic estimate derived from the model's risk score — not a calibrated survival/RUL model. See the RUL Case Study for genuine RUL regression.">0 Hr</div><div class="kpi-card-trend text-secondary">-1hr <i class="fas fa-arrow-down"></i></div></div></div>
+            <div class="col-lg-3 col-6"><div class="bento-card kpi-card text-center"><div class="kpi-card-title">Failure Risk Score <span class="risk-badge" id="kpi-risk-badge">--</span></div><div class="kpi-card-value" id="kpi-risk">0%</div><div class="kpi-card-caption is-model"><i class="fas fa-robot"></i> Live model output</div></div></div>
+            <div class="col-lg-3 col-6"><div class="bento-card kpi-card text-center"><div class="kpi-card-title">AI Forecast (RUL)</div><div class="kpi-card-value" id="kpi-rul" title="Heuristic estimate derived from the model's risk score — not a calibrated survival/RUL model. See the RUL Case Study for genuine RUL regression.">0 Hr</div><div class="kpi-card-caption is-model"><i class="fas fa-robot"></i> Derived from risk score</div></div></div>
+            <div class="col-lg-3 col-6"><div class="bento-card kpi-card text-center"><div class="kpi-card-title">OEE</div><div class="kpi-card-value" id="kpi-oee">0%</div><div class="kpi-card-caption is-sim"><i class="fas fa-shuffle"></i> Simulated telemetry</div></div></div>
+            <div class="col-lg-3 col-6"><div class="bento-card kpi-card text-center"><div class="kpi-card-title">Net Production</div><div class="kpi-card-value" id="kpi-prod">0</div><div class="kpi-card-caption is-sim"><i class="fas fa-shuffle"></i> Simulated telemetry</div></div></div>
 
             <!-- CHART ROW with fixed height cards and containers -->
             <div class="col-lg-6"><div class="bento-card chart-card"><h5>Real-time Temperature Analysis</h5><p class="small text-muted mb-2">Process temperature (model input)</p><div class="chart-container"><canvas id="tempChart"></canvas></div></div></div>
@@ -288,8 +339,21 @@ HTML_TEMPLATE = """
             // --- Update KPIs ---
             document.getElementById('kpi-oee').textContent = prod.oee.toFixed(1) + '%';
             document.getElementById('kpi-prod').textContent = prod.actual;
-            document.getElementById('kpi-cost').textContent = `$${current.Energy_Cost_Per_Hour.toFixed(2)}/hr`;
             document.getElementById('kpi-rul').textContent = `${current.RUL} Hr`;
+
+            const riskPct = current.RiskScore * 100;
+            document.getElementById('kpi-risk').textContent = riskPct.toFixed(1) + '%';
+            const riskBadge = document.getElementById('kpi-risk-badge');
+            if (riskPct < 30) {
+                riskBadge.textContent = 'LOW';
+                riskBadge.className = 'risk-badge risk-low';
+            } else if (riskPct < 60) {
+                riskBadge.textContent = 'MEDIUM';
+                riskBadge.className = 'risk-badge risk-medium';
+            } else {
+                riskBadge.textContent = 'HIGH';
+                riskBadge.className = 'risk-badge risk-high';
+            }
 
             // --- Update Shift Info Panel ---
             const shiftPanel = document.getElementById('shift-info-panel');
@@ -299,7 +363,7 @@ HTML_TEMPLATE = """
                 <div class="info-list-item"><span class="label">Cycle Time</span><span class="value">${current.Cycle_Time.toFixed(1)}s</span></div>
                 <div class="info-list-item"><span class="label">Power Factor</span><span class="value">${current.Power_Factor.toFixed(2)}</span></div>
                 <div class="info-list-item"><span class="label">Machine Type</span><span class="value">${current.Type}</span></div>
-                <div class="info-list-item"><span class="label">Model Risk Score</span><span class="value">${current.RiskScore.toFixed(4)}</span></div>
+                <div class="info-list-item"><span class="label">Energy Cost</span><span class="value">$${current.Energy_Cost_Per_Hour.toFixed(2)}/hr</span></div>
             `;
 
             // --- Update Health Progress Bars with conditional colors ---
@@ -355,6 +419,11 @@ HTML_TEMPLATE = """
 @app.route("/")
 def index():
     return render_template_string(HTML_TEMPLATE, sidebar_html=render_sidebar("dashboard"))
+
+
+@app.route("/assets/<path:filename>")
+def serve_asset(filename):
+    return send_from_directory(ASSETS_DIR, filename)
 
 
 @app.route("/api/data")

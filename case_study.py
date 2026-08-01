@@ -161,6 +161,24 @@ CASE_STUDY_TEMPLATE = (
             margin-right: 8px;
             margin-bottom: 8px;
         }
+        .chart-frame {
+            background: #ffffff;
+            border-radius: 12px;
+            padding: 10px;
+            margin-top: 16px;
+        }
+        .chart-frame img {
+            display: block;
+            width: 100%;
+            height: auto;
+            border-radius: 4px;
+        }
+        .chart-gallery {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+            gap: 16px;
+        }
+        .chart-gallery .chart-frame { margin-top: 0; }
         @media (max-width: 920px) {
             .grid { grid-template-columns: 1fr; }
         }
@@ -199,6 +217,22 @@ CASE_STUDY_TEMPLATE = (
             </div>
         </section>
 
+        <section class="panel" style="margin-bottom: 18px;">
+            <h2 class="section-title">Exploratory Data Analysis</h2>
+            <div class="chart-gallery">
+                <figure class="chart-frame" style="margin: 0;">
+                    <img src="/assets/eda-class-balance.png" alt="Class balance: 96.6% normal vs 3.39% failure">
+                </figure>
+                <figure class="chart-frame" style="margin: 0;">
+                    <img src="/assets/eda-failure-modes.png" alt="Failure mode distribution across TWF, HDF, PWF, OSF, RNF">
+                </figure>
+                <figure class="chart-frame" style="margin: 0;">
+                    <img src="/assets/eda-type-distribution.png" alt="Product type distribution: Type L, M, H">
+                </figure>
+            </div>
+            <p class="footer-note">96.6% of the 10,000 rows are normal operation — 3.39% failure rate drives the PR-AUC-first evaluation strategy used throughout this case study.</p>
+        </section>
+
         <section class="grid">
             <div class="panel">
                 <h2 class="section-title">What this proves</h2>
@@ -231,6 +265,14 @@ CASE_STUDY_TEMPLATE = (
                     {% endfor %}
                     </tbody>
                 </table>
+                <div class="chart-gallery" style="margin-top: 16px;">
+                    <figure class="chart-frame" style="margin: 0;">
+                        <img src="/assets/model-comparison.png" alt="PR-AUC, ROC-AUC and F1 comparison across the four benchmarked models">
+                    </figure>
+                    <figure class="chart-frame" style="margin: 0;">
+                        <img src="/assets/eda-confusion-matrix.png" alt="Confusion matrix for the final tuned model on the holdout set">
+                    </figure>
+                </div>
                 <p class="footer-note">{{ model_selection.selection_reason }}</p>
             </div>
         </section>
@@ -258,6 +300,9 @@ CASE_STUDY_TEMPLATE = (
                     {% endfor %}
                     </tbody>
                 </table>
+                <figure class="chart-frame">
+                    <img src="/assets/review-queue-curve.png" alt="Failure capture rate vs. review budget curve">
+                </figure>
                 <p class="footer-note">At the selected `10%` queue, the model captures {{ summary.review_queue.failure_capture_rate }} of holdout failures while reviewing only {{ summary.review_queue.reviewed_assets }} assets.</p>
             </div>
             <div class="panel">
@@ -270,6 +315,9 @@ CASE_STUDY_TEMPLATE = (
                         <tr><th>Savings vs reactive</th><td class="mono">${{ cost_simulation.savings_vs_reactive }}</td></tr>
                     </tbody>
                 </table>
+                <figure class="chart-frame">
+                    <img src="/assets/cost-model.png" alt="Per-failure-mode cost breakdown across scenarios">
+                </figure>
                 <p class="footer-note">This is an illustrative planning model, not a production claim. It exists to show how a classifier can be translated into maintenance economics.</p>
             </div>
         </section>
@@ -303,6 +351,9 @@ CASE_STUDY_TEMPLATE = (
                 {% for row in feature_importance %}
                     <span class="tag">{{ row.feature }}: {{ row.importance }}</span>
                 {% endfor %}
+                <figure class="chart-frame">
+                    <img src="/assets/feature-importance.png" alt="Permutation importance ranking of model features">
+                </figure>
                 <p class="footer-note">Permutation importance uses average precision as the scoring function to stay aligned with the imbalanced maintenance target.</p>
             </div>
         </section>

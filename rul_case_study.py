@@ -161,6 +161,24 @@ RUL_CASE_STUDY_TEMPLATE = (
             margin-right: 8px;
             margin-bottom: 8px;
         }
+        .chart-frame {
+            background: #ffffff;
+            border-radius: 12px;
+            padding: 10px;
+            margin-top: 16px;
+        }
+        .chart-frame img {
+            display: block;
+            width: 100%;
+            height: auto;
+            border-radius: 4px;
+        }
+        .chart-gallery {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+            gap: 16px;
+        }
+        .chart-gallery .chart-frame { margin-top: 0; }
         @media (max-width: 920px) {
             .grid { grid-template-columns: 1fr; }
         }
@@ -208,6 +226,9 @@ RUL_CASE_STUDY_TEMPLATE = (
                     <li>Evaluation uses the dataset's own designed protocol (NASA's official test split + truthed RUL labels), not a custom holdout.</li>
                 </ul>
                 <p class="footer-note">Dataset: {{ summary.dataset.name }}. {{ summary.dataset.reference }}.</p>
+                <figure class="chart-frame">
+                    <img src="/assets/cmapss-degradation-trajectories.png" alt="Sample engine degradation trajectories across cycles">
+                </figure>
             </div>
             <div class="panel">
                 <h2 class="section-title">Model vs. Naive Baseline</h2>
@@ -232,6 +253,14 @@ RUL_CASE_STUDY_TEMPLATE = (
                         </tr>
                     </tbody>
                 </table>
+                <div class="chart-gallery" style="margin-top: 16px;">
+                    <figure class="chart-frame" style="margin: 0;">
+                        <img src="/assets/cmapss-model-vs-baseline.png" alt="RMSE comparison: tuned model vs naive median baseline">
+                    </figure>
+                    <figure class="chart-frame" style="margin: 0;">
+                        <img src="/assets/cmapss-predicted-vs-actual.png" alt="Predicted vs actual RUL scatter on the official test set">
+                    </figure>
+                </div>
                 <p class="footer-note">{{ model_selection.selection_reason }}</p>
             </div>
         </section>
@@ -270,6 +299,9 @@ RUL_CASE_STUDY_TEMPLATE = (
                 {% for row in feature_importance %}
                     <span class="tag">{{ row.feature }}: {{ row.mean_abs_shap }}</span>
                 {% endfor %}
+                <figure class="chart-frame">
+                    <img src="/assets/cmapss-feature-importance.png" alt="Mean absolute SHAP value ranking of RUL model features">
+                </figure>
                 <p class="footer-note">{{ feature_importance_method }}</p>
             </div>
             <div class="panel">
