@@ -13,7 +13,7 @@ COPY --from=builder /root/.local /root/.local
 ENV PATH=/root/.local/bin:$PATH \
     PYTHONUNBUFFERED=1
 
-COPY main.py case_study.py rul_case_study.py ./
+COPY main.py case_study.py rul_case_study.py layout.py ./
 COPY analysis/ ./analysis/
 COPY docs/ ./docs/
 
