@@ -6,7 +6,7 @@
 
 **Predictive-maintenance analytics case study** — end-to-end ML pipeline on the UCI AI4I 2020 dataset, including EDA, feature engineering, model selection, SQL analysis, review-queue design, and cost framing. Packaged with a Flask plant dashboard, plus a [second case study](#rul-regression-nasa-c-mapss) demonstrating genuine remaining-useful-life (RUL) regression on NASA's C-MAPSS run-to-failure dataset.
 
-Demo: [Portfolio project entry](https://senanur-cetin.vercel.app/projects/smart-factory-app)
+Demo: **[smart-factory-app.onrender.com](https://smart-factory-app.onrender.com)** (live app) · [Portfolio project entry](https://senanur-cetin.vercel.app/projects/smart-factory-app)
 
 Short video: [`docs/assets/smart-factory-dashboard.webm`](docs/assets/smart-factory-dashboard.webm)
 
@@ -16,13 +16,13 @@ Short video: [`docs/assets/smart-factory-dashboard.webm`](docs/assets/smart-fact
 
 ## Live Demo
 
-Not yet deployed to a persistent URL. One-click path using the `render.yaml` blueprint already committed in this repo:
+**[smart-factory-app.onrender.com](https://smart-factory-app.onrender.com)** — deployed via the `render.yaml` blueprint already committed in this repo (Render's free tier, Docker runtime, no manual configuration).
 
-1. Sign up at [render.com](https://render.com) (free tier is enough).
-2. **New +** → **Blueprint** → connect this GitHub repo. Render auto-detects `render.yaml` and the existing multi-stage `Dockerfile` — no manual configuration needed.
-3. First deploy takes a few minutes (installs the full scientific-Python stack: scikit-learn, scipy, pandas, shap, duckdb, matplotlib). Later deploys are faster via layer caching.
-4. Free-tier services spin down after ~15 minutes idle; the first request after that takes ~30-60 seconds to wake up — a known free-tier tradeoff, not a bug.
-5. Once live: update this line and the [portfolio entry](https://senanur-cetin.vercel.app/projects/smart-factory-app) above with the real URL.
+- Dashboard: [`/`](https://smart-factory-app.onrender.com/)
+- AI4I case study: [`/case-study`](https://smart-factory-app.onrender.com/case-study)
+- RUL case study: [`/rul-case-study`](https://smart-factory-app.onrender.com/rul-case-study)
+
+Free-tier services spin down after ~15 minutes idle; the first request after that takes ~30-60 seconds to wake up — a known free-tier tradeoff, not a bug.
 
 **Why not Vercel for the interactive app**: Vercel's serverless Python functions have a size limit (~250MB unzipped) that this repo's dependency stack is very likely to exceed. Render (and similarly Fly.io/Cloud Run) run the app as a real container instead of a size-constrained function — a better fit here, and it reuses the Dockerfile already built and CI-verified in this repo rather than needing a separate, trimmed-down deployment path.
 

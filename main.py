@@ -22,6 +22,7 @@ from analysis.run_ai4i_case_study import (
     add_derived_features,
 )
 from case_study import case_study_bp
+from layout import render_sidebar
 from rul_case_study import rul_case_study_bp
 
 # =============================================================================
@@ -220,20 +221,7 @@ HTML_TEMPLATE = """
     </style>
 </head>
 <body>
-    <div class="sidebar">
-        <div class="sidebar-logo"><i class="fas fa-bolt"></i> SmartFactory</div>
-        <nav class="sidebar-nav">
-            <a href="#" class="active"><i class="fas fa-tachometer-alt"></i> Dashboard</a>
-            <a href="/case-study"><i class="fas fa-chart-line"></i> Case Study</a>
-            <a href="/rul-case-study"><i class="fas fa-hourglass-half"></i> RUL Case Study</a>
-            <a href="#"><i class="fas fa-cogs"></i> Settings</a>
-        </nav>
-         <div class="sidebar-footer">
-            <nav class="sidebar-nav">
-                <a href="#"><i class="fas fa-user-circle"></i> Profile</a>
-            </nav>
-        </div>
-    </div>
+    {{ sidebar_html|safe }}
 
     <main class="main-content">
         <div class="row g-4">
@@ -366,7 +354,7 @@ HTML_TEMPLATE = """
 
 @app.route("/")
 def index():
-    return render_template_string(HTML_TEMPLATE)
+    return render_template_string(HTML_TEMPLATE, sidebar_html=render_sidebar("dashboard"))
 
 
 @app.route("/api/data")

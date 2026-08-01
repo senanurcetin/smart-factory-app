@@ -5,9 +5,12 @@ from pathlib import Path
 
 from flask import Blueprint, abort, jsonify, render_template_string
 
+from layout import SIDEBAR_CSS, render_sidebar
+
 ARTIFACT_DIR = Path(__file__).resolve().parent / "docs" / "data" / "ai4i-case-study"
 
-CASE_STUDY_TEMPLATE = """
+CASE_STUDY_TEMPLATE = (
+    """
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -15,7 +18,10 @@ CASE_STUDY_TEMPLATE = """
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Smart Factory Case Study</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
-    <style>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <style>"""
+    + SIDEBAR_CSS
+    + """
         :root {
             --bg: #0a1120;
             --panel: rgba(15, 25, 41, 0.92);
@@ -43,6 +49,8 @@ CASE_STUDY_TEMPLATE = """
             max-width: 1180px;
             margin: 0 auto;
             padding: 32px 20px 64px;
+            margin-left: 250px;
+            box-sizing: border-box;
         }
         .hero, .panel {
             background: var(--panel);
@@ -159,6 +167,7 @@ CASE_STUDY_TEMPLATE = """
     </style>
 </head>
 <body>
+    {{ sidebar_html|safe }}
     <main class="page">
         <section class="hero">
             <div>
@@ -337,6 +346,7 @@ CASE_STUDY_TEMPLATE = """
 </body>
 </html>
 """
+)
 
 case_study_bp = Blueprint("case_study", __name__)
 
@@ -381,4 +391,6 @@ def case_study_page():
         artifacts = load_case_study_artifacts()
     except FileNotFoundError as exc:
         abort(503, description=str(exc))
-    return render_template_string(CASE_STUDY_TEMPLATE, **artifacts)
+    return render_template_string(
+        CASE_STUDY_TEMPLATE, sidebar_html=render_sidebar("case-study"), **artifacts
+    )
