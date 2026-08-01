@@ -298,6 +298,32 @@ CASE_STUDY_TEMPLATE = """
             </div>
         </section>
 
+        {% if drift_report %}
+        <section class="panel" style="margin-top: 18px;">
+            <h2 class="section-title">Drift Check (Demonstrated)</h2>
+            <p class="section-copy">{{ drift_report.scenario }}</p>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Feature</th>
+                        <th>PSI</th>
+                        <th>Verdict</th>
+                    </tr>
+                </thead>
+                <tbody>
+                {% for row in drift_report.features %}
+                    <tr>
+                        <td>{{ row.feature }}</td>
+                        <td class="mono">{{ row.psi }}</td>
+                        <td class="mono">{{ row.verdict }}</td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+            <p class="footer-note">{{ drift_report.method }}. This is a real, runnable check (not just a documented idea) — regenerate with <code>python analysis/check_drift.py</code>.</p>
+        </section>
+        {% endif %}
+
         <section class="panel" style="margin-top: 18px;">
             <h2 class="section-title">Limitations and next step</h2>
             <ul class="bullet-list">
@@ -337,6 +363,7 @@ def load_case_study_artifacts() -> dict:
         "failure_modes": _load_json("failure-mode-breakdown.json") or [],
         "cost_simulation": _load_json("cost-simulation.json") or {},
         "dataset_profile": _load_json("dataset-profile.json") or {},
+        "drift_report": _load_json("drift-report.json") or {},
     }
 
 

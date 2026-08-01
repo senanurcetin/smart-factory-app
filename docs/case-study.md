@@ -165,6 +165,7 @@ A separate per-failure-mode breakdown (differentiated unplanned/preventive cost 
 - **Structured logging**: pipeline scripts use Python's `logging` module (timestamps, levels) instead of bare `print`
 - **CI runs the real pipeline**: `run_ai4i_case_study.py` (including the UCI dataset download, hyperparameter search, and robustness check) executes on every push — CI no longer just replays statically committed artifacts
 - **Deployment**: a multi-stage Dockerfile serves the app with `gunicorn`; the image build and a runtime smoke test (start the container, curl `/api/data`) are both exercised in CI on every push
+- **Drift detection**: `analysis/check_drift.py` computes PSI (Population Stability Index) between the training distribution and a synthetic batch with `Tool wear [min]` deliberately shifted +80 minutes (simulating a fleet wearing tools faster than during training). The shifted feature and its dependent derived feature (`tool_wear_load_ratio`) are correctly flagged as significant drift (PSI > 2.2); every unrelated feature stays under PSI 0.03. Runs in CI on every push; results shown on the `/case-study` page. Unlike the other "production consideration" items below, this one is a real, runnable check, not just a documented idea.
 
 ---
 

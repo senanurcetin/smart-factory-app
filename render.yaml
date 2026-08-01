@@ -1,0 +1,7 @@
+services:
+  - name: smart-factory-app
+    type: web
+    runtime: docker
+    plan: free
+    dockerfilePath: ./Dockerfile
+    healthCheckPath: /api/data

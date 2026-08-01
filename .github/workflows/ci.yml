@@ -39,6 +39,7 @@ jobs:
           python -m py_compile analysis/sql_queries.py
           python -m py_compile analysis/run_cmapss_rul_case_study.py
           python -m py_compile analysis/generate_cmapss_visuals.py
+          python -m py_compile analysis/check_drift.py
 
       - name: Run full AI4I ML pipeline (downloads UCI dataset, retrains, re-persists model.pkl)
         run: python analysis/run_ai4i_case_study.py
@@ -51,6 +52,9 @@ jobs:
 
       - name: Run SQL analysis
         run: python analysis/sql_queries.py
+
+      - name: Run drift check (PSI report against a synthetic shifted batch)
+        run: python analysis/check_drift.py
 
       - name: Run C-MAPSS RUL pipeline (downloads NASA dataset, retrains, re-persists rul_model.pkl)
         run: python analysis/run_cmapss_rul_case_study.py
@@ -66,6 +70,9 @@ jobs:
 
       - name: Dashboard <-> real model integration tests
         run: python -m unittest discover -s tests -p "test_dashboard_model.py" -v
+
+      - name: Drift check tests
+        run: python -m unittest discover -s tests -p "test_drift_check.py" -v
 
       - name: RUL artifact and metrics contract tests
         run: python -m unittest discover -s tests -p "test_rul_artifacts.py" -v

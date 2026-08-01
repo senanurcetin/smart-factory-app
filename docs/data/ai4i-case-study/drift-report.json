@@ -1,0 +1,63 @@
+{
+  "method": "Population Stability Index (PSI): quantile-binned (10 buckets) for numeric features, category-frequency for categorical features",
+  "thresholds": {
+    "no_significant_drift": "PSI < 0.1",
+    "moderate_drift": "0.1 <= PSI < 0.2",
+    "significant_drift": "PSI >= 0.2"
+  },
+  "scenario": "Synthetic 'live' batch resampled from the training distribution, with 'Tool wear [min]' deliberately shifted by +80.0 minutes to simulate a fleet whose tools are wearing faster than during the training window. A realistic single-feature drift scenario, not an artificial all-features shift, so most features below should show ~zero PSI.",
+  "reference_rows": 10000,
+  "live_batch_rows": 1000,
+  "features": [
+    {
+      "feature": "Tool wear [min]",
+      "psi": 2.7853,
+      "verdict": "significant_drift"
+    },
+    {
+      "feature": "tool_wear_load_ratio",
+      "psi": 2.2078,
+      "verdict": "significant_drift"
+    },
+    {
+      "feature": "Process temperature [K]",
+      "psi": 0.0268,
+      "verdict": "no_significant_drift"
+    },
+    {
+      "feature": "Air temperature [K]",
+      "psi": 0.0144,
+      "verdict": "no_significant_drift"
+    },
+    {
+      "feature": "thermal_stress",
+      "psi": 0.0108,
+      "verdict": "no_significant_drift"
+    },
+    {
+      "feature": "Rotational speed [rpm]",
+      "psi": 0.0097,
+      "verdict": "no_significant_drift"
+    },
+    {
+      "feature": "Type",
+      "psi": 0.0027,
+      "verdict": "no_significant_drift"
+    },
+    {
+      "feature": "Torque [Nm]",
+      "psi": 0.0026,
+      "verdict": "no_significant_drift"
+    },
+    {
+      "feature": "mechanical_load",
+      "psi": 0.0019,
+      "verdict": "no_significant_drift"
+    }
+  ],
+  "drift_detected": true,
+  "drifted_features": [
+    "Tool wear [min]",
+    "tool_wear_load_ratio"
+  ]
+}

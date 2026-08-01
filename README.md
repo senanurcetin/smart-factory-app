@@ -14,6 +14,20 @@ Short video: [`docs/assets/smart-factory-dashboard.webm`](docs/assets/smart-fact
 
 ---
 
+## Live Demo
+
+Not yet deployed to a persistent URL. One-click path using the `render.yaml` blueprint already committed in this repo:
+
+1. Sign up at [render.com](https://render.com) (free tier is enough).
+2. **New +** → **Blueprint** → connect this GitHub repo. Render auto-detects `render.yaml` and the existing multi-stage `Dockerfile` — no manual configuration needed.
+3. First deploy takes a few minutes (installs the full scientific-Python stack: scikit-learn, scipy, pandas, shap, duckdb, matplotlib). Later deploys are faster via layer caching.
+4. Free-tier services spin down after ~15 minutes idle; the first request after that takes ~30-60 seconds to wake up — a known free-tier tradeoff, not a bug.
+5. Once live: update this line and the [portfolio entry](https://senanur-cetin.vercel.app/projects/smart-factory-app) above with the real URL.
+
+**Why not Vercel for the interactive app**: Vercel's serverless Python functions have a size limit (~250MB unzipped) that this repo's dependency stack is very likely to exceed. Render (and similarly Fly.io/Cloud Run) run the app as a real container instead of a size-constrained function — a better fit here, and it reuses the Dockerfile already built and CI-verified in this repo rather than needing a separate, trimmed-down deployment path.
+
+---
+
 ## Problem
 
 Maintenance teams cannot review every asset equally. The question is whether sensor telemetry can be translated into a **ranked work queue** that captures most failures within a limited review budget — and whether that logic can be expressed in terms of cost and business value.
@@ -259,6 +273,7 @@ smart-factory-app/
 ├── case_study.py
 ├── rul_case_study.py
 ├── Dockerfile                         # Multi-stage build, served via gunicorn
+├── render.yaml                        # One-click Render Blueprint (Docker runtime)
 ├── requirements.txt
 └── requirements-dev.txt               # + ruff, black
 ```
@@ -347,6 +362,7 @@ python -m py_compile main.py case_study.py rul_case_study.py \
 | [`docs/data/ai4i-case-study/summary.json`](docs/data/ai4i-case-study/summary.json) | Final model metrics and confusion matrix |
 | [`docs/data/ai4i-case-study/sql-analysis.json`](docs/data/ai4i-case-study/sql-analysis.json) | DuckDB query results |
 | [`docs/data/cmapss-rul-case-study/summary.json`](docs/data/cmapss-rul-case-study/summary.json) | RUL model RMSE, PHM08 score, baseline comparison |
+| [`docs/data/ai4i-case-study/drift-report.json`](docs/data/ai4i-case-study/drift-report.json) | PSI drift-check results (real, CI-executed, not just documented) |
 | Local route | `http://127.0.0.1:8080/case-study` |
 | Local route | `http://127.0.0.1:8080/rul-case-study` |
 
@@ -366,6 +382,7 @@ python -m py_compile main.py case_study.py rul_case_study.py \
 - **Deployment**: multi-stage Dockerfile served by `gunicorn`; both the training pipeline and the image build are exercised in CI on every push
 - **Genuine RUL regression**: a second case study on NASA C-MAPSS (a real run-to-failure dataset), including `GroupKFold` cross-validation grouped by engine — the grouped/time-aware split technique AI4I's dataset structure cannot support
 - **Knowing which rigor technique applies where**: same repo, two datasets, two different (correct) validation strategies — repeated holdouts for AI4I, grouped CV for C-MAPSS — chosen for what each dataset's structure actually supports, not applied uniformly by habit
+- **Data drift detection**: a real, CI-executed PSI (Population Stability Index) check against a deliberately shifted synthetic batch — demonstrated, not just listed as a "production consideration"
 - **Python stack**: pandas, NumPy, scikit-learn, SHAP, matplotlib, DuckDB, Flask, gunicorn
 
 ---
@@ -411,11 +428,15 @@ Trade-offs made in this project, and why — the reasoning matters more than the
 - **Docker + gunicorn over a managed PaaS**: a managed platform (Heroku/Render/etc.) would hide the deployment story entirely. Owning the Dockerfile and the WSGI server choice is the point — it demonstrates the containerization step itself, which a one-click deploy would skip.
 - **The live dashboard's RUL stays a simple heuristic, not the full C-MAPSS regression model**: the dashboard simulates AI4I-schema telemetry (a CNC/machine-tool tabular snapshot); the [RUL case study](#rul-regression-nasa-c-mapss) runs on a completely different asset type (turbofan engine time-series). Wiring one into the other's live demo would mean fabricating a connection between two unrelated sensor schemas — dishonest for the sake of a flashier KPI tile. They stay as two clearly separated proof surfaces instead.
 
+### Drift Detection (Demonstrated, Not Just Documented)
+
+Most "production considerations" lists (including the one below) are just documented intent. This one isn't: [`analysis/check_drift.py`](analysis/check_drift.py) is a real, CI-executed script that computes the **Population Stability Index (PSI)** between the AI4I training distribution and a synthetic "live" batch. Rather than compare identical data (which would trivially show no drift), the synthetic batch has one feature — `Tool wear [min]` — deliberately shifted by +80 minutes to simulate a fleet whose tools are wearing faster than during the training window. Result: the shifted feature and the derived feature that depends on it (`tool_wear_load_ratio`) are correctly flagged (PSI 2.79 and 2.21, both far past the 0.2 "significant drift" threshold), while every unrelated feature stays under PSI 0.03. See it live on the `/case-study` route (a "Drift Check" panel, sourced from the same JSON) or in [`docs/data/ai4i-case-study/drift-report.json`](docs/data/ai4i-case-study/drift-report.json).
+
 ### Production Considerations
 
-Out of scope to build for a benchmark case study, but worth being explicit about what a real deployment would need on top of what's here:
+Still out of scope to build for a benchmark case study, but worth being explicit about what a real deployment would need on top of what's here:
 
-- **Drift monitoring**: track incoming feature distributions against the training distribution (e.g. population stability index or a KS-test per feature) and alert when they diverge — this repo has no live sensor feed to monitor, so there's nothing to wire up yet.
+- **Wiring drift detection to a real feed**: the PSI logic above is real, but it runs against a synthetic batch on demand — a production version would run on a schedule against actual incoming telemetry and alert when PSI crosses the threshold.
 - **Retraining cadence**: both training/tuning/robustness-check pipelines already exist (`analysis/run_ai4i_case_study.py`, `analysis/run_cmapss_rul_case_study.py`) — a real deployment would just need a scheduler (cron, Airflow, etc.) to re-run them on a fixed cadence or on a drift trigger, and a promotion step before swapping the model artifacts.
 - **Model versioning & rollback**: replace the git-committed `model.pkl` with a registry that keeps prior versions retrievable, so a bad retrain can be rolled back without a git revert.
 - **Prediction & outcome monitoring**: track the live `RiskScore` distribution for sudden shifts, and periodically compare predicted failure-capture rate against actual outcomes once ground truth is available — the kind of silent degradation that offline metrics alone won't catch.
