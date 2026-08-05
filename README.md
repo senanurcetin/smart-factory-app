@@ -254,28 +254,34 @@ smart-factory-app/
 │   ├── sql_queries.py                 # DuckDB SQL analysis on JSON artifacts
 │   ├── run_cmapss_rul_case_study.py   # RUL regression pipeline (downloads NASA dataset on first run)
 │   ├── generate_cmapss_visuals.py     # RUL trajectory, predicted-vs-actual, feature importance charts
+│   ├── check_drift.py                 # PSI drift check against a synthetic shifted batch
 │   └── artifacts/                     # Persisted pipelines — also scored live by main.py
 │       ├── model.pkl                  # AI4I classifier
 │       └── rul_model.pkl              # C-MAPSS RUL regressor
 ├── docs/
-│   ├── assets/                        # All chart/media assets (14 files)
-│   ├── data/ai4i-case-study/          # AI4I JSON artifacts + sql-analysis.json
+│   ├── assets/                        # All chart/media assets, embedded live on the case-study pages
+│   ├── data/ai4i-case-study/          # AI4I JSON artifacts + sql-analysis.json + drift-report.json
 │   ├── data/cmapss-rul-case-study/    # RUL JSON artifacts
 │   ├── case-study.md
 │   └── rul-case-study.md
 ├── tests/
 │   ├── test_case_study.py             # AI4I route and integration tests
 │   ├── test_dashboard_model.py        # Live dashboard scores against the real trained pipeline
-│   ├── test_artifacts.py              # AI4I data quality, metrics range, asset presence (35 tests)
+│   ├── test_artifacts.py              # AI4I data quality, metrics range, asset presence
+│   ├── test_drift_check.py            # PSI calculation and drift-flagging correctness
 │   ├── test_rul_case_study.py         # RUL route and integration tests
-│   └── test_rul_artifacts.py          # RUL data quality and metrics contract tests
-├── main.py
-├── case_study.py
-├── rul_case_study.py
+│   ├── test_rul_artifacts.py          # RUL data quality and metrics contract tests
+│   ├── test_settings.py               # Settings route and model-card rendering
+│   └── test_e2e.py                    # Playwright: all 4 routes in a real browser
+├── main.py                            # Live bento dashboard, scored by the real AI4I model
+├── case_study.py                      # AI4I case-study page
+├── rul_case_study.py                  # RUL case-study page
+├── settings.py                        # Dashboard preferences + model card
+├── layout.py                          # Shared responsive sidebar nav, reused by all 4 pages
 ├── Dockerfile                         # Multi-stage build, served via gunicorn
 ├── render.yaml                        # One-click Render Blueprint (Docker runtime)
 ├── requirements.txt
-└── requirements-dev.txt               # + ruff, black
+└── requirements-dev.txt               # + ruff, black, playwright
 ```
 
 ---
@@ -331,10 +337,12 @@ Multi-stage build, served by `gunicorn` (2 workers) instead of the Flask develop
 ## Tests
 
 ```bash
-# All 62 tests: routes, artifact contracts, metrics thresholds, chart file
+# All 81 tests: routes, artifact contracts, metrics thresholds, chart file
 # presence, hyperparameter-tuning/validation-robustness/model-card contracts,
-# live dashboard <-> real model integration, and the RUL case study's own
-# artifact contracts and routes
+# live dashboard <-> real model integration, drift-check correctness, the
+# RUL case study's own artifact contracts and routes, the Settings page's
+# model-card rendering, and 5 real-browser Playwright E2E smoke tests
+# (requires `playwright install chromium` once)
 python -m unittest discover -s tests -v
 
 # Lint and format check
@@ -342,13 +350,14 @@ ruff check .
 black --check .
 
 # Syntax check all modules
-python -m py_compile main.py case_study.py rul_case_study.py \
+python -m py_compile main.py case_study.py rul_case_study.py layout.py settings.py \
     analysis/run_ai4i_case_study.py \
     analysis/generate_visuals.py \
     analysis/generate_eda.py \
     analysis/sql_queries.py \
     analysis/run_cmapss_rul_case_study.py \
-    analysis/generate_cmapss_visuals.py
+    analysis/generate_cmapss_visuals.py \
+    analysis/check_drift.py
 ```
 
 ---
@@ -365,6 +374,7 @@ python -m py_compile main.py case_study.py rul_case_study.py \
 | [`docs/data/ai4i-case-study/drift-report.json`](docs/data/ai4i-case-study/drift-report.json) | PSI drift-check results (real, CI-executed, not just documented) |
 | Local route | `http://127.0.0.1:8080/case-study` |
 | Local route | `http://127.0.0.1:8080/rul-case-study` |
+| Local route | `http://127.0.0.1:8080/settings` (dashboard preferences + model card) |
 
 ---
 

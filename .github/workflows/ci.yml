@@ -32,7 +32,7 @@ jobs:
 
       - name: Syntax check
         run: |
-          python -m py_compile main.py case_study.py rul_case_study.py
+          python -m py_compile main.py case_study.py rul_case_study.py layout.py settings.py
           python -m py_compile analysis/run_ai4i_case_study.py
           python -m py_compile analysis/generate_visuals.py
           python -m py_compile analysis/generate_eda.py
@@ -80,8 +80,34 @@ jobs:
       - name: RUL route and integration tests
         run: python -m unittest discover -s tests -p "test_rul_case_study.py" -v
 
+      - name: Settings route and model-card tests
+        run: python -m unittest discover -s tests -p "test_settings.py" -v
+
       - name: Import app
         run: python -c "import main; print(main.app.name)"
+
+  e2e:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements-dev.txt
+
+      - name: Install Playwright Chromium
+        run: playwright install --with-deps chromium
+
+      - name: Real-browser smoke tests (all 4 routes)
+        run: python -m unittest discover -s tests -p "test_e2e.py" -v
 
   docker:
     runs-on: ubuntu-latest

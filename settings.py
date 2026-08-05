@@ -51,6 +51,9 @@ SETTINGS_TEMPLATE = (
             margin-left: 250px;
             box-sizing: border-box;
         }
+        @media (max-width: 900px) {
+            .page { margin-left: 0; padding: 20px 16px 48px; padding-top: 4.5rem; }
+        }
         .eyebrow {
             color: var(--accent);
             font-size: 0.8rem;
@@ -144,7 +147,7 @@ SETTINGS_TEMPLATE = (
 </head>
 <body>
     {{ sidebar_html|safe }}
-    <main class="page">
+    <main class="page" id="main-content">
         <div class="eyebrow">Settings</div>
         <h1>Preferences &amp; Model Info</h1>
         <p class="lede">Controls for the live dashboard, plus the model card metadata for both trained pipelines — training date, library versions, and the exact dataset hash each model was fit on.</p>

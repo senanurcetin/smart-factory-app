@@ -23,7 +23,7 @@ from analysis.run_ai4i_case_study import (
     add_derived_features,
 )
 from case_study import case_study_bp
-from layout import render_sidebar
+from layout import SIDEBAR_CSS, render_sidebar
 from rul_case_study import rul_case_study_bp
 from settings import settings_bp
 
@@ -70,7 +70,8 @@ IDEAL_CYCLE_TIME_SECONDS = 12.0  # design-spec cycle time used for the OEE Perfo
 # 2. FRONTEND: BENTO GRID TEMPLATE (Layout & Style FIXES)
 # =============================================================================
 
-HTML_TEMPLATE = """
+HTML_TEMPLATE = (
+    """
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -87,9 +88,10 @@ HTML_TEMPLATE = """
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&family=JetBrains+Mono:wght@700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"/>
-    <style>
+    <style>"""
+    + SIDEBAR_CSS
+    + """
         :root {
-            --sidebar-bg: #111827;
             --main-bg: #f3f4f6;
             --card-bg: #ffffff;
             --text-dark: #1f2937;
@@ -117,52 +119,53 @@ HTML_TEMPLATE = """
         [data-theme="dark"] .dashboard-intro { background: rgba(59, 130, 246, 0.14); border-color: rgba(59, 130, 246, 0.35); }
         [data-theme="dark"] .dashboard-intro p { color: #cbd5e1; }
 
-        .sidebar {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 250px;
-            height: 100vh;
-            background-color: var(--sidebar-bg);
-            padding: 1.5rem;
-            display: flex;
-            flex-direction: column;
-        }
-
-        .sidebar-logo {
-            font-family: 'JetBrains Mono', monospace;
-            color: var(--text-light);
-            font-size: 1.5rem;
-            font-weight: 700;
-            text-align: center;
-            margin-bottom: 2.5rem;
-        }
-        .sidebar-logo i { color: #3b82f6; }
-
-        .sidebar-nav a {
-            display: flex;
-            align-items: center;
-            padding: 0.75rem 1rem;
-            color: #d1d5db;
-            text-decoration: none;
-            border-radius: 8px;
-            font-weight: 500;
-            margin-bottom: 0.5rem;
-            transition: background-color 0.2s;
-        }
-        .sidebar-nav a.active, .sidebar-nav a:hover {
-            background-color: #1f2937;
-            color: var(--text-light);
-        }
-        .sidebar-nav a i {
-            width: 1.25em;
-            margin-right: 0.75rem;
-        }
-        .sidebar-footer { margin-top: auto; }
-
         .main-content {
             margin-left: 250px;
             padding: 2rem;
+        }
+        @media (max-width: 900px) {
+            .main-content { margin-left: 0; padding: 1.25rem; padding-top: 4.5rem; }
+        }
+
+        .cold-start-overlay {
+            position: fixed;
+            inset: 0;
+            z-index: 40;
+            background-color: var(--main-bg);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            text-align: center;
+            padding: 2rem;
+            transition: opacity 0.3s ease;
+        }
+        .cold-start-overlay.hidden {
+            opacity: 0;
+            pointer-events: none;
+        }
+        .cold-start-overlay p {
+            margin: 0;
+            font-weight: 600;
+            color: var(--text-dark);
+        }
+        .cold-start-overlay .cold-start-hint {
+            font-weight: 400;
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            max-width: 340px;
+        }
+        .spinner {
+            width: 38px;
+            height: 38px;
+            border: 4px solid var(--border-color);
+            border-top-color: #3b82f6;
+            border-radius: 50%;
+            animation: sf-spin 0.8s linear infinite;
+        }
+        @keyframes sf-spin {
+            to { transform: rotate(360deg); }
         }
 
         .bento-card {
@@ -311,7 +314,13 @@ HTML_TEMPLATE = """
 <body>
     {{ sidebar_html|safe }}
 
-    <main class="main-content">
+    <div class="cold-start-overlay" id="cold-start-overlay">
+        <div class="spinner"></div>
+        <p>Waking up the simulation&hellip;</p>
+        <p class="cold-start-hint">This demo runs on a free-tier server that sleeps when idle — first load can take up to a minute.</p>
+    </div>
+
+    <main class="main-content" id="main-content">
         <div class="page-header">
             <h1 class="page-title">Live Production Dashboard</h1>
             <p class="page-subtitle">Real-time simulated telemetry, scored live by the trained AI4I model</p>
@@ -456,13 +465,21 @@ HTML_TEMPLATE = """
             logBox.scrollTop = logBox.scrollHeight;
         }
 
+        function hideColdStartOverlay() {
+            const overlay = document.getElementById('cold-start-overlay');
+            if (overlay) overlay.classList.add('hidden');
+        }
+
         const refreshMs = parseInt(localStorage.getItem('sf_refresh_ms'), 10) || 2000;
         setInterval(fetchData, refreshMs);
-        document.addEventListener('DOMContentLoaded', fetchData);
+        document.addEventListener('DOMContentLoaded', () => {
+            fetchData().then(hideColdStartOverlay).catch(hideColdStartOverlay);
+        });
     </script>
 </body>
 </html>
 """
+)
 
 # =============================================================================
 # 3. BACKEND API & ROUTES (UNCHANGED)

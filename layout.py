@@ -57,6 +57,51 @@ SIDEBAR_CSS = """
             margin-right: 0.75rem;
         }
         .sidebar-footer { margin-top: auto; }
+        .skip-link {
+            position: absolute;
+            top: -40px;
+            left: 0;
+            background: #111827;
+            color: #f9fafb;
+            padding: 10px 16px;
+            z-index: 100;
+            border-radius: 0 0 8px 0;
+            transition: top 0.15s;
+        }
+        .skip-link:focus { top: 0; }
+        .sidebar-toggle {
+            display: none;
+            position: fixed;
+            top: 14px;
+            left: 14px;
+            z-index: 30;
+            width: 42px;
+            height: 42px;
+            align-items: center;
+            justify-content: center;
+            background-color: #111827;
+            color: #f9fafb;
+            border: none;
+            border-radius: 8px;
+            font-size: 1.1rem;
+            cursor: pointer;
+        }
+        .sidebar-backdrop {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 15;
+        }
+        @media (max-width: 900px) {
+            .sidebar-toggle { display: flex; }
+            .sidebar {
+                transform: translateX(-100%);
+                transition: transform 0.25s ease;
+            }
+            .sidebar.open { transform: translateX(0); }
+            .sidebar-backdrop.open { display: block; }
+        }
 """
 
 NAV_ITEMS = [
@@ -80,14 +125,41 @@ def render_sidebar(active: str) -> str:
 
     links_html = "\n            ".join(_link(*item) for item in NAV_ITEMS)
     footer_links_html = "\n                ".join(_link(*item) for item in FOOTER_NAV_ITEMS)
-    return f"""<div class="sidebar">
+    return f"""<a class="skip-link" href="#main-content">Skip to content</a>
+    <button class="sidebar-toggle" id="sidebar-toggle" aria-label="Toggle navigation" aria-expanded="false">
+        <i class="fas fa-bars"></i>
+    </button>
+    <div class="sidebar-backdrop" id="sidebar-backdrop"></div>
+    <div class="sidebar" id="sidebar">
         <div class="sidebar-logo"><i class="fas fa-bolt"></i> SmartFactory</div>
-        <nav class="sidebar-nav">
+        <nav class="sidebar-nav" aria-label="Primary">
             {links_html}
         </nav>
         <div class="sidebar-footer">
-            <nav class="sidebar-nav">
+            <nav class="sidebar-nav" aria-label="Secondary">
                 {footer_links_html}
             </nav>
         </div>
-    </div>"""
+    </div>
+    <script>
+        (function () {{
+            const sidebar = document.getElementById('sidebar');
+            const toggle = document.getElementById('sidebar-toggle');
+            const backdrop = document.getElementById('sidebar-backdrop');
+            function closeSidebar() {{
+                sidebar.classList.remove('open');
+                backdrop.classList.remove('open');
+                toggle.setAttribute('aria-expanded', 'false');
+            }}
+            function toggleSidebar() {{
+                const isOpen = sidebar.classList.toggle('open');
+                backdrop.classList.toggle('open', isOpen);
+                toggle.setAttribute('aria-expanded', String(isOpen));
+            }}
+            toggle.addEventListener('click', toggleSidebar);
+            backdrop.addEventListener('click', closeSidebar);
+            sidebar.querySelectorAll('a').forEach(function (a) {{
+                a.addEventListener('click', closeSidebar);
+            }});
+        }})();
+    </script>"""

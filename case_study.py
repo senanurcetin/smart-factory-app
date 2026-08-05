@@ -52,6 +52,9 @@ CASE_STUDY_TEMPLATE = (
             margin-left: 250px;
             box-sizing: border-box;
         }
+        @media (max-width: 900px) {
+            .page { margin-left: 0; padding: 20px 16px 48px; padding-top: 4.5rem; }
+        }
         .hero, .panel {
             background: var(--panel);
             border: 1px solid var(--border);
@@ -207,7 +210,7 @@ CASE_STUDY_TEMPLATE = (
 </head>
 <body>
     {{ sidebar_html|safe }}
-    <main class="page">
+    <main class="page" id="main-content">
         <section class="hero">
             <div>
                 <div class="eyebrow">Support Case Study</div>
