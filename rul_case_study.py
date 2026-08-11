@@ -1,3 +1,11 @@
+"""Flask blueprint for the C-MAPSS RUL case-study page (`/rul-case-study`).
+
+Reads the JSON artifacts `analysis/run_cmapss_rul_case_study.py` writes to
+`docs/data/cmapss-rul-case-study/` and renders them into a single page —
+same pattern as `case_study.py`. If `summary.json` (the anchor artifact)
+is missing, both routes return 503 rather than a stack trace.
+"""
+
 from __future__ import annotations
 
 import json

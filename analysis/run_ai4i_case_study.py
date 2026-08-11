@@ -1,3 +1,15 @@
+"""UCI AI4I 2020 predictive-maintenance case study.
+
+Downloads the dataset on first run, benchmarks four models (dummy,
+logistic regression, random forest, HistGradientBoosting) with derived
+features and a tuned final model, and writes every result — benchmarks,
+feature importance, review-queue ROI, cost simulation, 5-seed robustness
+check, model card — to `docs/data/ai4i-case-study/*.json`. The trained
+pipeline is persisted to `analysis/artifacts/model.pkl` and is the same
+object the live dashboard (`main.py`) scores in real time — not a
+separate, disconnected demo model.
+"""
+
 from __future__ import annotations
 
 import logging

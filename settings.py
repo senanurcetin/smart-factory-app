@@ -1,3 +1,14 @@
+"""Flask blueprint for the Settings page (`/settings`).
+
+Two things live here: dashboard preferences (refresh interval), stored
+client-side in localStorage and read back by main.py's dashboard — and a
+read-only model card for both trained pipelines, sourced from the same
+`model-selection.json` artifacts the case-study pages use. Unlike those
+pages, a missing artifact here doesn't 503 — `_load_json` degrades to an
+empty dict, so the page renders with blank model-card fields instead of
+failing outright (there's nothing here that's unusable without the data).
+"""
+
 from __future__ import annotations
 
 import json
@@ -154,6 +165,7 @@ SETTINGS_TEMPLATE = (
             <div class="model-grid">
                 <div>
                     <h3 style="font-size: 0.95rem; margin-bottom: 8px;">AI4I Failure Classifier</h3>
+                    {% if ai4i_card %}
                     <table>
                         <tbody>
                             <tr><th>Trained</th><td class="mono">{{ ai4i_card.trained_at_utc }}</td></tr>
@@ -164,9 +176,13 @@ SETTINGS_TEMPLATE = (
                             <tr><th>Random seed</th><td class="mono">{{ ai4i_card.random_seed }}</td></tr>
                         </tbody>
                     </table>
+                    {% else %}
+                    <p class="section-copy">Not available yet — run <code>python analysis/run_ai4i_case_study.py</code>.</p>
+                    {% endif %}
                 </div>
                 <div>
                     <h3 style="font-size: 0.95rem; margin-bottom: 8px;">C-MAPSS RUL Regressor</h3>
+                    {% if rul_card %}
                     <table>
                         <tbody>
                             <tr><th>Trained</th><td class="mono">{{ rul_card.trained_at_utc }}</td></tr>
@@ -177,6 +193,9 @@ SETTINGS_TEMPLATE = (
                             <tr><th>Random seed</th><td class="mono">{{ rul_card.random_seed }}</td></tr>
                         </tbody>
                     </table>
+                    {% else %}
+                    <p class="section-copy">Not available yet — run <code>python analysis/run_cmapss_rul_case_study.py</code>.</p>
+                    {% endif %}
                 </div>
             </div>
         </section>

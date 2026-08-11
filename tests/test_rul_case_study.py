@@ -1,5 +1,9 @@
+import tempfile
 import unittest
+from pathlib import Path
+from unittest.mock import patch
 
+import rul_case_study
 from main import app
 from rul_case_study import load_rul_case_study_artifacts
 
@@ -24,6 +28,34 @@ class RulCaseStudyRouteTests(unittest.TestCase):
         self.assertIn("summary", payload)
         self.assertIn("final_model", payload)
         self.assertIn("baseline", payload)
+
+
+class RulCaseStudyMissingArtifactsTests(unittest.TestCase):
+    """Mirrors CaseStudyMissingArtifactsTests in test_case_study.py: the RUL
+    pipeline hasn't run yet, so every route touching these artifacts should
+    503 with a helpful message instead of a raw 500."""
+
+    def setUp(self):
+        self.empty_dir = tempfile.TemporaryDirectory()
+        self.addCleanup(self.empty_dir.cleanup)
+        self.patcher = patch.object(rul_case_study, "ARTIFACT_DIR", Path(self.empty_dir.name))
+        self.patcher.start()
+        self.addCleanup(self.patcher.stop)
+
+    def test_load_artifacts_raises_file_not_found(self):
+        with self.assertRaises(FileNotFoundError) as ctx:
+            load_rul_case_study_artifacts()
+        self.assertIn("run_cmapss_rul_case_study.py", str(ctx.exception))
+
+    def test_rul_case_study_route_returns_503(self):
+        client = app.test_client()
+        response = client.get("/rul-case-study")
+        self.assertEqual(response.status_code, 503)
+
+    def test_rul_case_study_api_returns_503(self):
+        client = app.test_client()
+        response = client.get("/api/rul-case-study")
+        self.assertEqual(response.status_code, 503)
 
 
 if __name__ == "__main__":

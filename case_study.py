@@ -1,3 +1,11 @@
+"""Flask blueprint for the AI4I case-study page (`/case-study`).
+
+Reads the JSON artifacts `analysis/run_ai4i_case_study.py` writes to
+`docs/data/ai4i-case-study/` and renders them into a single page — no
+database, no request-time computation. If `summary.json` (the anchor
+artifact) is missing, both routes return 503 rather than a stack trace.
+"""
+
 from __future__ import annotations
 
 import json
