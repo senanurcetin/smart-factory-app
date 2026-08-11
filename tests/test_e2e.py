@@ -136,6 +136,7 @@ class E2ESmokeTests(unittest.TestCase):
         page, console_errors = self._open("/")
         try:
             page.set_viewport_size({"width": 375, "height": 812})
+            page.wait_for_timeout(350)  # let the media-query/transition settle after resize
             closed_transform = page.eval_on_selector(
                 ".sidebar", "el => getComputedStyle(el).transform"
             )
