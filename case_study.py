@@ -400,7 +400,7 @@ CASE_STUDY_TEMPLATE = (
         </section>
 
         <section class="panel" style="margin-top: 18px;">
-            <figure class="chart-frame" style="margin: 0;">
+            <figure class="chart-frame" style="margin: 0 auto; max-width: 720px;">
                 <img src="/assets/feature-importance.png" alt="Permutation importance ranking of model features">
                 <figcaption class="chart-caption">Permutation importance</figcaption>
             </figure>
@@ -422,7 +422,7 @@ CASE_STUDY_TEMPLATE = (
                 {% for row in drift_report.features %}
                     <tr>
                         <td>{{ row.feature }}</td>
-                        <td class="mono">{{ row.psi }}</td>
+                        <td class="mono">{{ "%.2f"|format(row.psi) }}</td>
                         <td class="mono">{{ row.verdict }}</td>
                     </tr>
                 {% endfor %}

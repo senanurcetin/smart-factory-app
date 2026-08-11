@@ -40,6 +40,7 @@ def _save(fig, name):
 
 def model_comparison():
     data = json.loads((DATA_DIR / "benchmark-comparison.json").read_text())
+    robustness = json.loads((DATA_DIR / "validation-robustness.json").read_text())
 
     labels = {
         "dummy_baseline": "Dummy\nBaseline",
@@ -52,21 +53,49 @@ def model_comparison():
     pr = [d["pr_auc"] for d in data]
     f1 = [d["f1"] for d in data]
 
+    # The 5-seed repeated-holdout std only exists for the selected final
+    # model (it's the only one re-fit across seeds) - shown as error bars on
+    # its bars only, not fabricated for the other three one-shot benchmarks.
+    roc_err = [
+        robustness["roc_auc_std"] if d["model"] == "hist_gradient_boosting" else 0 for d in data
+    ]
+    pr_err = [
+        robustness["pr_auc_std"] if d["model"] == "hist_gradient_boosting" else 0 for d in data
+    ]
+
     x = np.arange(len(models))
     width = 0.26
+    err_style = {"ecolor": CHART_PALETTE["text"], "elinewidth": 1.2, "capsize": 4}
 
     fig, ax = plt.subplots(figsize=(10, 5))
 
-    b1 = ax.bar(x - width, roc, width, label="ROC-AUC", color=CHART_PALETTE["primary"])
-    b2 = ax.bar(x, pr, width, label="PR-AUC", color=CHART_PALETTE["accent"])
+    b1 = ax.bar(
+        x - width,
+        roc,
+        width,
+        yerr=roc_err,
+        error_kw=err_style,
+        label="ROC-AUC",
+        color=CHART_PALETTE["primary"],
+    )
+    b2 = ax.bar(
+        x,
+        pr,
+        width,
+        yerr=pr_err,
+        error_kw=err_style,
+        label="PR-AUC",
+        color=CHART_PALETTE["accent"],
+    )
     b3 = ax.bar(x + width, f1, width, label="F1", color=CHART_PALETTE["highlight"])
 
-    for bar in list(b1) + list(b2) + list(b3):
+    bars_with_err = list(zip(b1, roc_err)) + list(zip(b2, pr_err)) + [(bar, 0) for bar in b3]
+    for bar, err in bars_with_err:
         h = bar.get_height()
         if h > 0.01:
             ax.text(
                 bar.get_x() + bar.get_width() / 2,
-                h + 0.012,
+                h + err + 0.012,
                 f"{h:.3f}",
                 ha="center",
                 va="bottom",
@@ -89,6 +118,14 @@ def model_comparison():
     ax.set_axisbelow(True)
     ax.spines["top"].set_visible(False)
     ax.spines["right"].set_visible(False)
+    fig.text(
+        0.01,
+        -0.02,
+        "Error bars: ±1 std across 5 independent stratified 80/20 splits "
+        "(selected model only — the other three benchmarks are single-split).",
+        fontsize=7.5,
+        color=CHART_PALETTE["muted"],
+    )
 
     _save(fig, "model-comparison.png")
 

@@ -355,7 +355,7 @@ RUL_CASE_STUDY_TEMPLATE = (
         </section>
 
         <section class="panel" style="margin-top: 18px;">
-            <figure class="chart-frame" style="margin: 0;">
+            <figure class="chart-frame" style="margin: 0 auto; max-width: 720px;">
                 <img src="/assets/cmapss-feature-importance.png" alt="Mean absolute SHAP value ranking of RUL model features">
                 <figcaption class="chart-caption">Mean |SHAP| feature importance</figcaption>
             </figure>

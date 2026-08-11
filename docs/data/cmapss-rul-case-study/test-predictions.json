@@ -1,0 +1,505 @@
+{
+  "note": "One row per official test engine (its final observed cycle), the same protocol used for the headline RMSE/PHM08 score.",
+  "units": [
+    {
+      "unit_number": 1,
+      "true_rul": 112.0,
+      "predicted_rul": 123.2925
+    },
+    {
+      "unit_number": 2,
+      "true_rul": 98.0,
+      "predicted_rul": 117.5195
+    },
+    {
+      "unit_number": 3,
+      "true_rul": 69.0,
+      "predicted_rul": 48.9023
+    },
+    {
+      "unit_number": 4,
+      "true_rul": 82.0,
+      "predicted_rul": 87.0203
+    },
+    {
+      "unit_number": 5,
+      "true_rul": 91.0,
+      "predicted_rul": 108.7612
+    },
+    {
+      "unit_number": 6,
+      "true_rul": 93.0,
+      "predicted_rul": 111.2457
+    },
+    {
+      "unit_number": 7,
+      "true_rul": 91.0,
+      "predicted_rul": 105.3809
+    },
+    {
+      "unit_number": 8,
+      "true_rul": 95.0,
+      "predicted_rul": 104.3551
+    },
+    {
+      "unit_number": 9,
+      "true_rul": 111.0,
+      "predicted_rul": 111.2526
+    },
+    {
+      "unit_number": 10,
+      "true_rul": 96.0,
+      "predicted_rul": 90.0111
+    },
+    {
+      "unit_number": 11,
+      "true_rul": 97.0,
+      "predicted_rul": 90.7597
+    },
+    {
+      "unit_number": 12,
+      "true_rul": 124.0,
+      "predicted_rul": 86.8101
+    },
+    {
+      "unit_number": 13,
+      "true_rul": 95.0,
+      "predicted_rul": 99.308
+    },
+    {
+      "unit_number": 14,
+      "true_rul": 107.0,
+      "predicted_rul": 96.1969
+    },
+    {
+      "unit_number": 15,
+      "true_rul": 83.0,
+      "predicted_rul": 114.5842
+    },
+    {
+      "unit_number": 16,
+      "true_rul": 84.0,
+      "predicted_rul": 111.8028
+    },
+    {
+      "unit_number": 17,
+      "true_rul": 50.0,
+      "predicted_rul": 50.961
+    },
+    {
+      "unit_number": 18,
+      "true_rul": 28.0,
+      "predicted_rul": 54.5734
+    },
+    {
+      "unit_number": 19,
+      "true_rul": 87.0,
+      "predicted_rul": 107.5512
+    },
+    {
+      "unit_number": 20,
+      "true_rul": 16.0,
+      "predicted_rul": 12.3861
+    },
+    {
+      "unit_number": 21,
+      "true_rul": 57.0,
+      "predicted_rul": 69.7006
+    },
+    {
+      "unit_number": 22,
+      "true_rul": 111.0,
+      "predicted_rul": 121.0207
+    },
+    {
+      "unit_number": 23,
+      "true_rul": 113.0,
+      "predicted_rul": 122.5395
+    },
+    {
+      "unit_number": 24,
+      "true_rul": 20.0,
+      "predicted_rul": 20.4625
+    },
+    {
+      "unit_number": 25,
+      "true_rul": 145.0,
+      "predicted_rul": 118.6437
+    },
+    {
+      "unit_number": 26,
+      "true_rul": 119.0,
+      "predicted_rul": 113.6143
+    },
+    {
+      "unit_number": 27,
+      "true_rul": 66.0,
+      "predicted_rul": 116.6985
+    },
+    {
+      "unit_number": 28,
+      "true_rul": 97.0,
+      "predicted_rul": 101.5565
+    },
+    {
+      "unit_number": 29,
+      "true_rul": 90.0,
+      "predicted_rul": 102.5731
+    },
+    {
+      "unit_number": 30,
+      "true_rul": 115.0,
+      "predicted_rul": 94.7049
+    },
+    {
+      "unit_number": 31,
+      "true_rul": 8.0,
+      "predicted_rul": 13.288
+    },
+    {
+      "unit_number": 32,
+      "true_rul": 48.0,
+      "predicted_rul": 45.0683
+    },
+    {
+      "unit_number": 33,
+      "true_rul": 106.0,
+      "predicted_rul": 105.7644
+    },
+    {
+      "unit_number": 34,
+      "true_rul": 7.0,
+      "predicted_rul": 7.8969
+    },
+    {
+      "unit_number": 35,
+      "true_rul": 11.0,
+      "predicted_rul": 9.3178
+    },
+    {
+      "unit_number": 36,
+      "true_rul": 19.0,
+      "predicted_rul": 21.5314
+    },
+    {
+      "unit_number": 37,
+      "true_rul": 21.0,
+      "predicted_rul": 62.2459
+    },
+    {
+      "unit_number": 38,
+      "true_rul": 50.0,
+      "predicted_rul": 44.0506
+    },
+    {
+      "unit_number": 39,
+      "true_rul": 142.0,
+      "predicted_rul": 119.6438
+    },
+    {
+      "unit_number": 40,
+      "true_rul": 28.0,
+      "predicted_rul": 31.7062
+    },
+    {
+      "unit_number": 41,
+      "true_rul": 18.0,
+      "predicted_rul": 53.3774
+    },
+    {
+      "unit_number": 42,
+      "true_rul": 10.0,
+      "predicted_rul": 21.5862
+    },
+    {
+      "unit_number": 43,
+      "true_rul": 59.0,
+      "predicted_rul": 87.1516
+    },
+    {
+      "unit_number": 44,
+      "true_rul": 109.0,
+      "predicted_rul": 107.9148
+    },
+    {
+      "unit_number": 45,
+      "true_rul": 114.0,
+      "predicted_rul": 75.6875
+    },
+    {
+      "unit_number": 46,
+      "true_rul": 47.0,
+      "predicted_rul": 47.9396
+    },
+    {
+      "unit_number": 47,
+      "true_rul": 135.0,
+      "predicted_rul": 109.2398
+    },
+    {
+      "unit_number": 48,
+      "true_rul": 92.0,
+      "predicted_rul": 111.0967
+    },
+    {
+      "unit_number": 49,
+      "true_rul": 21.0,
+      "predicted_rul": 20.0717
+    },
+    {
+      "unit_number": 50,
+      "true_rul": 79.0,
+      "predicted_rul": 104.7434
+    },
+    {
+      "unit_number": 51,
+      "true_rul": 114.0,
+      "predicted_rul": 109.8302
+    },
+    {
+      "unit_number": 52,
+      "true_rul": 29.0,
+      "predicted_rul": 36.1855
+    },
+    {
+      "unit_number": 53,
+      "true_rul": 26.0,
+      "predicted_rul": 38.4767
+    },
+    {
+      "unit_number": 54,
+      "true_rul": 97.0,
+      "predicted_rul": 120.6024
+    },
+    {
+      "unit_number": 55,
+      "true_rul": 137.0,
+      "predicted_rul": 113.7283
+    },
+    {
+      "unit_number": 56,
+      "true_rul": 15.0,
+      "predicted_rul": 12.2836
+    },
+    {
+      "unit_number": 57,
+      "true_rul": 103.0,
+      "predicted_rul": 99.6452
+    },
+    {
+      "unit_number": 58,
+      "true_rul": 37.0,
+      "predicted_rul": 46.5888
+    },
+    {
+      "unit_number": 59,
+      "true_rul": 114.0,
+      "predicted_rul": 119.8941
+    },
+    {
+      "unit_number": 60,
+      "true_rul": 100.0,
+      "predicted_rul": 104.145
+    },
+    {
+      "unit_number": 61,
+      "true_rul": 21.0,
+      "predicted_rul": 43.2062
+    },
+    {
+      "unit_number": 62,
+      "true_rul": 54.0,
+      "predicted_rul": 50.787
+    },
+    {
+      "unit_number": 63,
+      "true_rul": 72.0,
+      "predicted_rul": 76.229
+    },
+    {
+      "unit_number": 64,
+      "true_rul": 28.0,
+      "predicted_rul": 39.2872
+    },
+    {
+      "unit_number": 65,
+      "true_rul": 128.0,
+      "predicted_rul": 123.5975
+    },
+    {
+      "unit_number": 66,
+      "true_rul": 14.0,
+      "predicted_rul": 15.9666
+    },
+    {
+      "unit_number": 67,
+      "true_rul": 77.0,
+      "predicted_rul": 108.2345
+    },
+    {
+      "unit_number": 68,
+      "true_rul": 8.0,
+      "predicted_rul": 13.4437
+    },
+    {
+      "unit_number": 69,
+      "true_rul": 121.0,
+      "predicted_rul": 118.0036
+    },
+    {
+      "unit_number": 70,
+      "true_rul": 94.0,
+      "predicted_rul": 110.4412
+    },
+    {
+      "unit_number": 71,
+      "true_rul": 118.0,
+      "predicted_rul": 114.2195
+    },
+    {
+      "unit_number": 72,
+      "true_rul": 50.0,
+      "predicted_rul": 83.2017
+    },
+    {
+      "unit_number": 73,
+      "true_rul": 131.0,
+      "predicted_rul": 112.5902
+    },
+    {
+      "unit_number": 74,
+      "true_rul": 126.0,
+      "predicted_rul": 98.2725
+    },
+    {
+      "unit_number": 75,
+      "true_rul": 113.0,
+      "predicted_rul": 98.9398
+    },
+    {
+      "unit_number": 76,
+      "true_rul": 10.0,
+      "predicted_rul": 9.1637
+    },
+    {
+      "unit_number": 77,
+      "true_rul": 34.0,
+      "predicted_rul": 48.8751
+    },
+    {
+      "unit_number": 78,
+      "true_rul": 107.0,
+      "predicted_rul": 124.0103
+    },
+    {
+      "unit_number": 79,
+      "true_rul": 63.0,
+      "predicted_rul": 116.6603
+    },
+    {
+      "unit_number": 80,
+      "true_rul": 90.0,
+      "predicted_rul": 86.952
+    },
+    {
+      "unit_number": 81,
+      "true_rul": 8.0,
+      "predicted_rul": 7.4474
+    },
+    {
+      "unit_number": 82,
+      "true_rul": 9.0,
+      "predicted_rul": 12.4327
+    },
+    {
+      "unit_number": 83,
+      "true_rul": 137.0,
+      "predicted_rul": 113.597
+    },
+    {
+      "unit_number": 84,
+      "true_rul": 58.0,
+      "predicted_rul": 57.4401
+    },
+    {
+      "unit_number": 85,
+      "true_rul": 118.0,
+      "predicted_rul": 112.7084
+    },
+    {
+      "unit_number": 86,
+      "true_rul": 89.0,
+      "predicted_rul": 98.0225
+    },
+    {
+      "unit_number": 87,
+      "true_rul": 116.0,
+      "predicted_rul": 119.1356
+    },
+    {
+      "unit_number": 88,
+      "true_rul": 115.0,
+      "predicted_rul": 116.3564
+    },
+    {
+      "unit_number": 89,
+      "true_rul": 136.0,
+      "predicted_rul": 111.919
+    },
+    {
+      "unit_number": 90,
+      "true_rul": 28.0,
+      "predicted_rul": 24.3446
+    },
+    {
+      "unit_number": 91,
+      "true_rul": 38.0,
+      "predicted_rul": 21.309
+    },
+    {
+      "unit_number": 92,
+      "true_rul": 20.0,
+      "predicted_rul": 19.9845
+    },
+    {
+      "unit_number": 93,
+      "true_rul": 85.0,
+      "predicted_rul": 39.9246
+    },
+    {
+      "unit_number": 94,
+      "true_rul": 55.0,
+      "predicted_rul": 63.1513
+    },
+    {
+      "unit_number": 95,
+      "true_rul": 128.0,
+      "predicted_rul": 111.8157
+    },
+    {
+      "unit_number": 96,
+      "true_rul": 137.0,
+      "predicted_rul": 119.9347
+    },
+    {
+      "unit_number": 97,
+      "true_rul": 82.0,
+      "predicted_rul": 84.7773
+    },
+    {
+      "unit_number": 98,
+      "true_rul": 59.0,
+      "predicted_rul": 87.5752
+    },
+    {
+      "unit_number": 99,
+      "true_rul": 117.0,
+      "predicted_rul": 122.7301
+    },
+    {
+      "unit_number": 100,
+      "true_rul": 20.0,
+      "predicted_rul": 17.585
+    }
+  ]
+}

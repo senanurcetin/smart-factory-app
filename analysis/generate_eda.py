@@ -38,7 +38,13 @@ def _save(fig, name):
 
 
 def eda_class_balance():
-    """Class imbalance: failure vs normal."""
+    """Class imbalance: failure vs normal.
+
+    A single bar chart, not a bar+pie pair — a 2-category pie duplicates
+    exactly what the bar already shows (and pies are a weaker way to compare
+    two magnitudes than bar height), so it added chart count without adding
+    information.
+    """
     profile = json.loads((DATA_DIR / "dataset-profile.json").read_text())
     dist = profile["target_distribution"]
     normal = dist["no_failure"]
@@ -46,10 +52,8 @@ def eda_class_balance():
     total = normal + failure
     failure_rate = failure / total
 
-    fig, axes = plt.subplots(1, 2, figsize=(10, 4))
+    fig, ax = plt.subplots(figsize=(6, 5))
 
-    # Left: counts
-    ax = axes[0]
     bars = ax.bar(
         ["Normal", "Failure"],
         [normal, failure],
@@ -60,42 +64,26 @@ def eda_class_balance():
         ax.text(
             bar.get_x() + bar.get_width() / 2,
             bar.get_height() + 100,
-            f"{val:,}",
+            f"{val:,} ({val/total:.1%})",
             ha="center",
             va="bottom",
             fontsize=11,
             fontweight="bold",
             color=CHART_PALETTE["text"],
         )
-    ax.set_ylim(0, normal * 1.12)
+    ax.set_ylim(0, normal * 1.15)
     ax.set_ylabel("Count", fontsize=10)
-    ax.set_title("Class Distribution (full dataset)", fontsize=11, fontweight="bold")
+    ax.set_title(
+        f"EDA — Class Imbalance: AI4I 2020 Dataset\n(failure rate = {failure_rate:.2%})",
+        fontsize=12,
+        fontweight="bold",
+        pad=12,
+    )
     ax.yaxis.grid(True, linewidth=0.8, alpha=0.5)
     ax.set_axisbelow(True)
     ax.spines["top"].set_visible(False)
     ax.spines["right"].set_visible(False)
 
-    # Right: pie
-    ax2 = axes[1]
-    wedge_colors = [CHART_PALETTE["primary"], CHART_PALETTE["danger"]]
-    explode = (0, 0.08)
-    wedges, texts, autotexts = ax2.pie(
-        [normal, failure],
-        labels=["Normal (96.6%)", "Failure (3.4%)"],
-        colors=wedge_colors,
-        explode=explode,
-        autopct="%1.1f%%",
-        startangle=90,
-        textprops={"fontsize": 9, "color": CHART_PALETTE["text"]},
-        wedgeprops={"edgecolor": CHART_PALETTE["bg"], "linewidth": 1.5},
-    )
-    autotexts[1].set_color(CHART_PALETTE["bg"])
-    autotexts[1].set_fontweight("bold")
-    ax2.set_title(
-        f"Class Balance\n(failure rate = {failure_rate:.2%})", fontsize=11, fontweight="bold"
-    )
-
-    fig.suptitle("EDA — Class Imbalance: AI4I 2020 Dataset", fontsize=13, fontweight="bold", y=1.02)
     _save(fig, "eda-class-balance.png")
 
 

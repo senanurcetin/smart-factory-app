@@ -446,11 +446,33 @@ def main() -> None:
 
     trajectories_payload = {"sample_units": sample_trajectories}
 
+    # Every official test engine's true vs. predicted RUL (not just the 3
+    # sample units charted in sample-trajectories.json) - lets the
+    # predicted-vs-actual scatter show the model's real error spread across
+    # the full n=100 test set instead of 3 illustrative points.
+    test_predictions_payload = {
+        "note": (
+            "One row per official test engine (its final observed cycle), "
+            "the same protocol used for the headline RMSE/PHM08 score."
+        ),
+        "units": [
+            {
+                "unit_number": int(unit),
+                "true_rul": to_float(true_val),
+                "predicted_rul": to_float(pred_val),
+            }
+            for unit, true_val, pred_val in zip(
+                official_test_rows["unit_number"], y_test_true, final_predictions
+            )
+        ],
+    }
+
     # ── Write artifacts ────────────────────────────────────────────────────
     write_json(OUTPUT_DIR / "summary.json", summary)
     write_json(OUTPUT_DIR / "model-selection.json", model_selection)
     write_json(OUTPUT_DIR / "feature-importance.json", feature_importance_payload)
     write_json(OUTPUT_DIR / "sample-trajectories.json", trajectories_payload)
+    write_json(OUTPUT_DIR / "test-predictions.json", test_predictions_payload)
 
     MODEL_DIR.mkdir(parents=True, exist_ok=True)
     joblib.dump(final_pipeline, MODEL_PATH)

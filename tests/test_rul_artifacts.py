@@ -20,12 +20,35 @@ class ArtifactPresenceTests(unittest.TestCase):
         "model-selection.json",
         "feature-importance.json",
         "sample-trajectories.json",
+        "test-predictions.json",
     ]
 
     def test_all_artifacts_exist(self):
         for fname in self.REQUIRED:
             with self.subTest(file=fname):
                 self.assertTrue((DATA_DIR / fname).exists(), f"Missing artifact: {fname}")
+
+
+class TestPredictionsTests(unittest.TestCase):
+    """Every official test engine should have a true/predicted RUL pair -
+    this backs the predicted-vs-actual scatter, which should show the real
+    error spread (n=100 for FD001), not just the 3 illustrative sample units."""
+
+    @classmethod
+    def setUpClass(cls):
+        cls.summary = _load("summary.json")
+        cls.predictions = _load("test-predictions.json")["units"]
+
+    def test_unit_count_matches_official_test_set(self):
+        self.assertEqual(len(self.predictions), self.summary["dataset"]["test_units"])
+
+    def test_every_unit_has_true_and_predicted_rul(self):
+        for row in self.predictions:
+            with self.subTest(unit=row["unit_number"]):
+                self.assertIn("true_rul", row)
+                self.assertIn("predicted_rul", row)
+                self.assertGreaterEqual(row["true_rul"], 0)
+                self.assertGreaterEqual(row["predicted_rul"], 0)
 
 
 class MetricsRangeTests(unittest.TestCase):

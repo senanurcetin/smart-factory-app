@@ -39,21 +39,18 @@ def _save(fig, name):
 
 
 def predicted_vs_actual():
-    trajectories = json.loads((DATA_DIR / "sample-trajectories.json").read_text())
+    predictions = json.loads((DATA_DIR / "test-predictions.json").read_text())["units"]
     summary = json.loads((DATA_DIR / "summary.json").read_text())
 
-    # Use the final-cycle point of every sample trajectory plus the headline
-    # RMSE to frame the scatter; the full official test set predictions
-    # aren't persisted per-unit, so this chart illustrates trend using the
-    # sample units alongside the reported RMSE/PHM08 numbers.
-    true_vals, pred_vals = [], []
-    for unit in trajectories["sample_units"]:
-        true_vals.append(unit["true_rul_extrapolated"][-1])
-        pred_vals.append(unit["predicted_rul"][-1])
+    # Every official test engine (n=100 for FD001), not just the 3 sample
+    # units charted in degradation_trajectories() below - this is the actual
+    # error spread the headline RMSE/PHM08 score is computed over.
+    true_vals = [u["true_rul"] for u in predictions]
+    pred_vals = [u["predicted_rul"] for u in predictions]
 
     fig, ax = plt.subplots(figsize=(6.5, 6))
 
-    lims = [0, max(true_vals + pred_vals) * 1.15]
+    lims = [0, max(true_vals + pred_vals) * 1.1]
     ax.plot(
         lims,
         lims,
@@ -61,24 +58,17 @@ def predicted_vs_actual():
         color=CHART_PALETTE["muted"],
         linewidth=1.2,
         label="Perfect prediction",
+        zorder=2,
     )
-    ax.scatter(true_vals, pred_vals, color=CHART_PALETTE["primary"], s=90, alpha=0.9, zorder=3)
-    for unit in trajectories["sample_units"]:
-        ax.annotate(
-            f"unit {unit['unit_number']}",
-            (unit["true_rul_extrapolated"][-1], unit["predicted_rul"][-1]),
-            textcoords="offset points",
-            xytext=(6, 6),
-            fontsize=8,
-            color=CHART_PALETTE["text"],
-        )
+    ax.scatter(true_vals, pred_vals, color=CHART_PALETTE["primary"], s=40, alpha=0.75, zorder=3)
 
     ax.set_xlim(lims)
     ax.set_ylim(lims)
     ax.set_xlabel("True RUL (cycles)", fontsize=10)
     ax.set_ylabel("Predicted RUL (cycles)", fontsize=10)
     ax.set_title(
-        f"Sample Predicted vs. True RUL — Test RMSE {summary['final_model']['rmse']:.1f} cycles",
+        f"Predicted vs. True RUL — Official Test Set (n={len(predictions)}), "
+        f"RMSE {summary['final_model']['rmse']:.1f} cycles",
         fontsize=11,
         fontweight="bold",
         pad=12,
