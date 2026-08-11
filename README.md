@@ -21,6 +21,9 @@ Short video: [`docs/assets/smart-factory-dashboard.webm`](docs/assets/smart-fact
 - Dashboard: [`/`](https://smart-factory-app.onrender.com/)
 - AI4I case study: [`/case-study`](https://smart-factory-app.onrender.com/case-study)
 - RUL case study: [`/rul-case-study`](https://smart-factory-app.onrender.com/rul-case-study)
+- Settings (dashboard preferences + model card): [`/settings`](https://smart-factory-app.onrender.com/settings)
+
+All four pages share one design system — a dark, glass-panel theme with a responsive sidebar (collapses to a hamburger menu below 900px) — instead of each route looking like a different product.
 
 Free-tier services spin down after ~15 minutes idle; the first request after that takes ~30-60 seconds to wake up — a known free-tier tradeoff, not a bug.
 
@@ -393,6 +396,8 @@ python -m py_compile main.py case_study.py rul_case_study.py layout.py settings.
 - **Genuine RUL regression**: a second case study on NASA C-MAPSS (a real run-to-failure dataset), including `GroupKFold` cross-validation grouped by engine — the grouped/time-aware split technique AI4I's dataset structure cannot support
 - **Knowing which rigor technique applies where**: same repo, two datasets, two different (correct) validation strategies — repeated holdouts for AI4I, grouped CV for C-MAPSS — chosen for what each dataset's structure actually supports, not applied uniformly by habit
 - **Data drift detection**: a real, CI-executed PSI (Population Stability Index) check against a deliberately shifted synthetic batch — demonstrated, not just listed as a "production consideration"
+- **Frontend engineering**: one consistent design system across all four routes (shared sidebar/chart-theme modules, not four independently-styled pages), a responsive off-canvas nav for mobile, and basic accessibility (skip-to-content link, `aria-label`s, keyboard-operable controls)
+- **Real-browser testing**: Playwright drives an actual Chromium instance against all four routes in CI — checking for console errors and verifying key UI behavior (e.g. the mobile nav actually collapses) — not just backend route/status-code assertions
 - **Python stack**: pandas, NumPy, scikit-learn, SHAP, matplotlib, DuckDB, Flask, gunicorn
 
 ---
@@ -421,6 +426,7 @@ python -m py_compile main.py case_study.py rul_case_study.py layout.py settings.
 - SQL proficiency: DuckDB analytical queries on structured JSON artifacts
 - Model output translated into a ranked maintenance queue with quantified business ROI
 - The live dashboard scores simulated telemetry with the same trained pipeline benchmarked in the offline case study — no separate, disconnected demo model
+- Frontend care extends past the ML: one consistent design system across all four pages, a responsive nav that actually collapses on mobile (verified in CI by a real Chromium instance, not just a CSS class check), and basic accessibility
 - Engineering hygiene: pinned dependencies, structured logging (not `print`), a minimal model card (training timestamp, library versions, dataset hash), a Dockerized deployment path, and CI that retrains the full pipeline and builds the image on every push — not just replaying static committed artifacts
 - A second case study (NASA C-MAPSS) proves genuine RUL regression is understood, not just referenced as a limitation — including the `GroupKFold` grouping AI4I's dataset structure ruled out
 - End-to-end analytical thinking: EDA to feature engineering to model selection to business framing
@@ -441,6 +447,10 @@ Trade-offs made in this project, and why — the reasoning matters more than the
 ### Drift Detection (Demonstrated, Not Just Documented)
 
 Most "production considerations" lists (including the one below) are just documented intent. This one isn't: [`analysis/check_drift.py`](analysis/check_drift.py) is a real, CI-executed script that computes the **Population Stability Index (PSI)** between the AI4I training distribution and a synthetic "live" batch. Rather than compare identical data (which would trivially show no drift), the synthetic batch has one feature — `Tool wear [min]` — deliberately shifted by +80 minutes to simulate a fleet whose tools are wearing faster than during the training window. Result: the shifted feature and the derived feature that depends on it (`tool_wear_load_ratio`) are correctly flagged (PSI 2.79 and 2.21, both far past the 0.2 "significant drift" threshold), while every unrelated feature stays under PSI 0.03. See it live on the `/case-study` route (a "Drift Check" panel, sourced from the same JSON) or in [`docs/data/ai4i-case-study/drift-report.json`](docs/data/ai4i-case-study/drift-report.json).
+
+### Real-Browser Testing (Not Just Backend Mocks)
+
+All 76 non-E2E tests exercise the backend only — `unittest` + Flask's `test_client()` — which would never catch a broken script tag, a 404'ing asset, or a JS error. [`tests/test_e2e.py`](tests/test_e2e.py) closes that gap: it starts the actual Flask app in a background thread and drives it with Playwright in a real, headless Chromium instance, once per route. Each check asserts on zero browser console errors and on real DOM/CSS state — e.g. the mobile-nav test resizes the viewport and asserts the sidebar's computed `transform` actually moved off-screen, not just that a CSS class got toggled (an earlier, weaker version of this test passed locally while failing in CI, because it only checked the class — the rewrite catches the real regression). Runs in its own parallel CI job (`e2e`) with a real Chromium install, alongside the backend `quality` job and the Docker `docker` job.
 
 ### Production Considerations
 
