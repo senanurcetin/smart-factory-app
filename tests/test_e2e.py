@@ -125,10 +125,9 @@ class E2ESmokeTests(unittest.TestCase):
         page, console_errors = self._open("/settings")
         try:
             self.assertTrue(page.is_visible("#refresh-rate-select"))
-            self.assertTrue(page.is_visible("#theme-switch"))
-            page.click("#theme-switch")
-            is_dark = page.evaluate("localStorage.getItem('sf_dashboard_theme')")
-            self.assertEqual(is_dark, "dark")
+            page.select_option("#refresh-rate-select", "500")
+            refresh_ms = page.evaluate("localStorage.getItem('sf_refresh_ms')")
+            self.assertEqual(refresh_ms, "500")
             self.assertEqual(console_errors, [])
         finally:
             page.close()

@@ -95,30 +95,6 @@ SETTINGS_TEMPLATE = (
             font-family: 'Inter', sans-serif;
             font-size: 0.88rem;
         }
-        .theme-switch {
-            position: relative;
-            width: 52px;
-            height: 28px;
-            background: var(--panel-soft);
-            border: 1px solid var(--border);
-            border-radius: 999px;
-            cursor: pointer;
-            flex-shrink: 0;
-        }
-        .theme-switch .knob {
-            position: absolute;
-            top: 2px;
-            left: 2px;
-            width: 22px;
-            height: 22px;
-            border-radius: 50%;
-            background: var(--muted);
-            transition: transform 0.2s, background 0.2s;
-        }
-        .theme-switch.is-on .knob {
-            transform: translateX(24px);
-            background: var(--accent-2);
-        }
         .save-toast {
             display: inline-block;
             color: var(--accent);
@@ -170,18 +146,6 @@ SETTINGS_TEMPLATE = (
                     <span class="save-toast" id="refresh-toast">Saved</span>
                 </div>
             </div>
-            <div class="setting-row">
-                <div>
-                    <div class="setting-label">Dark mode</div>
-                    <div class="setting-hint">Switch the dashboard from its default light bento theme to dark.</div>
-                </div>
-                <div style="display:flex; align-items:center;">
-                    <div class="theme-switch" id="theme-switch" role="switch" aria-checked="false" tabindex="0">
-                        <div class="knob"></div>
-                    </div>
-                    <span class="save-toast" id="theme-toast">Saved</span>
-                </div>
-            </div>
         </section>
 
         <section class="panel">
@@ -230,7 +194,6 @@ SETTINGS_TEMPLATE = (
 
     <script>
         const REFRESH_KEY = 'sf_refresh_ms';
-        const THEME_KEY = 'sf_dashboard_theme';
 
         const refreshSelect = document.getElementById('refresh-rate-select');
         const refreshToast = document.getElementById('refresh-toast');
@@ -238,24 +201,6 @@ SETTINGS_TEMPLATE = (
         refreshSelect.addEventListener('change', () => {
             localStorage.setItem(REFRESH_KEY, refreshSelect.value);
             flashToast(refreshToast);
-        });
-
-        const themeSwitch = document.getElementById('theme-switch');
-        const themeToast = document.getElementById('theme-toast');
-        function setThemeSwitch(isDark) {
-            themeSwitch.classList.toggle('is-on', isDark);
-            themeSwitch.setAttribute('aria-checked', String(isDark));
-        }
-        setThemeSwitch(localStorage.getItem(THEME_KEY) === 'dark');
-        function toggleTheme() {
-            const isDark = !themeSwitch.classList.contains('is-on');
-            setThemeSwitch(isDark);
-            localStorage.setItem(THEME_KEY, isDark ? 'dark' : 'light');
-            flashToast(themeToast);
-        }
-        themeSwitch.addEventListener('click', toggleTheme);
-        themeSwitch.addEventListener('keydown', (e) => {
-            if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); toggleTheme(); }
         });
 
         function flashToast(el) {

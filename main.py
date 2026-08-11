@@ -78,11 +78,6 @@ HTML_TEMPLATE = (
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>SmartFactory - Bento Dashboard</title>
-    <script>
-        if (localStorage.getItem('sf_dashboard_theme') === 'dark') {
-            document.documentElement.setAttribute('data-theme', 'dark');
-        }
-    </script>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -92,32 +87,26 @@ HTML_TEMPLATE = (
     + SIDEBAR_CSS
     + """
         :root {
-            --main-bg: #f3f4f6;
-            --card-bg: #ffffff;
-            --text-dark: #1f2937;
-            --text-light: #f9fafb;
-            --text-muted: #6b7280;
-            --border-color: #e5e7eb;
-        }
-        :root[data-theme="dark"] {
-            --main-bg: #0f172a;
-            --card-bg: #1e293b;
-            --text-dark: #e5e7eb;
-            --text-muted: #94a3b8;
-            --border-color: #334155;
+            --bg: #0a1120;
+            --panel: rgba(15, 25, 41, 0.92);
+            --panel-soft: rgba(22, 37, 61, 0.92);
+            --border: #223856;
+            --text: #edf4ff;
+            --muted: #9fb4d1;
+            --accent: #5eead4;
+            --accent-2: #60a5fa;
         }
 
         body {
-            background-color: var(--main-bg);
-            font-family: 'Inter', sans-serif;
-            color: var(--text-dark);
             margin: 0;
-            transition: background-color 0.2s, color 0.2s;
+            font-family: 'Inter', sans-serif;
+            color: var(--text);
+            background:
+                radial-gradient(circle at top left, rgba(96, 165, 250, 0.16), transparent 30%),
+                radial-gradient(circle at bottom right, rgba(94, 234, 212, 0.12), transparent 28%),
+                var(--bg);
         }
-        [data-theme="dark"] .bento-card { box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.35), 0 2px 4px -2px rgb(0 0 0 / 0.35); }
-        [data-theme="dark"] .text-muted { color: var(--text-muted) !important; }
-        [data-theme="dark"] .dashboard-intro { background: rgba(59, 130, 246, 0.14); border-color: rgba(59, 130, 246, 0.35); }
-        [data-theme="dark"] .dashboard-intro p { color: #cbd5e1; }
+        .text-muted { color: var(--muted) !important; }
 
         .main-content {
             margin-left: 250px;
@@ -131,7 +120,7 @@ HTML_TEMPLATE = (
             position: fixed;
             inset: 0;
             z-index: 40;
-            background-color: var(--main-bg);
+            background-color: var(--bg);
             display: flex;
             flex-direction: column;
             align-items: center;
@@ -148,19 +137,19 @@ HTML_TEMPLATE = (
         .cold-start-overlay p {
             margin: 0;
             font-weight: 600;
-            color: var(--text-dark);
+            color: var(--text);
         }
         .cold-start-overlay .cold-start-hint {
             font-weight: 400;
             font-size: 0.85rem;
-            color: var(--text-muted);
+            color: var(--muted);
             max-width: 340px;
         }
         .spinner {
             width: 38px;
             height: 38px;
-            border: 4px solid var(--border-color);
-            border-top-color: #3b82f6;
+            border: 4px solid var(--border);
+            border-top-color: var(--accent-2);
             border-radius: 50%;
             animation: sf-spin 0.8s linear infinite;
         }
@@ -169,13 +158,20 @@ HTML_TEMPLATE = (
         }
 
         .bento-card {
-            background-color: var(--card-bg);
-            border-radius: 16px;
-            box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+            background: var(--panel);
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            backdrop-filter: blur(14px);
             padding: 1.5rem;
             display: flex;
             flex-direction: column;
             height: 100%;
+            transition: transform 0.18s ease, box-shadow 0.18s ease, border-color 0.18s ease;
+        }
+        .bento-card:hover {
+            transform: translateY(-2px);
+            border-color: rgba(96, 165, 250, 0.4);
+            box-shadow: 0 10px 24px -8px rgba(0, 0, 0, 0.45);
         }
 
         .kpi-card {
@@ -185,13 +181,13 @@ HTML_TEMPLATE = (
         .kpi-card-title {
             font-size: 0.9rem;
             font-weight: 500;
-            color: var(--text-muted);
+            color: var(--muted);
         }
         .kpi-card-value {
             font-family: 'JetBrains Mono', monospace;
             font-size: 2.2rem;
             font-weight: 700;
-            color: var(--text-dark);
+            color: var(--text);
             margin: auto 0;
             line-height: 1.2;
         }
@@ -201,8 +197,8 @@ HTML_TEMPLATE = (
             align-self: flex-start;
             letter-spacing: 0.02em;
         }
-        .kpi-card-caption.is-model { color: #2563eb; }
-        .kpi-card-caption.is-sim { color: var(--text-muted); }
+        .kpi-card-caption.is-model { color: var(--accent-2); }
+        .kpi-card-caption.is-sim { color: var(--muted); }
 
         .risk-badge {
             display: inline-block;
@@ -219,9 +215,9 @@ HTML_TEMPLATE = (
         .risk-badge.risk-high { background: #fee2e2; color: #991b1b; }
 
         .dashboard-intro {
-            background: #eff6ff;
-            border: 1px solid #bfdbfe;
-            border-left: 4px solid #3b82f6;
+            background: rgba(96, 165, 250, 0.12);
+            border: 1px solid rgba(96, 165, 250, 0.3);
+            border-left: 4px solid var(--accent-2);
             border-radius: 12px;
             padding: 1rem 1.25rem;
             margin-bottom: 1.5rem;
@@ -230,41 +226,30 @@ HTML_TEMPLATE = (
             align-items: flex-start;
         }
         .dashboard-intro i {
-            color: #3b82f6;
+            color: var(--accent-2);
             font-size: 1.2rem;
             margin-top: 0.15rem;
         }
         .dashboard-intro p {
             margin: 0;
             font-size: 0.92rem;
-            color: #1e3a5f;
+            color: var(--muted);
             line-height: 1.55;
         }
-        .dashboard-intro a { color: #1d4ed8; font-weight: 600; }
+        .dashboard-intro a { color: var(--accent-2); font-weight: 600; }
 
         .page-header { margin-bottom: 1.25rem; }
         .page-title {
             font-family: 'Inter', sans-serif;
             font-size: 1.7rem;
             font-weight: 700;
-            color: var(--text-dark);
+            color: var(--text);
             margin: 0 0 4px 0;
         }
         .page-subtitle {
             font-size: 0.92rem;
-            color: var(--text-muted);
+            color: var(--muted);
             margin: 0;
-        }
-
-        .bento-card {
-            transition: transform 0.18s ease, box-shadow 0.18s ease;
-        }
-        .bento-card:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 10px 20px -6px rgb(0 0 0 / 0.15), 0 4px 8px -4px rgb(0 0 0 / 0.1);
-        }
-        [data-theme="dark"] .bento-card:hover {
-            box-shadow: 0 10px 24px -6px rgb(0 0 0 / 0.5), 0 4px 8px -4px rgb(0 0 0 / 0.4);
         }
 
         .chart-card {
@@ -283,8 +268,8 @@ HTML_TEMPLATE = (
         }
 
         .log-box {
-            background-color: #1f2937;
-            color: #d1d5db;
+            background-color: var(--panel-soft);
+            color: var(--muted);
             font-family: 'JetBrains Mono', monospace;
             font-size: 0.8rem;
             padding: 1rem;
@@ -298,16 +283,18 @@ HTML_TEMPLATE = (
             justify-content: space-between;
             align-items: center;
             padding: 0.6rem 0;
-            border-bottom: 1px solid var(--border-color);
+            border-bottom: 1px solid var(--border);
             font-size: 0.9rem;
         }
         .info-list-item:last-child { border-bottom: none; }
-        .info-list-item .label { color: var(--text-muted); }
-        .info-list-item .value { font-weight: 500; font-family: 'JetBrains Mono', monospace; }
+        .info-list-item .label { color: var(--muted); }
+        .info-list-item .value { font-weight: 500; font-family: 'JetBrains Mono', monospace; color: var(--text); }
 
         .scrollable-content {
             overflow-y: auto;
         }
+
+        .progress { background-color: var(--panel-soft) !important; }
 
     </style>
 </head>
@@ -352,7 +339,6 @@ HTML_TEMPLATE = (
 
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script>
-        const isDarkTheme = document.documentElement.getAttribute('data-theme') === 'dark';
         const chartDefaults = {
             responsive: true,
             maintainAspectRatio: false, // CRITICAL: Allows chart to fill container height
@@ -360,7 +346,7 @@ HTML_TEMPLATE = (
             plugins: { legend: { display: false } },
             scales: {
                 x: { grid: { display: false }, ticks: { color: '#9ca3af' } },
-                y: { grid: { color: isDarkTheme ? 'rgba(148, 163, 184, 0.15)' : '#e5e7eb' }, ticks: { color: '#9ca3af' } }
+                y: { grid: { color: 'rgba(148, 163, 184, 0.15)' }, ticks: { color: '#9ca3af' } }
             }
         };
         const tempChart = new Chart(document.getElementById('tempChart'), {
