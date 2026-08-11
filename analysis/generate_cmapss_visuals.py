@@ -1,8 +1,8 @@
 """Generate visualization assets for the C-MAPSS RUL case study.
 
 Reads pre-computed JSON outputs from docs/data/cmapss-rul-case-study/ and
-writes PNG charts to docs/assets/. No dataset download or model training
-required.
+writes PNG charts to docs/assets/, styled to match the site's dark theme.
+No dataset download or model training required.
 """
 
 from __future__ import annotations
@@ -16,31 +16,24 @@ import matplotlib
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 
+try:
+    from analysis._common import CHART_PALETTE, apply_dark_chart_style, save_chart_figure
+except ImportError:
+    from _common import CHART_PALETTE, apply_dark_chart_style, save_chart_figure
+
 logger = logging.getLogger(__name__)
 
 ROOT = Path(__file__).resolve().parents[1]
 DATA_DIR = ROOT / "docs" / "data" / "cmapss-rul-case-study"
 ASSETS_DIR = ROOT / "docs" / "assets"
-ASSETS_DIR.mkdir(parents=True, exist_ok=True)
 
-PALETTE = {
-    "primary": "#2563EB",
-    "accent": "#16A34A",
-    "warn": "#D97706",
-    "danger": "#DC2626",
-    "neutral": "#6B7280",
-    "highlight": "#7C3AED",
-    "bg": "#F8FAFC",
-    "grid": "#E2E8F0",
-}
+apply_dark_chart_style()
 
-TRAJECTORY_COLORS = [PALETTE["primary"], PALETTE["accent"], PALETTE["highlight"]]
+TRAJECTORY_COLORS = [CHART_PALETTE["primary"], CHART_PALETTE["accent"], CHART_PALETTE["highlight"]]
 
 
 def _save(fig, name):
-    out = ASSETS_DIR / name
-    fig.savefig(out, dpi=150, bbox_inches="tight", facecolor=fig.get_facecolor())
-    plt.close(fig)
+    out = save_chart_figure(fig, ASSETS_DIR, name)
     logger.info(f"  saved -> {out.relative_to(ROOT)}")
     return out
 
@@ -58,19 +51,18 @@ def predicted_vs_actual():
         true_vals.append(unit["true_rul_extrapolated"][-1])
         pred_vals.append(unit["predicted_rul"][-1])
 
-    fig, ax = plt.subplots(figsize=(6.5, 6), facecolor=PALETTE["bg"])
-    ax.set_facecolor(PALETTE["bg"])
+    fig, ax = plt.subplots(figsize=(6.5, 6))
 
     lims = [0, max(true_vals + pred_vals) * 1.15]
     ax.plot(
         lims,
         lims,
         linestyle="--",
-        color=PALETTE["neutral"],
+        color=CHART_PALETTE["muted"],
         linewidth=1.2,
         label="Perfect prediction",
     )
-    ax.scatter(true_vals, pred_vals, color=PALETTE["primary"], s=90, alpha=0.85, zorder=3)
+    ax.scatter(true_vals, pred_vals, color=CHART_PALETTE["primary"], s=90, alpha=0.9, zorder=3)
     for unit in trajectories["sample_units"]:
         ax.annotate(
             f"unit {unit['unit_number']}",
@@ -78,7 +70,7 @@ def predicted_vs_actual():
             textcoords="offset points",
             xytext=(6, 6),
             fontsize=8,
-            color="#1E293B",
+            color=CHART_PALETTE["text"],
         )
 
     ax.set_xlim(lims)
@@ -91,8 +83,8 @@ def predicted_vs_actual():
         fontweight="bold",
         pad=12,
     )
-    ax.legend(fontsize=8, framealpha=0.7, loc="upper left")
-    ax.grid(True, color=PALETTE["grid"], linewidth=0.8)
+    ax.legend(fontsize=8, framealpha=0.9, loc="upper left")
+    ax.grid(True, linewidth=0.8, alpha=0.5)
     ax.set_axisbelow(True)
     ax.spines["top"].set_visible(False)
     ax.spines["right"].set_visible(False)
@@ -103,8 +95,7 @@ def predicted_vs_actual():
 def degradation_trajectories():
     trajectories = json.loads((DATA_DIR / "sample-trajectories.json").read_text())["sample_units"]
 
-    fig, ax = plt.subplots(figsize=(9, 5.5), facecolor=PALETTE["bg"])
-    ax.set_facecolor(PALETTE["bg"])
+    fig, ax = plt.subplots(figsize=(9, 5.5))
 
     for i, unit in enumerate(trajectories):
         color = TRAJECTORY_COLORS[i % len(TRAJECTORY_COLORS)]
@@ -114,7 +105,7 @@ def degradation_trajectories():
             color=color,
             linestyle="--",
             linewidth=1.3,
-            alpha=0.55,
+            alpha=0.6,
         )
         ax.plot(
             unit["cycles"],
@@ -132,8 +123,8 @@ def degradation_trajectories():
         fontweight="bold",
         pad=12,
     )
-    ax.legend(fontsize=8, framealpha=0.7)
-    ax.yaxis.grid(True, color=PALETTE["grid"], linewidth=0.8)
+    ax.legend(fontsize=8, framealpha=0.9)
+    ax.yaxis.grid(True, linewidth=0.8, alpha=0.5)
     ax.set_axisbelow(True)
     ax.spines["top"].set_visible(False)
     ax.spines["right"].set_visible(False)
@@ -142,7 +133,7 @@ def degradation_trajectories():
         -0.02,
         "*True RUL before the final test cycle is a linear back-projection from the one officially truthed point — illustrative, not scored.",
         fontsize=7.5,
-        color=PALETTE["neutral"],
+        color=CHART_PALETTE["muted"],
     )
 
     _save(fig, "cmapss-degradation-trajectories.png")
@@ -154,11 +145,13 @@ def model_vs_baseline():
     labels = ["Naive\n(median RUL)", "Tuned\nHistGradientBoosting"]
     rmse_vals = [summary["baseline"]["rmse"], summary["final_model"]["rmse"]]
 
-    fig, ax = plt.subplots(figsize=(6, 5.5), facecolor=PALETTE["bg"])
-    ax.set_facecolor(PALETTE["bg"])
+    fig, ax = plt.subplots(figsize=(6, 5.5))
 
     bars = ax.bar(
-        labels, rmse_vals, color=[PALETTE["neutral"], PALETTE["primary"]], alpha=0.88, width=0.55
+        labels,
+        rmse_vals,
+        color=[CHART_PALETTE["muted"], CHART_PALETTE["primary"]],
+        width=0.55,
     )
     for bar in bars:
         h = bar.get_height()
@@ -168,7 +161,7 @@ def model_vs_baseline():
             f"{h:.1f}",
             ha="center",
             fontsize=10,
-            color="#1E293B",
+            color=CHART_PALETTE["text"],
         )
 
     ax.set_ylabel("RMSE (cycles) — lower is better", fontsize=10)
@@ -179,7 +172,7 @@ def model_vs_baseline():
         fontweight="bold",
         pad=12,
     )
-    ax.yaxis.grid(True, color=PALETTE["grid"], linewidth=0.8)
+    ax.yaxis.grid(True, linewidth=0.8, alpha=0.5)
     ax.set_axisbelow(True)
     ax.spines["top"].set_visible(False)
     ax.spines["right"].set_visible(False)
@@ -193,10 +186,9 @@ def feature_importance():
     names = [row["feature"] for row in top]
     values = [row["mean_abs_shap"] for row in top]
 
-    fig, ax = plt.subplots(figsize=(8, 6), facecolor=PALETTE["bg"])
-    ax.set_facecolor(PALETTE["bg"])
+    fig, ax = plt.subplots(figsize=(8, 6))
 
-    ax.barh(names, values, color=PALETTE["highlight"], alpha=0.85)
+    ax.barh(names, values, color=CHART_PALETTE["highlight"])
     ax.set_xlabel("Mean |SHAP value| (cycles)", fontsize=10)
     ax.set_title(
         "RUL Model — Top Features by SHAP Importance",
@@ -204,7 +196,7 @@ def feature_importance():
         fontweight="bold",
         pad=12,
     )
-    ax.xaxis.grid(True, color=PALETTE["grid"], linewidth=0.8)
+    ax.xaxis.grid(True, linewidth=0.8, alpha=0.5)
     ax.set_axisbelow(True)
     ax.spines["top"].set_visible(False)
     ax.spines["right"].set_visible(False)

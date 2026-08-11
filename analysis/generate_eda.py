@@ -1,7 +1,7 @@
 """Generate EDA (exploratory data analysis) visualization assets.
 
 Reads pre-computed JSON artifacts — no dataset download required.
-Outputs PNG charts to docs/assets/.
+Outputs PNG charts to docs/assets/, styled to match the site's dark theme.
 """
 
 from __future__ import annotations
@@ -15,30 +15,24 @@ import matplotlib
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 import numpy as np
+from matplotlib.colors import LinearSegmentedColormap
+
+try:
+    from analysis._common import CHART_PALETTE, apply_dark_chart_style, save_chart_figure
+except ImportError:
+    from _common import CHART_PALETTE, apply_dark_chart_style, save_chart_figure
 
 logger = logging.getLogger(__name__)
 
 ROOT = Path(__file__).resolve().parents[1]
 DATA_DIR = ROOT / "docs" / "data" / "ai4i-case-study"
 ASSETS_DIR = ROOT / "docs" / "assets"
-ASSETS_DIR.mkdir(parents=True, exist_ok=True)
 
-PALETTE = {
-    "primary": "#2563EB",
-    "accent": "#16A34A",
-    "warn": "#D97706",
-    "danger": "#DC2626",
-    "neutral": "#6B7280",
-    "highlight": "#7C3AED",
-    "bg": "#F8FAFC",
-    "grid": "#E2E8F0",
-}
+apply_dark_chart_style()
 
 
 def _save(fig, name):
-    out = ASSETS_DIR / name
-    fig.savefig(out, dpi=150, bbox_inches="tight", facecolor=fig.get_facecolor())
-    plt.close(fig)
+    out = save_chart_figure(fig, ASSETS_DIR, name)
     logger.info(f"  saved -> {out.relative_to(ROOT)}")
     return out
 
@@ -52,16 +46,14 @@ def eda_class_balance():
     total = normal + failure
     failure_rate = failure / total
 
-    fig, axes = plt.subplots(1, 2, figsize=(10, 4), facecolor=PALETTE["bg"])
+    fig, axes = plt.subplots(1, 2, figsize=(10, 4))
 
     # Left: counts
     ax = axes[0]
-    ax.set_facecolor(PALETTE["bg"])
     bars = ax.bar(
         ["Normal", "Failure"],
         [normal, failure],
-        color=[PALETTE["primary"], PALETTE["danger"]],
-        alpha=0.85,
+        color=[CHART_PALETTE["primary"], CHART_PALETTE["danger"]],
         width=0.5,
     )
     for bar, val in zip(bars, [normal, failure]):
@@ -73,19 +65,19 @@ def eda_class_balance():
             va="bottom",
             fontsize=11,
             fontweight="bold",
+            color=CHART_PALETTE["text"],
         )
     ax.set_ylim(0, normal * 1.12)
     ax.set_ylabel("Count", fontsize=10)
     ax.set_title("Class Distribution (full dataset)", fontsize=11, fontweight="bold")
-    ax.yaxis.grid(True, color=PALETTE["grid"], linewidth=0.8)
+    ax.yaxis.grid(True, linewidth=0.8, alpha=0.5)
     ax.set_axisbelow(True)
     ax.spines["top"].set_visible(False)
     ax.spines["right"].set_visible(False)
 
     # Right: pie
     ax2 = axes[1]
-    ax2.set_facecolor(PALETTE["bg"])
-    wedge_colors = [PALETTE["primary"], PALETTE["danger"]]
+    wedge_colors = [CHART_PALETTE["primary"], CHART_PALETTE["danger"]]
     explode = (0, 0.08)
     wedges, texts, autotexts = ax2.pie(
         [normal, failure],
@@ -94,9 +86,10 @@ def eda_class_balance():
         explode=explode,
         autopct="%1.1f%%",
         startangle=90,
-        textprops={"fontsize": 9},
+        textprops={"fontsize": 9, "color": CHART_PALETTE["text"]},
+        wedgeprops={"edgecolor": CHART_PALETTE["bg"], "linewidth": 1.5},
     )
-    autotexts[1].set_color("white")
+    autotexts[1].set_color(CHART_PALETTE["bg"])
     autotexts[1].set_fontweight("bold")
     ax2.set_title(
         f"Class Balance\n(failure rate = {failure_rate:.2%})", fontsize=11, fontweight="bold"
@@ -121,24 +114,21 @@ def eda_failure_modes():
     x = np.arange(len(labels))
     width = 0.38
 
-    fig, ax = plt.subplots(figsize=(10, 5), facecolor=PALETTE["bg"])
-    ax.set_facecolor(PALETTE["bg"])
+    fig, ax = plt.subplots(figsize=(10, 5))
 
     b1 = ax.bar(
         x - width / 2,
         full_counts,
         width,
         label="Full dataset (n=10,000)",
-        color=PALETTE["primary"],
-        alpha=0.85,
+        color=CHART_PALETTE["primary"],
     )
     b2 = ax.bar(
         x + width / 2,
         holdout,
         width,
         label="Holdout set (n=2,000)",
-        color=PALETTE["accent"],
-        alpha=0.85,
+        color=CHART_PALETTE["accent"],
     )
 
     for bar, val in zip(list(b1) + list(b2), full_counts + holdout):
@@ -149,6 +139,7 @@ def eda_failure_modes():
             ha="center",
             va="bottom",
             fontsize=9,
+            color=CHART_PALETTE["text"],
         )
 
     short_labels = [
@@ -167,8 +158,8 @@ def eda_failure_modes():
         fontweight="bold",
         pad=12,
     )
-    ax.legend(fontsize=9, framealpha=0.7)
-    ax.yaxis.grid(True, color=PALETTE["grid"], linewidth=0.8)
+    ax.legend(fontsize=9, framealpha=0.9)
+    ax.yaxis.grid(True, linewidth=0.8, alpha=0.5)
     ax.set_axisbelow(True)
     ax.spines["top"].set_visible(False)
     ax.spines["right"].set_visible(False)
@@ -186,12 +177,11 @@ def eda_product_type():
     total = sum(counts)
     pcts = [c / total * 100 for c in counts]
 
-    type_colors = [PALETTE["highlight"], PALETTE["primary"], PALETTE["accent"]]
+    type_colors = [CHART_PALETTE["highlight"], CHART_PALETTE["primary"], CHART_PALETTE["accent"]]
 
-    fig, ax = plt.subplots(figsize=(7, 4), facecolor=PALETTE["bg"])
-    ax.set_facecolor(PALETTE["bg"])
+    fig, ax = plt.subplots(figsize=(7, 4))
 
-    bars = ax.bar(types, counts, color=type_colors, alpha=0.85, width=0.5)
+    bars = ax.bar(types, counts, color=type_colors, width=0.5)
     for bar, val, pct in zip(bars, counts, pcts):
         ax.text(
             bar.get_x() + bar.get_width() / 2,
@@ -200,6 +190,7 @@ def eda_product_type():
             ha="center",
             va="bottom",
             fontsize=10,
+            color=CHART_PALETTE["text"],
         )
 
     ax.set_ylim(0, max(counts) * 1.18)
@@ -211,7 +202,7 @@ def eda_product_type():
         fontweight="bold",
         pad=10,
     )
-    ax.yaxis.grid(True, color=PALETTE["grid"], linewidth=0.8)
+    ax.yaxis.grid(True, linewidth=0.8, alpha=0.5)
     ax.set_axisbelow(True)
     ax.spines["top"].set_visible(False)
     ax.spines["right"].set_visible(False)
@@ -236,15 +227,15 @@ def eda_confusion_matrix():
         ]
     )
 
-    fig, ax = plt.subplots(figsize=(6, 5), facecolor=PALETTE["bg"])
-    ax.set_facecolor(PALETTE["bg"])
+    fig, ax = plt.subplots(figsize=(6, 5))
 
-    cmap = plt.cm.Blues
+    cmap = LinearSegmentedColormap.from_list(
+        "dark_blues", [CHART_PALETTE["bg"], CHART_PALETTE["primary"]]
+    )
     im = ax.imshow(matrix, cmap=cmap, vmin=0, vmax=tn)
 
     for i in range(2):
         for j in range(2):
-            color = "white" if matrix[i, j] > tn * 0.5 else "#1E293B"
             ax.text(
                 j,
                 i,
@@ -253,7 +244,7 @@ def eda_confusion_matrix():
                 va="center",
                 fontsize=12,
                 fontweight="bold",
-                color=color,
+                color=CHART_PALETTE["text"],
             )
 
     ax.set_xticks([0, 1])
@@ -270,7 +261,9 @@ def eda_confusion_matrix():
         pad=14,
     )
 
-    plt.colorbar(im, ax=ax, fraction=0.046, pad=0.04)
+    cbar = plt.colorbar(im, ax=ax, fraction=0.046, pad=0.04)
+    cbar.ax.yaxis.set_tick_params(color=CHART_PALETTE["muted"])
+    plt.setp(cbar.ax.get_yticklabels(), color=CHART_PALETTE["muted"])
     _save(fig, "eda-confusion-matrix.png")
 
 

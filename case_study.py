@@ -186,7 +186,8 @@ CASE_STUDY_TEMPLATE = (
             margin-bottom: 8px;
         }
         .chart-frame {
-            background: #ffffff;
+            background: var(--panel-soft);
+            border: 1px solid var(--border);
             border-radius: 12px;
             padding: 10px;
             margin-top: 16px;
@@ -292,17 +293,21 @@ CASE_STUDY_TEMPLATE = (
                     {% endfor %}
                     </tbody>
                 </table>
-                <div class="chart-gallery" style="margin-top: 16px;">
-                    <figure class="chart-frame" style="margin: 0;">
-                        <img src="/assets/model-comparison.png" alt="PR-AUC, ROC-AUC and F1 comparison across the four benchmarked models">
-                        <figcaption class="chart-caption">Benchmark comparison</figcaption>
-                    </figure>
-                    <figure class="chart-frame" style="margin: 0;">
-                        <img src="/assets/eda-confusion-matrix.png" alt="Confusion matrix for the final tuned model on the holdout set">
-                        <figcaption class="chart-caption">Confusion matrix (holdout)</figcaption>
-                    </figure>
-                </div>
                 <p class="footer-note">{{ model_selection.selection_reason }}</p>
+            </div>
+        </section>
+
+        <section class="panel" style="margin-top: 18px; margin-bottom: 18px;">
+            <h2 class="section-title">Model Performance</h2>
+            <div class="chart-gallery">
+                <figure class="chart-frame" style="margin: 0;">
+                    <img src="/assets/model-comparison.png" alt="PR-AUC, ROC-AUC and F1 comparison across the four benchmarked models">
+                    <figcaption class="chart-caption">Benchmark comparison</figcaption>
+                </figure>
+                <figure class="chart-frame" style="margin: 0;">
+                    <img src="/assets/eda-confusion-matrix.png" alt="Confusion matrix for the final tuned model on the holdout set">
+                    <figcaption class="chart-caption">Confusion matrix (holdout)</figcaption>
+                </figure>
             </div>
         </section>
 
@@ -382,12 +387,15 @@ CASE_STUDY_TEMPLATE = (
                 {% for row in feature_importance %}
                     <span class="tag">{{ row.feature }}: {{ row.importance }}</span>
                 {% endfor %}
-                <figure class="chart-frame">
-                    <img src="/assets/feature-importance.png" alt="Permutation importance ranking of model features">
-                    <figcaption class="chart-caption">Permutation importance</figcaption>
-                </figure>
                 <p class="footer-note">Permutation importance uses average precision as the scoring function to stay aligned with the imbalanced maintenance target.</p>
             </div>
+        </section>
+
+        <section class="panel" style="margin-top: 18px;">
+            <figure class="chart-frame" style="margin: 0;">
+                <img src="/assets/feature-importance.png" alt="Permutation importance ranking of model features">
+                <figcaption class="chart-caption">Permutation importance</figcaption>
+            </figure>
         </section>
 
         {% if drift_report %}

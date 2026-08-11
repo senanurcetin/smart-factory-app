@@ -186,7 +186,8 @@ RUL_CASE_STUDY_TEMPLATE = (
             margin-bottom: 8px;
         }
         .chart-frame {
-            background: #ffffff;
+            background: var(--panel-soft);
+            border: 1px solid var(--border);
             border-radius: 12px;
             padding: 10px;
             margin-top: 16px;
@@ -250,10 +251,6 @@ RUL_CASE_STUDY_TEMPLATE = (
                     <li>Evaluation uses the dataset's own designed protocol (NASA's official test split + truthed RUL labels), not a custom holdout.</li>
                 </ul>
                 <p class="footer-note">Dataset: {{ summary.dataset.name }}. {{ summary.dataset.reference }}.</p>
-                <figure class="chart-frame">
-                    <img src="/assets/cmapss-degradation-trajectories.png" alt="Sample engine degradation trajectories across cycles">
-                    <figcaption class="chart-caption">Sample engine degradation trajectories</figcaption>
-                </figure>
             </div>
             <div class="panel">
                 <h2 class="section-title">Model vs. Naive Baseline</h2>
@@ -278,17 +275,25 @@ RUL_CASE_STUDY_TEMPLATE = (
                         </tr>
                     </tbody>
                 </table>
-                <div class="chart-gallery" style="margin-top: 16px;">
-                    <figure class="chart-frame" style="margin: 0;">
-                        <img src="/assets/cmapss-model-vs-baseline.png" alt="RMSE comparison: tuned model vs naive median baseline">
-                        <figcaption class="chart-caption">Model vs. baseline RMSE</figcaption>
-                    </figure>
-                    <figure class="chart-frame" style="margin: 0;">
-                        <img src="/assets/cmapss-predicted-vs-actual.png" alt="Predicted vs actual RUL scatter on the official test set">
-                        <figcaption class="chart-caption">Predicted vs. actual RUL</figcaption>
-                    </figure>
-                </div>
                 <p class="footer-note">{{ model_selection.selection_reason }}</p>
+            </div>
+        </section>
+
+        <section class="panel" style="margin-top: 18px; margin-bottom: 18px;">
+            <h2 class="section-title">Model Performance</h2>
+            <div class="chart-gallery">
+                <figure class="chart-frame" style="margin: 0;">
+                    <img src="/assets/cmapss-degradation-trajectories.png" alt="Sample engine degradation trajectories across cycles">
+                    <figcaption class="chart-caption">Sample engine degradation trajectories</figcaption>
+                </figure>
+                <figure class="chart-frame" style="margin: 0;">
+                    <img src="/assets/cmapss-model-vs-baseline.png" alt="RMSE comparison: tuned model vs naive median baseline">
+                    <figcaption class="chart-caption">Model vs. baseline RMSE</figcaption>
+                </figure>
+                <figure class="chart-frame" style="margin: 0;">
+                    <img src="/assets/cmapss-predicted-vs-actual.png" alt="Predicted vs actual RUL scatter on the official test set">
+                    <figcaption class="chart-caption">Predicted vs. actual RUL</figcaption>
+                </figure>
             </div>
         </section>
 
@@ -326,10 +331,6 @@ RUL_CASE_STUDY_TEMPLATE = (
                 {% for row in feature_importance %}
                     <span class="tag">{{ row.feature }}: {{ row.mean_abs_shap }}</span>
                 {% endfor %}
-                <figure class="chart-frame">
-                    <img src="/assets/cmapss-feature-importance.png" alt="Mean absolute SHAP value ranking of RUL model features">
-                    <figcaption class="chart-caption">Mean |SHAP| feature importance</figcaption>
-                </figure>
                 <p class="footer-note">{{ feature_importance_method }}</p>
             </div>
             <div class="panel">
@@ -343,6 +344,13 @@ RUL_CASE_STUDY_TEMPLATE = (
                 </table>
                 <p class="footer-note">{{ summary.target.definition }}</p>
             </div>
+        </section>
+
+        <section class="panel" style="margin-top: 18px;">
+            <figure class="chart-frame" style="margin: 0;">
+                <img src="/assets/cmapss-feature-importance.png" alt="Mean absolute SHAP value ranking of RUL model features">
+                <figcaption class="chart-caption">Mean |SHAP| feature importance</figcaption>
+            </figure>
         </section>
 
         <section class="panel" style="margin-top: 18px;">

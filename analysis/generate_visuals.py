@@ -1,7 +1,8 @@
 """Generate portfolio visualization assets from JSON artifacts.
 
 Reads pre-computed JSON outputs from docs/data/ai4i-case-study/ and writes
-PNG charts to docs/assets/.  No dataset download or model training required.
+PNG charts to docs/assets/, styled to match the site's dark theme.  No
+dataset download or model training required.
 """
 
 from __future__ import annotations
@@ -17,28 +18,22 @@ import matplotlib.patches as mpatches
 import matplotlib.pyplot as plt
 import numpy as np
 
+try:
+    from analysis._common import CHART_PALETTE, apply_dark_chart_style, save_chart_figure
+except ImportError:
+    from _common import CHART_PALETTE, apply_dark_chart_style, save_chart_figure
+
 logger = logging.getLogger(__name__)
 
 ROOT = Path(__file__).resolve().parents[1]
 DATA_DIR = ROOT / "docs" / "data" / "ai4i-case-study"
 ASSETS_DIR = ROOT / "docs" / "assets"
-ASSETS_DIR.mkdir(parents=True, exist_ok=True)
 
-PALETTE = {
-    "primary": "#2563EB",
-    "accent": "#16A34A",
-    "warn": "#D97706",
-    "neutral": "#6B7280",
-    "highlight": "#7C3AED",
-    "bg": "#F8FAFC",
-    "grid": "#E2E8F0",
-}
+apply_dark_chart_style()
 
 
 def _save(fig, name):
-    out = ASSETS_DIR / name
-    fig.savefig(out, dpi=150, bbox_inches="tight", facecolor=fig.get_facecolor())
-    plt.close(fig)
+    out = save_chart_figure(fig, ASSETS_DIR, name)
     logger.info(f"  saved -> {out.relative_to(ROOT)}")
     return out
 
@@ -60,12 +55,11 @@ def model_comparison():
     x = np.arange(len(models))
     width = 0.26
 
-    fig, ax = plt.subplots(figsize=(10, 5), facecolor=PALETTE["bg"])
-    ax.set_facecolor(PALETTE["bg"])
+    fig, ax = plt.subplots(figsize=(10, 5))
 
-    b1 = ax.bar(x - width, roc, width, label="ROC-AUC", color=PALETTE["primary"], alpha=0.85)
-    b2 = ax.bar(x, pr, width, label="PR-AUC", color=PALETTE["accent"], alpha=0.85)
-    b3 = ax.bar(x + width, f1, width, label="F1", color=PALETTE["highlight"], alpha=0.85)
+    b1 = ax.bar(x - width, roc, width, label="ROC-AUC", color=CHART_PALETTE["primary"])
+    b2 = ax.bar(x, pr, width, label="PR-AUC", color=CHART_PALETTE["accent"])
+    b3 = ax.bar(x + width, f1, width, label="F1", color=CHART_PALETTE["highlight"])
 
     for bar in list(b1) + list(b2) + list(b3):
         h = bar.get_height()
@@ -77,7 +71,7 @@ def model_comparison():
                 ha="center",
                 va="bottom",
                 fontsize=7.5,
-                color="#1E293B",
+                color=CHART_PALETTE["text"],
             )
 
     ax.set_xticks(x)
@@ -90,8 +84,8 @@ def model_comparison():
         fontweight="bold",
         pad=12,
     )
-    ax.legend(fontsize=9, framealpha=0.7)
-    ax.yaxis.grid(True, color=PALETTE["grid"], linewidth=0.8)
+    ax.legend(fontsize=9, framealpha=0.9)
+    ax.yaxis.grid(True, linewidth=0.8, alpha=0.5)
     ax.set_axisbelow(True)
     ax.spines["top"].set_visible(False)
     ax.spines["right"].set_visible(False)
@@ -105,12 +99,11 @@ def feature_importance():
 
     names = [f["feature"] for f in feats]
     values = [f["importance"] for f in feats]
-    colors = [PALETTE["primary"] if v >= 0 else PALETTE["warn"] for v in values]
+    colors = [CHART_PALETTE["primary"] if v >= 0 else CHART_PALETTE["warn"] for v in values]
 
-    fig, ax = plt.subplots(figsize=(9, 5), facecolor=PALETTE["bg"])
-    ax.set_facecolor(PALETTE["bg"])
+    fig, ax = plt.subplots(figsize=(9, 5))
 
-    bars = ax.barh(names[::-1], values[::-1], color=colors[::-1], alpha=0.85)
+    bars = ax.barh(names[::-1], values[::-1], color=colors[::-1])
     for bar, val in zip(bars, values[::-1]):
         offset = 0.008 if val >= 0 else -0.008
         ha = "left" if val >= 0 else "right"
@@ -121,21 +114,22 @@ def feature_importance():
             va="center",
             ha=ha,
             fontsize=8,
+            color=CHART_PALETTE["text"],
         )
 
-    ax.axvline(0, color="#64748B", linewidth=0.8)
+    ax.axvline(0, color=CHART_PALETTE["muted"], linewidth=0.8)
     ax.set_xlabel("Permutation Importance (avg precision scoring, 8 repeats)", fontsize=9)
     ax.set_title(
         "Feature Importance — HistGradientBoosting on AI4I", fontsize=12, fontweight="bold", pad=12
     )
-    ax.xaxis.grid(True, color=PALETTE["grid"], linewidth=0.8)
+    ax.xaxis.grid(True, linewidth=0.8, alpha=0.5)
     ax.set_axisbelow(True)
     ax.spines["top"].set_visible(False)
     ax.spines["right"].set_visible(False)
 
-    pos_patch = mpatches.Patch(color=PALETTE["primary"], alpha=0.85, label="Positive impact")
-    neg_patch = mpatches.Patch(color=PALETTE["warn"], alpha=0.85, label="Near-zero / negative")
-    ax.legend(handles=[pos_patch, neg_patch], fontsize=8, framealpha=0.7)
+    pos_patch = mpatches.Patch(color=CHART_PALETTE["primary"], label="Positive impact")
+    neg_patch = mpatches.Patch(color=CHART_PALETTE["warn"], label="Near-zero / negative")
+    ax.legend(handles=[pos_patch, neg_patch], fontsize=8, framealpha=0.9)
 
     _save(fig, "feature-importance.png")
 
@@ -148,14 +142,13 @@ def review_queue_curve():
     capture = [0.0] + [b["failure_capture_rate"] for b in budgets]
     random_line = [b["review_fraction"] for b in budgets]
 
-    fig, ax = plt.subplots(figsize=(8, 5), facecolor=PALETTE["bg"])
-    ax.set_facecolor(PALETTE["bg"])
+    fig, ax = plt.subplots(figsize=(8, 5))
 
     ax.plot(
         fracs,
         capture,
         "o-",
-        color=PALETTE["primary"],
+        color=CHART_PALETTE["primary"],
         linewidth=2.2,
         markersize=7,
         label="Model (ranked queue)",
@@ -164,7 +157,7 @@ def review_queue_curve():
         [0] + random_line,
         [0] + random_line,
         "--",
-        color=PALETTE["neutral"],
+        color=CHART_PALETTE["muted"],
         linewidth=1.5,
         label="Random review baseline",
     )
@@ -175,7 +168,7 @@ def review_queue_curve():
             xy=(b["review_fraction"], b["failure_capture_rate"]),
             xytext=(b["review_fraction"] + 0.006, b["failure_capture_rate"] - 0.045),
             fontsize=8,
-            color="#1E293B",
+            color=CHART_PALETTE["text"],
         )
 
     ax.set_xlim(-0.01, 0.22)
@@ -188,9 +181,9 @@ def review_queue_curve():
         fontweight="bold",
         pad=12,
     )
-    ax.legend(fontsize=9, framealpha=0.7)
-    ax.yaxis.grid(True, color=PALETTE["grid"], linewidth=0.8)
-    ax.xaxis.grid(True, color=PALETTE["grid"], linewidth=0.8)
+    ax.legend(fontsize=9, framealpha=0.9)
+    ax.yaxis.grid(True, linewidth=0.8, alpha=0.5)
+    ax.xaxis.grid(True, linewidth=0.8, alpha=0.5)
     ax.set_axisbelow(True)
     ax.spines["top"].set_visible(False)
     ax.spines["right"].set_visible(False)
@@ -214,24 +207,21 @@ def cost_model_bars():
     x = np.arange(len(modes))
     width = 0.38
 
-    fig, ax = plt.subplots(figsize=(9, 5), facecolor=PALETTE["bg"])
-    ax.set_facecolor(PALETTE["bg"])
+    fig, ax = plt.subplots(figsize=(9, 5))
 
     ax.bar(
         x - width / 2,
         unplanned,
         width,
         label="Unplanned cost ($)",
-        color=PALETTE["warn"],
-        alpha=0.85,
+        color=CHART_PALETTE["warn"],
     )
     ax.bar(
         x + width / 2,
         preventive,
         width,
         label="Preventive cost ($)",
-        color=PALETTE["accent"],
-        alpha=0.85,
+        color=CHART_PALETTE["accent"],
     )
 
     ax.set_xticks(x)
@@ -243,8 +233,8 @@ def cost_model_bars():
         fontweight="bold",
         pad=12,
     )
-    ax.legend(fontsize=9, framealpha=0.7)
-    ax.yaxis.grid(True, color=PALETTE["grid"], linewidth=0.8)
+    ax.legend(fontsize=9, framealpha=0.9)
+    ax.yaxis.grid(True, linewidth=0.8, alpha=0.5)
     ax.set_axisbelow(True)
     ax.spines["top"].set_visible(False)
     ax.spines["right"].set_visible(False)
