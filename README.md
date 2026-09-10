@@ -342,12 +342,13 @@ Multi-stage build, served by `gunicorn` (2 workers) instead of the Flask develop
 ## Tests
 
 ```bash
-# All 81 tests: routes, artifact contracts, metrics thresholds, chart file
+# All 91 tests: routes, artifact contracts, metrics thresholds, chart file
 # presence, hyperparameter-tuning/validation-robustness/model-card contracts,
 # live dashboard <-> real model integration, drift-check correctness, the
 # RUL case study's own artifact contracts and routes, the Settings page's
-# model-card rendering, and 5 real-browser Playwright E2E smoke tests
-# (requires `playwright install chromium` once)
+# model-card rendering, negative-path tests for missing artifacts, and
+# 5 real-browser Playwright E2E smoke tests (requires
+# `playwright install chromium` once)
 python -m unittest discover -s tests -v
 
 # Lint and format check
@@ -452,7 +453,7 @@ Most "production considerations" lists (including the one below) are just docume
 
 ### Real-Browser Testing (Not Just Backend Mocks)
 
-All 76 non-E2E tests exercise the backend only — `unittest` + Flask's `test_client()` — which would never catch a broken script tag, a 404'ing asset, or a JS error. [`tests/test_e2e.py`](tests/test_e2e.py) closes that gap: it starts the actual Flask app in a background thread and drives it with Playwright in a real, headless Chromium instance, once per route. Each check asserts on zero browser console errors and on real DOM/CSS state — e.g. the mobile-nav test resizes the viewport and asserts the sidebar's computed `transform` actually moved off-screen, not just that a CSS class got toggled (an earlier, weaker version of this test passed locally while failing in CI, because it only checked the class — the rewrite catches the real regression). Runs in its own parallel CI job (`e2e`) with a real Chromium install, alongside the backend `quality` job and the Docker `docker` job.
+All 86 non-E2E tests exercise the backend only — `unittest` + Flask's `test_client()` — which would never catch a broken script tag, a 404'ing asset, or a JS error. [`tests/test_e2e.py`](tests/test_e2e.py) closes that gap: it starts the actual Flask app in a background thread and drives it with Playwright in a real, headless Chromium instance, once per route. Each check asserts on zero browser console errors and on real DOM/CSS state — e.g. the mobile-nav test resizes the viewport and asserts the sidebar's computed `transform` actually moved off-screen, not just that a CSS class got toggled (an earlier, weaker version of this test passed locally while failing in CI, because it only checked the class — the rewrite catches the real regression). Runs in its own parallel CI job (`e2e`) with a real Chromium install, alongside the backend `quality` job and the Docker `docker` job.
 
 ### Production Considerations
 
