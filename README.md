@@ -22,6 +22,7 @@ Short video: [`docs/assets/smart-factory-dashboard.webm`](docs/assets/smart-fact
 - AI4I case study: [`/case-study`](https://smart-factory-app.onrender.com/case-study)
 - RUL case study: [`/rul-case-study`](https://smart-factory-app.onrender.com/rul-case-study)
 - Settings (dashboard preferences + model card): [`/settings`](https://smart-factory-app.onrender.com/settings)
+- Hugging Face: [ONNX model card](https://huggingface.co/senanurcetin/ai4i-failure-hgb) and an [in-browser failure-risk demo](https://huggingface.co/spaces/senanurcetin/ai4i-failure-risk) (sliders, no server)
 
 All four pages share one design system — a dark, glass-panel theme with a responsive sidebar (collapses to a hamburger menu below 900px) — instead of each route looking like a different product.
 
