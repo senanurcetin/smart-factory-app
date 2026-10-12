@@ -12,7 +12,7 @@ import os
 import random
 import time
 from collections import deque
-from datetime import datetime
+from datetime import datetime, timezone
 from pathlib import Path
 
 import joblib
@@ -326,7 +326,7 @@ HTML_TEMPLATE = (
         <div class="page-header">
             <h1 class="page-title">Industrial Analytics Dashboard</h1>
             <p class="page-subtitle">AI4I-simulated telemetry · trained model risk scoring · transparent KPI definitions</p>
-            <div class="report-actions"><span class="source-label">SIMULATED PLANT DATA + TRAINED ML MODEL · SHARED DEMO STREAM</span><a class="btn btn-outline-primary" href="/api/report.csv" download="smart-factory-demo-telemetry.csv"><i class="fas fa-file-csv me-2" aria-hidden="true"></i>Export shared demo readings (CSV)</a></div>
+            <div class="report-actions"><span class="source-label">SIMULATED PLANT DATA + TRAINED ML MODEL · SHARED DEMO STREAM</span><a class="btn btn-outline-primary" href="/api/report.csv" download="smart-factory-demo-telemetry.csv"><i class="fas fa-file-csv me-2" aria-hidden="true"></i>Export shared demo readings (CSV)</a><span id="telemetry-clock" class="text-muted small" aria-live="polite">Awaiting a simulated reading</span></div>
         </div>
         <div class="dashboard-intro">
             <i class="fas fa-circle-info"></i>
@@ -416,6 +416,8 @@ HTML_TEMPLATE = (
             const response = await fetch('/api/data');
             const data = await response.json();
             const current = data.current_reading;
+            document.getElementById('telemetry-clock').textContent =
+                'Last model-scored sample: ' + current.RecordedAtUTC + ' (UTC)';
             const prod = data.production_stats;
             const events = data.event_log;
 
@@ -603,6 +605,7 @@ def get_data():
 
     reading = {
         "Timestamp": datetime.now().strftime("%H:%M:%S"),
+        "RecordedAtUTC": datetime.now(timezone.utc).isoformat(timespec="seconds"),
         "Type": machine_type,
         "Temperature": round(process_temp_k - 273.15, 1),  # process temp, Kelvin to C
         "Tool_Wear": round(tool_wear_minutes, 1),
@@ -657,7 +660,8 @@ def export_shared_demo_report():
     stream = io.StringIO()
     writer = csv.writer(stream)
     columns = [
-        ("Timestamp", "Timestamp"),
+        ("RecordedAtUTC", "Recorded at (UTC, ISO 8601)"),
+        ("Timestamp", "Timestamp (server local time of day)"),
         ("Type", "Machine type"),
         ("Temperature", "Process temperature (C)"),
         ("Tool_Wear", "Tool wear (min)"),
