@@ -119,6 +119,12 @@ class PsiBoundaryRegressionTests(unittest.TestCase):
         self.assertEqual(verdict(0.2), "significant_drift")
         self.assertEqual(verdict(0.0), "no_significant_drift")
 
+    def test_nonfinite_psi_never_reports_no_drift(self):
+        for invalid in (float("nan"), float("inf"), float("-inf")):
+            with self.subTest(psi=invalid):
+                with self.assertRaisesRegex(ValueError, "PSI must be finite"):
+                    verdict(invalid)
+
     def test_identical_numeric_samples_have_exactly_zero_psi(self):
         values = pd.Series(np.linspace(1.0, 100.0, 1000))
         self.assertAlmostEqual(compute_numeric_psi(values, values.copy()), 0.0)
