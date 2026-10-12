@@ -79,7 +79,7 @@ HTML_TEMPLATE = (
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SmartFactory - Bento Dashboard</title>
+    <title>Smart Factory | Industrial Analytics Dashboard</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -95,8 +95,8 @@ HTML_TEMPLATE = (
             --border: #223856;
             --text: #edf4ff;
             --muted: #9fb4d1;
-            --accent: #5eead4;
-            --accent-2: #60a5fa;
+            --accent: #8F9BFF;
+            --accent-2: #4EA8FF;
         }
 
         body {
@@ -105,7 +105,7 @@ HTML_TEMPLATE = (
             color: var(--text);
             background:
                 radial-gradient(circle at top left, rgba(96, 165, 250, 0.16), transparent 30%),
-                radial-gradient(circle at bottom right, rgba(94, 234, 212, 0.12), transparent 28%),
+                radial-gradient(circle at bottom right, rgba(143, 155, 255, 0.12), transparent 28%),
                 var(--bg);
         }
         .text-muted { color: var(--muted) !important; }
@@ -297,6 +297,19 @@ HTML_TEMPLATE = (
         }
 
         .progress { background-color: var(--panel-soft) !important; }
+        .report-actions { display:flex; flex-wrap:wrap; align-items:center; gap:12px; margin-top:14px; }
+        .report-actions .btn { border-color: #4EA8FF; color: #eaf1fa; font-size: 0.85rem; font-weight: 600; }
+        .report-actions .btn:hover, .report-actions .btn:focus-visible { background: #214f7f; color: #ffffff; }
+        .source-label { display:inline-flex; align-items:center; gap:7px; color:#cbd9ed; font-size:0.78rem; font-weight:700; letter-spacing:0.04em; }
+        .source-label::before { content:""; width:8px; height:8px; border-radius:50%; background:#8F9BFF; }
+        .metric-breakdown { display:grid; gap:18px; padding-top:12px; }
+        .metric-breakdown .metric-row { display:flex; justify-content:space-between; margin-bottom:7px; color:var(--text); font-size:0.85rem; }
+        .metric-breakdown .progress { height:9px; }
+        .metric-breakdown .progress-bar { background:#4EA8FF; }
+        .metric-breakdown .metric:nth-child(2) .progress-bar { background:#8F9BFF; }
+        .metric-breakdown .metric:nth-child(3) .progress-bar { background:#F6B95F; }
+        .evidence-caption { font-size:0.8rem; line-height:1.5; color:var(--muted); margin-top:auto; padding-top:12px; }
+        @media(max-width:575px) { .kpi-card { min-height:150px; height:auto; } .kpi-card-value { font-size:1.7rem; } .bento-card { padding:1rem; } }
 
     </style>
 </head>
@@ -311,8 +324,9 @@ HTML_TEMPLATE = (
 
     <main class="main-content" id="main-content">
         <div class="page-header">
-            <h1 class="page-title">Live Production Dashboard</h1>
-            <p class="page-subtitle">Real-time simulated telemetry, scored live by the trained AI4I model</p>
+            <h1 class="page-title">Industrial Analytics Dashboard</h1>
+            <p class="page-subtitle">AI4I-simulated telemetry · trained model risk scoring · transparent KPI definitions</p>
+            <div class="report-actions"><span class="source-label">SIMULATED PLANT DATA + TRAINED ML MODEL</span><a class="btn btn-outline-primary" href="/api/report.csv" download="smart-factory-demo-telemetry.csv"><i class="fas fa-file-csv me-2" aria-hidden="true"></i>Export session report (CSV)</a></div>
         </div>
         <div class="dashboard-intro">
             <i class="fas fa-circle-info"></i>
@@ -332,6 +346,13 @@ HTML_TEMPLATE = (
             <div class="col-lg-6"><div class="bento-card chart-card"><h5>Real-time Temperature Analysis</h5><p class="small text-muted mb-2">Process temperature (model input)</p><div class="chart-container"><canvas id="tempChart"></canvas></div></div></div>
             <div class="col-lg-6"><div class="bento-card chart-card"><h5>Real-time Tool Wear Analysis</h5><p class="small text-muted mb-2">Tool wear accumulation (model input)</p><div class="chart-container"><canvas id="vibrationChart"></canvas></div></div></div>
 
+            <!-- Model outputs and OEE calculation are bound to the same API stream -->
+            <div class="col-lg-8"><div class="bento-card chart-card"><h5>Model Risk Score Trend</h5><p class="small text-muted mb-2">Trained AI4I classifier score on synthetic sensors. Higher means more model-assessed risk; not a calibrated failure probability.</p><div class="chart-container"><canvas id="riskChart" aria-label="Model risk score trend over simulated timestamps" role="img"></canvas></div></div></div>
+            <div class="col-lg-4"><div class="bento-card chart-card"><h5>OEE Decomposition</h5><p class="small text-muted">Availability × Performance × Quality</p><div class="metric-breakdown">
+              <div class="metric"><div class="metric-row"><span>Availability</span><strong id="oee-availability">—</strong></div><div class="progress"><div class="progress-bar" id="oee-availability-bar" style="width:0%"></div></div></div>
+              <div class="metric"><div class="metric-row"><span>Performance</span><strong id="oee-performance">—</strong></div><div class="progress"><div class="progress-bar" id="oee-performance-bar" style="width:0%"></div></div></div>
+              <div class="metric"><div class="metric-row"><span>Quality</span><strong id="oee-quality">—</strong></div><div class="progress"><div class="progress-bar" id="oee-quality-bar" style="width:0%"></div></div></div>
+            </div><p class="evidence-caption">Calculated from simulated production/downtime/scrap. Demonstrates the standard OEE formula; does not describe a live factory.</p></div></div>
             <!-- DETAIL ROW with fixed height cards -->
             <div class="col-lg-4"><div class="bento-card detail-card scrollable-content"><h6 class="mb-3">Shift Information</h6><div id="shift-info-panel"></div></div></div>
             <div class="col-lg-4"><div class="bento-card detail-card"><h6 class="mb-3">System Health</h6><div id="health-panel" class="mt-4"></div></div></div>
