@@ -69,9 +69,15 @@ class BatchContractTests(unittest.TestCase):
         frame.loc[1, "Torque [Nm]"] = float("nan")
         result = validate_batch(frame)
         self.assertEqual(result["invalid_rows"], 2)
-        self.assertEqual(result["errors_by_field"]["Process temperature [K]"]["non_finite"], 1)
-        self.assertEqual(result["errors_by_field"]["Air temperature [K]"]["physically_invalid"], 1)
-        self.assertEqual(result["errors_by_field"]["Tool wear [min]"]["physically_invalid"], 1)
+        self.assertEqual(
+            result["errors_by_field"]["Process temperature [K]"]["non_finite"], 1
+        )
+        self.assertEqual(
+            result["errors_by_field"]["Air temperature [K]"]["physically_invalid"], 1
+        )
+        self.assertEqual(
+            result["errors_by_field"]["Tool wear [min]"]["physically_invalid"], 1
+        )
         self.assertEqual(result["errors_by_field"]["Torque [Nm]"]["missing_value"], 1)
 
     def test_sample_examples_cap(self):
