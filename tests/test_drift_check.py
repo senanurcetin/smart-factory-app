@@ -66,14 +66,16 @@ class DriftReportIntegrationTests(unittest.TestCase):
         # integration deterministically; real-dataset coverage is opt-in below.
         rng = np.random.default_rng(42)
         rows = 10_000
-        df = pd.DataFrame({
-            "Type": rng.choice(["L", "M", "H"], size=rows, p=[0.3, 0.5, 0.2]),
-            "Air temperature [K]": rng.normal(300, 2, rows),
-            "Process temperature [K]": rng.normal(310, 2, rows),
-            "Rotational speed [rpm]": rng.normal(1500, 230, rows),
-            "Torque [Nm]": rng.uniform(5, 75, rows),
-            "Tool wear [min]": rng.uniform(0, 250, rows),
-        })
+        df = pd.DataFrame(
+            {
+                "Type": rng.choice(["L", "M", "H"], size=rows, p=[0.3, 0.5, 0.2]),
+                "Air temperature [K]": rng.normal(300, 2, rows),
+                "Process temperature [K]": rng.normal(310, 2, rows),
+                "Rotational speed [rpm]": rng.normal(1500, 230, rows),
+                "Torque [Nm]": rng.uniform(5, 75, rows),
+                "Tool wear [min]": rng.uniform(0, 250, rows),
+            }
+        )
         cls.reference_df = add_derived_features(df)
         cls.live_batch = build_synthetic_live_batch(df)
         cls.report = build_drift_report(cls.reference_df, cls.live_batch)
