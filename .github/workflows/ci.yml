@@ -1,13 +1,13 @@
 name: CI
 
+# Automatic source/test verification is performed by CircleCI.
+# GitHub-hosted runner minutes are exhausted; manual opt-in only.
 on:
-  push:
-    branches:
-      - main
-  pull_request:
+  workflow_dispatch:
 
 jobs:
   quality:
+    if: vars.ENABLE_GITHUB_ACTIONS_CI == 'true'
     runs-on: ubuntu-latest
 
     steps:

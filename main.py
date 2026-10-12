@@ -604,7 +604,7 @@ def get_data():
     reading = {
         "Timestamp": datetime.now().strftime("%H:%M:%S"),
         "Type": machine_type,
-        "Temperature": round(process_temp_k - 273.15, 1),  # process temp, Kelvin -> Celsius
+        "Temperature": round(process_temp_k - 273.15, 1),  # process temp, Kelvin to C
         "Tool_Wear": round(tool_wear_minutes, 1),
         "Torque": round(torque_nm, 1),
         "Rotational_Speed": round(rotational_speed_rpm, 0),
@@ -618,7 +618,7 @@ def get_data():
         "Cycle_Time": round(random.uniform(11.5, 14.2), 1),
         "Shift_ID": "SHIFT-A" if 8 <= datetime.now().hour < 20 else "SHIFT-B",
         "Operator": "John Doe" if 8 <= datetime.now().hour < 20 else "Jane Smith",
-        "Energy_Cost_Per_Hour": (current_val * voltage_val * 0.12) / 1000,  # Example cost calc
+        "Energy_Cost_Per_Hour": (current_val * voltage_val * 0.12) / 1000,
         "RUL": rul_hours,
         "RiskScore": round(risk_score, 4),
     }
