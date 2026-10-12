@@ -27,6 +27,10 @@ class SessionReportTests(unittest.TestCase):
             export.headers["X-Data-Provenance"],
             "simulated-inputs;trained-model-scores",
         )
+        self.assertEqual(
+            export.headers["X-Data-Scope"],
+            "shared-worker-buffer;last-240-readings",
+        )
         self.assertIn("attachment;", export.headers["Content-Disposition"])
         rows = list(csv.DictReader(io.StringIO(export.get_data(as_text=True))))
         self.assertTrue(rows)
@@ -58,6 +62,7 @@ class SessionReportTests(unittest.TestCase):
             'id="oee-quality"',
             'href="/api/report.csv"',
             "SIMULATED PLANT DATA + TRAINED ML MODEL",
+            "SHARED DEMO STREAM",
         ):
             with self.subTest(evidence=evidence):
                 self.assertIn(evidence, html)

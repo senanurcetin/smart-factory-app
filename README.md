@@ -12,7 +12,7 @@ Demo: **[smart-factory-app.onrender.com](https://smart-factory-app.onrender.com)
 
 **Live report sources:** [Industrial Analytics Dashboard](https://smart-factory-app.onrender.com/) · [Scored telemetry CSV](https://smart-factory-app.onrender.com/api/report.csv) · [AI4I model evaluation](https://smart-factory-app.onrender.com/case-study) · [True RUL regression study](https://smart-factory-app.onrender.com/rul-case-study).
 
-The application includes **three synchronized, functioning time-series panels** for process temperature, tool wear and the trained classifier's risk score, plus an **OEE decomposition** showing Availability × Performance × Quality. The CSV export contains the session's **latest 240 simulated sensor readings scored by the trained model** (a rolling buffer), including an explicitly labelled *heuristic* RUL proxy. The export does **not** invent plant readings, company data or calibrated survival estimates. Data is created as viewers interact with the demo; an untouched session may export just a header.
+The application includes **three synchronized, functioning time-series panels** for process temperature, tool wear and the trained classifier's risk score, plus an **OEE decomposition** showing Availability × Performance × Quality. The CSV export contains the Flask worker's **latest 240 shared simulated sensor readings scored by the trained model** (a rolling buffer), including an explicitly labelled *heuristic* RUL proxy. The export does **not** invent plant readings, company data or calibrated survival estimates. Data is created as visitors poll the shared demo endpoint. The CSV is **not isolated per visitor**; different worker processes can show different rolling buffers. A worker with no readings returns a header-only export.
 
 > **Screenshot provenance:** The PNG and video below are existing *historical* application captures. They have **not** been re-rendered from this design update and do not show the new risk-trend/OEE interface. The current real UI must be captured from the running application after deployment is verified; do not replace these assets with AI-generated dashboards or portfolio illustration.
 
@@ -28,9 +28,9 @@ Short historical video: [`docs/assets/smart-factory-dashboard.webm`](docs/assets
 | --- | --- | --- |
 | Temperature and wear charts | Latest API-generated AI4I-schema readings | **Simulated**, not plant equipment telemetry |
 | Failure risk trend | Trained HistGradientBoosting `predict_proba` on current simulated inputs | Real model output, **not calibrated** failure probability |
-| OEE breakdown | `availability * performance * quality` from session downtime/production/scrap | Real formula using **simulated** counters |
+| OEE breakdown | `availability * performance * quality` from process-global simulated downtime/production/scrap | Real formula using **simulated** counters |
 | RUL number | Monotonic risk-derived proxy | **Heuristic only**, not the independent NASA C-MAPSS RUL regression |
-| [Downloadable CSV](https://smart-factory-app.onrender.com/api/report.csv) | `/api/report.csv` endpoint, last 240 simulated readings | An auditable session report, not a historical plant dataset |
+| [Downloadable CSV](https://smart-factory-app.onrender.com/api/report.csv) | `/api/report.csv` endpoint, last 240 simulated readings | A shared-worker demo window, not a private session or historical plant dataset |
 
 The dashboard is delivered by the existing Flask application, not by the README cover image. [Source-level dashboard/report tests](tests/test_dashboard_reporting.py) check that the CSV rows reflect API-scored values. [Browser smoke tests](tests/test_e2e.py) exercise the actual DOM, although GitHub Actions may be skipped during the CI quota hold.
 
