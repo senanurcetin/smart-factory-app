@@ -25,7 +25,7 @@ from analysis.run_ai4i_case_study import (
     add_derived_features,
 )
 from case_study import case_study_bp
-from demo_state import synchronized_demo_view
+from demo_state import advance_production_counts, synchronized_demo_view
 from layout import SIDEBAR_CSS, render_sidebar
 from rul_case_study import rul_case_study_bp
 from settings import settings_bp
@@ -533,10 +533,10 @@ def serve_asset(filename):
 def get_data():
     global production_actual, scrap_count, downtime_seconds, tool_wear_minutes
 
-    # Simulate Production & MES Data
-    production_actual += random.randint(0, 3)
-    if random.random() < 0.02:
-        scrap_count += 1
+    # Simulate Production & MES Data; rejects require a completed unit.
+    production_actual, scrap_count = advance_production_counts(
+        production_actual, scrap_count, random.randint(0, 3), random.random() < 0.02
+    )
     if random.random() < 0.05:
         downtime_seconds += random.uniform(1.0, 4.0)  # simulated micro-stoppage (jam, adjustment)
 
