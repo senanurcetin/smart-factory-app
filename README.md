@@ -36,6 +36,19 @@ The dashboard is delivered by the existing Flask application, not by the README 
 
 ---
 
+## Genuine browser-rendered dashboard verification
+
+The [CircleCI browser job](.circleci/config.yml) runs the project's existing Flask end-to-end tests in actual **Chromium**, opens the dashboard and all three case-study/settings routes, checks JavaScript console errors and broken images, and exercises mobile navigation. Only after those checks does it save **real application captures**:
+
+- `artifacts/gallery/smart-factory-dashboard-desktop.png`
+- `artifacts/gallery/smart-factory-dashboard-mobile.png`
+
+CircleCI stores the two images as **build artifacts**, not as synthetic portfolio illustrations or committed screenshots. Their numbers come from the running demo's simulated sensor/production stream and trained model. The images are not automatically pushed to `docs/assets/` and must be visually reviewed before any README screenshot replacement or Social Preview publication.
+
+A green browser job confirms these source-level interactions and tested viewports, **not** the public Render deployment revision or model calibration.
+
+---
+
 ## Live Demo
 
 **[smart-factory-app.onrender.com](https://smart-factory-app.onrender.com)** — deployed via the `render.yaml` blueprint already committed in this repo (Render's free tier, Docker runtime, no manual configuration).
