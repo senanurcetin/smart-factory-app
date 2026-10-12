@@ -41,8 +41,29 @@ jobs:
           python -m py_compile analysis/generate_cmapss_visuals.py
           python -m py_compile analysis/check_drift.py
 
-      - name: Run full AI4I ML pipeline (downloads UCI dataset, retrains, re-persists model.pkl)
-        run: python analysis/run_ai4i_case_study.py
+      # Deterministic CI: production-ready model artifacts and reports are
+      # versioned. Retraining from external data is a separate manual workflow.
+      # This keeps PR checks independent of UCI/NASA TLS and availability.
+      - name: Verify committed model and metrics artifacts
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          import json
+          files = [
+              "analysis/artifacts/model.pkl",
+              "analysis/artifacts/rul_model.pkl",
+              "docs/data/ai4i-case-study/summary.json",
+              "docs/data/cmapss-rul-case-study/summary.json",
+              "docs/data/ai4i-case-study/drift-report.json",
+          ]
+          for name in files:
+              file = Path(name)
+              if not file.is_file() or not file.stat().st_size:
+                  raise SystemExit(f"Missing or empty committed artifact: {name}")
+              if file.suffix == ".json":
+                  json.loads(file.read_text(encoding="utf-8"))
+              print(f"OK: {name}")
+          PY
 
       - name: Generate EDA assets
         run: python analysis/generate_eda.py
@@ -52,12 +73,6 @@ jobs:
 
       - name: Run SQL analysis
         run: python analysis/sql_queries.py
-
-      - name: Run drift check (PSI report against a synthetic shifted batch)
-        run: python analysis/check_drift.py
-
-      - name: Run C-MAPSS RUL pipeline (downloads NASA dataset, retrains, re-persists rul_model.pkl)
-        run: python analysis/run_cmapss_rul_case_study.py
 
       - name: Generate C-MAPSS RUL visuals
         run: python analysis/generate_cmapss_visuals.py
