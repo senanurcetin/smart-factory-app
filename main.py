@@ -332,7 +332,7 @@ HTML_TEMPLATE = (
             <i class="fas fa-circle-info"></i>
             <p>
                 <strong>What you're looking at:</strong> synthetic AI4I-schema sensor readings are generated every 2 seconds to imitate a running machine, then scored live by the same trained pipeline validated in the
-                <a href="/case-study">Case Study</a> (PR-AUC 0.90 on held-out data). The <strong>Failure Risk Score</strong> and <strong>RUL Forecast</strong> cards are genuine model outputs — everything else (OEE, production count, cost) is simulated plant telemetry used only to feed the model realistic inputs.
+                <a href="/case-study">Case Study</a> (PR-AUC 0.90 on held-out data). The <strong>Failure Risk Score</strong> is computed by the trained classifier on synthetic sensors; the <strong>RUL Proxy</strong> is a risk-derived heuristic, <em>not</em> a calibrated remaining-life regression. OEE, production and costs use simulated plant counters. For actual evaluated regression, open the RUL Case Study.
             </p>
         </div>
         <div class="row g-4">
