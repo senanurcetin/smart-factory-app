@@ -9,7 +9,7 @@ From the repository root, install the existing project dependencies and run:
 ```bash
 python -m analysis.validate_ai4i_batch path/to/readings.csv
 python -m analysis.validate_ai4i_batch path/to/readings.csv --report reports/batch-quality.json
-python -m unittest tests.test_batch_quality -v
+python -m unittest discover -s tests -p 'test_batch_quality.py' -v
 ```
 
 The command prints structured JSON to standard output. `--report` saves the same report to a file; it never changes the source CSV, the training artifacts or the deployed model.
