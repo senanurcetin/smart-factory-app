@@ -46,7 +46,7 @@ jobs:
           python analysis/run_ai4i_case_study.py
           python analysis/check_drift.py
           python -m unittest discover -s tests -p 'test_artifacts.py' -v
-          python -m unittest discover -s tests -p 'test_drift_check.py' -v
+          RUN_REAL_DATA_TESTS=1 python -m unittest discover -s tests -p 'test_drift_check.py' -v
 
       - name: Train and validate C-MAPSS (requires NASA download)
         if: inputs.dataset == 'all' || inputs.dataset == 'cmapss'
