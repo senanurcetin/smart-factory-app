@@ -25,3 +25,23 @@ def synchronized_demo_view(view):
 
     wrapped.demo_state_synchronized = True
     return wrapped
+
+
+def advance_production_counts(actual, scrap, completed_units, scrap_event):
+    """Advance simulated plant counts without scrapping an unproduced unit.
+
+    The demo treats each API tick as a batch of 0–3 completed units. At most
+    one member of that batch can be scrapped. The invariant is maintained:
+    0 <= scrap <= actual.
+    """
+    if (
+        not isinstance(completed_units, int)
+        or isinstance(completed_units, bool)
+        or completed_units < 0
+        or not 0 <= scrap <= actual
+    ):
+        raise ValueError("invalid simulated production counters")
+    actual += completed_units
+    if completed_units > 0 and scrap_event:
+        scrap += 1
+    return actual, scrap
