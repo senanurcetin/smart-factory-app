@@ -50,7 +50,9 @@ def validate_batch(frame: pd.DataFrame, sample_limit: int = 10) -> dict:
         for pos in np.flatnonzero(mask):
             if len(examples) >= sample_limit:
                 break
-            examples.append({"row_number": int(pos) + 2, "field": field, "reason": reason})
+            examples.append(
+                {"row_number": int(pos) + 2, "field": field, "reason": reason}
+            )
 
     if not row_count:
         errors_by_field["_batch"] = {"empty_batch": 1}
@@ -117,9 +119,14 @@ def main(argv: list[str] | None = None) -> int:
         description="Check AI4I CSV batches against the inference data contract."
     )
     parser.add_argument("csv", type=Path, help="CSV with AI4I raw feature columns")
-    parser.add_argument("--report", type=Path, help="Optional path to save the JSON report")
     parser.add_argument(
-        "--sample-limit", type=int, default=10, help="Maximum error examples (default: 10)"
+        "--report", type=Path, help="Optional path to save the JSON report"
+    )
+    parser.add_argument(
+        "--sample-limit",
+        type=int,
+        default=10,
+        help="Maximum error examples (default: 10)",
     )
     args = parser.parse_args(argv)
     if args.sample_limit < 0:
@@ -134,7 +141,12 @@ def main(argv: list[str] | None = None) -> int:
             args.report.write_text(serialized, encoding="utf-8")
         print(serialized, end="")
         return 0 if report["status"] == "pass" else 2
-    except (OSError, pd.errors.ParserError, pd.errors.EmptyDataError, UnicodeError) as exc:
+    except (
+        OSError,
+        pd.errors.ParserError,
+        pd.errors.EmptyDataError,
+        UnicodeError,
+    ) as exc:
         print(f"Cannot inspect batch: {exc}", file=sys.stderr)
         return 1
 
