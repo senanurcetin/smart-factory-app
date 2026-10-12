@@ -1,0 +1,70 @@
+version: 2.1
+
+# CI remains offline and read-only: no model retraining or production access.
+# Mirrors the deterministic core of GitHub quality checks, without relying
+# on NASA/UCI datasets or downloading model weights.
+jobs:
+  python-quality:
+    docker:
+      - image: cimg/python:3.11
+    resource_class: medium
+    working_directory: ~/project
+    steps:
+      - checkout
+      - restore_cache:
+          keys:
+            - smart-factory-pip-v1-{{ checksum "requirements-dev.txt" }}
+            - smart-factory-pip-v1-
+      - run:
+          name: Install locked development dependencies
+          command: python -m pip install -r requirements-dev.txt
+      - save_cache:
+          key: smart-factory-pip-v1-{{ checksum "requirements-dev.txt" }}
+          paths:
+            - ~/.cache/pip
+      - run:
+          name: Lint and formatting
+          command: |
+            ruff check .
+            black --check .
+      - run:
+          name: Compile Python
+          command: python -m compileall -q main.py case_study.py rul_case_study.py layout.py settings.py analysis tests
+      - run:
+          name: Verify committed offline artifacts
+          command: |
+            python - <<'PY'
+            from pathlib import Path
+            import json
+            files = [
+                "analysis/artifacts/model.pkl",
+                "analysis/artifacts/rul_model.pkl",
+                "docs/data/ai4i-case-study/summary.json",
+                "docs/data/cmapss-rul-case-study/summary.json",
+                "docs/data/ai4i-case-study/drift-report.json",
+            ]
+            for name in files:
+                file = Path(name)
+                if not file.is_file() or not file.stat().st_size:
+                    raise SystemExit(f"Missing/empty offline artifact: {name}")
+                if file.suffix == ".json":
+                    json.loads(file.read_text(encoding="utf-8"))
+            PY
+      - run:
+          name: Generate offline visual assets and SQL analysis
+          command: |
+            python analysis/generate_eda.py
+            python analysis/generate_visuals.py
+            python analysis/sql_queries.py
+            python analysis/generate_cmapss_visuals.py
+      - run:
+          name: Unit and route integration tests
+          command: python -m unittest discover -s tests -p "test_*.py" -v
+      - run:
+          name: Import Flask app
+          command: python -c "import main; print(main.app.name)"
+
+workflows:
+  verify:
+    jobs:
+      - python-quality
