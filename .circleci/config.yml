@@ -61,7 +61,35 @@ jobs:
           name: Import Flask app
           command: python -c "import main; print(main.app.name)"
 
+  browser-quality:
+    docker:
+      - image: cimg/python:3.11
+    resource_class: medium
+    working_directory: ~/project
+    steps:
+      - checkout
+      - restore_cache:
+          keys:
+            - smart-factory-pip-v1-{{ checksum "requirements-dev.txt" }}
+            - smart-factory-pip-v1-
+      - run:
+          name: Install locked browser and application dependencies
+          command: python -m pip install -r requirements-dev.txt
+          no_output_timeout: 15m
+      - run:
+          name: Install Chromium with system dependencies
+          command: python -m playwright install --with-deps chromium
+          no_output_timeout: 15m
+      - run:
+          name: Render all real Flask routes and capture desktop/mobile dashboard
+          command: python -m unittest discover -s tests -p 'test_e2e.py' -v
+          no_output_timeout: 20m
+      - store_artifacts:
+          path: artifacts/gallery
+          destination: real-dashboard-screenshots
+
 workflows:
   verify:
     jobs:
       - python-quality
+      - browser-quality
