@@ -376,12 +376,12 @@ HTML_TEMPLATE = (
             type: 'line',
             data: { labels: [], datasets: [{
                 data: [],
-                borderColor: '#ef4444',
+                borderColor: '#4EA8FF',
                 tension: 0.4,           // Makes lines curved
                 borderWidth: 2,         // Sets line thickness
                 pointRadius: 0,
                 fill: true,
-                backgroundColor: 'rgba(239, 68, 68, 0.05)'
+                backgroundColor: 'rgba(78, 168, 255, 0.07)'
             }] },
             options: { ...chartDefaults, scales: { ...chartDefaults.scales, y: { ...chartDefaults.scales.y, ticks: { callback: value => value + '°C' } } } }
         });
@@ -389,14 +389,27 @@ HTML_TEMPLATE = (
             type: 'line',
             data: { labels: [], datasets: [{
                 data: [],
-                borderColor: '#3b82f6',
+                borderColor: '#8F9BFF',
                 tension: 0.4,           // Makes lines curved
                 borderWidth: 2,         // Sets line thickness
                 pointRadius: 0,
                 fill: true,
-                backgroundColor: 'rgba(59, 130, 246, 0.05)'
+                backgroundColor: 'rgba(143, 155, 255, 0.07)'
             }] },
             options: { ...chartDefaults, scales: { ...chartDefaults.scales, y: { ...chartDefaults.scales.y, ticks: { callback: value => value + ' min' } } } }
+        });
+
+        const riskChart = new Chart(document.getElementById('riskChart'), {
+            type: 'line',
+            data: { labels: [], datasets: [{
+                label: 'Model risk score (%)', data: [],
+                borderColor: '#F6B95F', borderWidth: 2.5, pointRadius: 0,
+                tension: 0.25, fill: true, backgroundColor: 'rgba(246,185,95,0.10)'
+            }] },
+            options: { ...chartDefaults, scales: { ...chartDefaults.scales,
+                y: { ...chartDefaults.scales.y, min: 0, max: 100,
+                    ticks: { color: '#9fb4d1', callback: value => value + '%' } }
+            } }
         });
 
         async function fetchData() {
@@ -408,6 +421,11 @@ HTML_TEMPLATE = (
 
             // --- Update KPIs ---
             document.getElementById('kpi-oee').textContent = prod.oee.toFixed(1) + '%';
+            ['availability', 'performance', 'quality'].forEach(function (key) {
+                const pct = Math.max(0, Math.min(100, Number(prod[key]) || 0));
+                document.getElementById('oee-' + key).textContent = pct.toFixed(1) + '%';
+                document.getElementById('oee-' + key + '-bar').style.width = pct + '%';
+            });
             document.getElementById('kpi-prod').textContent = prod.actual;
             document.getElementById('kpi-rul').textContent = `${current.RUL} Hr`;
 
@@ -456,14 +474,16 @@ HTML_TEMPLATE = (
 
             // --- Update Charts ---
             const label = current.Timestamp;
-            [tempChart, vibrationChart].forEach(chart => {
-                if (chart.data.labels.length > 20) { chart.data.labels.shift(); chart.data.datasets[0].data.shift(); }
+            [tempChart, vibrationChart, riskChart].forEach(chart => {
+                if (chart.data.labels.length >= 30) { chart.data.labels.shift(); chart.data.datasets[0].data.shift(); }
                 chart.data.labels.push(label);
             });
             tempChart.data.datasets[0].data.push(current.Temperature);
             vibrationChart.data.datasets[0].data.push(current.Tool_Wear);
+            riskChart.data.datasets[0].data.push(current.RiskScore * 100);
             tempChart.update();
             vibrationChart.update();
+            riskChart.update();
 
             // --- Update Log Box ---
             const logBox = document.getElementById('log-box');
