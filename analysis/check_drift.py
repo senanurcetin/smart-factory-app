@@ -88,6 +88,10 @@ def compute_categorical_psi(reference: pd.Series, current: pd.Series) -> float:
 
 
 def verdict(psi: float) -> str:
+    # NaN compares false to every threshold; never report an invalid PSI as
+    # "no significant drift" for a potentially corrupted telemetry batch.
+    if not np.isfinite(psi):
+        raise ValueError("PSI must be finite")
     if psi >= PSI_SIGNIFICANT_THRESHOLD:
         return "significant_drift"
     if psi >= PSI_MODERATE_THRESHOLD:
