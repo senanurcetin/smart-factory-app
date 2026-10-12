@@ -7,6 +7,7 @@ evidence of plant production or calibrated failure probability.
 import csv
 import io
 import unittest
+from datetime import datetime, timedelta, timezone
 
 from main import app, historical_data
 
@@ -35,7 +36,17 @@ class SessionReportTests(unittest.TestCase):
         rows = list(csv.DictReader(io.StringIO(export.get_data(as_text=True))))
         self.assertTrue(rows)
         self.assertEqual(float(rows[-1]["Model risk score (0-1)"]), scored["RiskScore"])
-        self.assertEqual(rows[-1]["Timestamp"], scored["Timestamp"])
+        self.assertEqual(
+            rows[-1]["Timestamp (server local time of day)"],
+            scored["Timestamp"],
+        )
+        self.assertEqual(
+            rows[-1]["Recorded at (UTC, ISO 8601)"],
+            scored["RecordedAtUTC"],
+        )
+        sample_time = datetime.fromisoformat(scored["RecordedAtUTC"])
+        self.assertEqual(sample_time.utcoffset(), timedelta(0))
+        self.assertLessEqual(abs(datetime.now(timezone.utc) - sample_time), timedelta(minutes=2))
         self.assertEqual(
             float(rows[-1]["Process temperature (C)"]),
             scored["Temperature"],
@@ -63,6 +74,7 @@ class SessionReportTests(unittest.TestCase):
             'href="/api/report.csv"',
             "SIMULATED PLANT DATA + TRAINED ML MODEL",
             "SHARED DEMO STREAM",
+            'id="telemetry-clock"',
         ):
             with self.subTest(evidence=evidence):
                 self.assertIn(evidence, html)

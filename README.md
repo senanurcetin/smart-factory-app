@@ -30,7 +30,9 @@ Short historical video: [`docs/assets/smart-factory-dashboard.webm`](docs/assets
 | Failure risk trend | Trained HistGradientBoosting `predict_proba` on current simulated inputs | Real model output, **not calibrated** failure probability |
 | OEE breakdown | `availability * performance * quality` from process-global simulated downtime/production/scrap | Real formula using **simulated** counters |
 | RUL number | Monotonic risk-derived proxy | **Heuristic only**, not the independent NASA C-MAPSS RUL regression |
-| [Downloadable CSV](https://smart-factory-app.onrender.com/api/report.csv) | `/api/report.csv` endpoint, last 240 simulated readings | A shared-worker demo window, not a private session or historical plant dataset |
+| [Downloadable CSV](https://smart-factory-app.onrender.com/api/report.csv) | `/api/report.csv` endpoint, last 240 simulated readings | A shared-worker demo window with full ISO 8601 UTC timestamps, not a private session or historical plant dataset |
+
+**Time semantics:** the on-screen risk and sensor trends use a short server-local time-of-day label. The newest scored reading also displays a full UTC timestamp; the CSV exports that timezone-aware timestamp for reliable downstream sorting and cross-day analysis. An explicit provenance header identifies the process-local shared buffer. No real plant timestamps are inferred.
 
 The dashboard is delivered by the existing Flask application, not by the README cover image. [Source-level dashboard/report tests](tests/test_dashboard_reporting.py) check that the CSV rows reflect API-scored values. [Browser smoke tests](tests/test_e2e.py) exercise the actual DOM, although GitHub Actions may be skipped during the CI quota hold.
 
