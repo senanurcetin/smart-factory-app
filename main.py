@@ -671,9 +671,7 @@ def export_session_report():
         stream.getvalue(),
         mimetype="text/csv",
         headers={
-            "Content-Disposition": (
-                "attachment; filename=smart-factory-demo-telemetry.csv"
-            ),
+            "Content-Disposition": "attachment; filename=smart-factory-demo-telemetry.csv",
             "X-Data-Provenance": "simulated-inputs;trained-model-scores",
             "Cache-Control": "no-store",
         },
