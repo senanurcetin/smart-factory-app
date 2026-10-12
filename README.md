@@ -1,5 +1,7 @@
 # Smart Factory App
 
+**Technical reviewer brief:** [Methods, evidence and responsible-use boundaries](docs/hiring-summary.md).
+
 [![CI](https://github.com/senanurcetin/smart-factory-app/actions/workflows/ci.yml/badge.svg)](https://github.com/senanurcetin/smart-factory-app/actions/workflows/ci.yml)
 ![Python](https://img.shields.io/badge/Python-3.11-blue)
 ![License](https://img.shields.io/badge/License-MIT-green)
