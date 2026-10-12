@@ -61,6 +61,29 @@ class SessionReportTests(unittest.TestCase):
         self.client.get("/api/report.csv")
         self.assertEqual(list(historical_data), before)
 
+    def test_dashboard_charts_fit_flex_viewport_and_kpis_start_unavailable(self):
+        html = self.client.get("/").get_data(as_text=True)
+        self.assertIn("flex: 1 1 auto;", html)
+        self.assertIn("min-height: 0;", html)
+        self.assertIn(".chart-card { height:360px; }", html)
+        for element in ("kpi-risk", "kpi-rul", "kpi-oee", "kpi-prod"):
+            with self.subTest(element=element):
+                self.assertIn(f'id="{element}"', html)
+                self.assertNotIn(f'id="{element}">0', html)
+
+    def test_telemetry_polling_retries_and_rejects_incomplete_payloads(self):
+        html = self.client.get("/").get_data(as_text=True)
+        for contract in (
+            "if (!response.ok)",
+            "Incomplete telemetry payload",
+            "if (dashboardRefreshing) return;",
+            "setInterval(refreshDashboard, refreshMs);",
+            "Telemetry temporarily unavailable",
+            'role="status" aria-live="polite"',
+        ):
+            with self.subTest(contract=contract):
+                self.assertIn(contract, html)
+
     def test_dashboard_renders_live_chart_and_derived_oee(self):
         response = self.client.get("/")
         self.assertEqual(response.status_code, 200)

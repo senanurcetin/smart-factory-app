@@ -256,14 +256,18 @@ HTML_TEMPLATE = (
         }
 
         .chart-card {
-             height: 400px; /* Fixed height for chart cards */
+            height: 400px;
+            min-height: 0;
         }
 
+        /* Flex allocates remaining card space after the visible chart headings. */
         .chart-container {
             position: relative;
-            height: 100%;
+            flex: 1 1 auto;
+            min-height: 0;
             width: 100%;
         }
+        .chart-container canvas { display: block; }
 
         .detail-card {
             height: 300px; /* Fixed height for detail cards */
@@ -310,15 +314,20 @@ HTML_TEMPLATE = (
         .metric-breakdown .metric:nth-child(2) .progress-bar { background:#8F9BFF; }
         .metric-breakdown .metric:nth-child(3) .progress-bar { background:#F6B95F; }
         .evidence-caption { font-size:0.8rem; line-height:1.5; color:var(--muted); margin-top:auto; padding-top:12px; }
-        @media(max-width:575px) { .kpi-card { min-height:150px; height:auto; } .kpi-card-value { font-size:1.7rem; } .bento-card { padding:1rem; } }
+        @media(max-width:575px) {
+            .kpi-card { min-height:150px; height:auto; }
+            .kpi-card-value { font-size:1.7rem; }
+            .bento-card { padding:1rem; }
+            .chart-card { height:360px; }
+        }
 
     </style>
 </head>
 <body>
     {{ sidebar_html|safe }}
 
-    <div class="cold-start-overlay" id="cold-start-overlay">
-        <div class="spinner"></div>
+    <div class="cold-start-overlay" id="cold-start-overlay" role="status" aria-live="polite">
+        <div class="spinner" aria-hidden="true"></div>
         <p>Waking up the simulation&hellip;</p>
         <p class="cold-start-hint">This demo runs on a free-tier server that sleeps when idle — first load can take up to a minute.</p>
     </div>
@@ -338,10 +347,10 @@ HTML_TEMPLATE = (
         </div>
         <div class="row g-4">
             <!-- KPI ROW with fixed height cards -->
-            <div class="col-lg-3 col-6"><div class="bento-card kpi-card text-center"><div class="kpi-card-title">Failure Risk Score <span class="risk-badge" id="kpi-risk-badge">--</span></div><div class="kpi-card-value" id="kpi-risk">0%</div><div class="kpi-card-caption is-model"><i class="fas fa-robot"></i> Live model output</div></div></div>
-            <div class="col-lg-3 col-6"><div class="bento-card kpi-card text-center"><div class="kpi-card-title">RUL Proxy (heuristic)</div><div class="kpi-card-value" id="kpi-rul" title="Heuristic estimate derived from the model's risk score — not a calibrated survival/RUL model. See the RUL Case Study for genuine RUL regression.">0 Hr</div><div class="kpi-card-caption is-model"><i class="fas fa-robot"></i> Derived from risk score</div></div></div>
-            <div class="col-lg-3 col-6"><div class="bento-card kpi-card text-center"><div class="kpi-card-title">OEE</div><div class="kpi-card-value" id="kpi-oee">0%</div><div class="kpi-card-caption is-sim"><i class="fas fa-shuffle"></i> Simulated telemetry</div></div></div>
-            <div class="col-lg-3 col-6"><div class="bento-card kpi-card text-center"><div class="kpi-card-title">Net Production</div><div class="kpi-card-value" id="kpi-prod">0</div><div class="kpi-card-caption is-sim"><i class="fas fa-shuffle"></i> Simulated telemetry</div></div></div>
+            <div class="col-lg-3 col-6"><div class="bento-card kpi-card text-center"><div class="kpi-card-title">Failure Risk Score <span class="risk-badge" id="kpi-risk-badge">--</span></div><div class="kpi-card-value" id="kpi-risk">—</div><div class="kpi-card-caption is-model"><i class="fas fa-robot"></i> Live model output</div></div></div>
+            <div class="col-lg-3 col-6"><div class="bento-card kpi-card text-center"><div class="kpi-card-title">RUL Proxy (heuristic)</div><div class="kpi-card-value" id="kpi-rul" title="Heuristic estimate derived from the model's risk score — not a calibrated survival/RUL model. See the RUL Case Study for genuine RUL regression.">—</div><div class="kpi-card-caption is-model"><i class="fas fa-robot"></i> Derived from risk score</div></div></div>
+            <div class="col-lg-3 col-6"><div class="bento-card kpi-card text-center"><div class="kpi-card-title">OEE</div><div class="kpi-card-value" id="kpi-oee">—</div><div class="kpi-card-caption is-sim"><i class="fas fa-shuffle"></i> Simulated telemetry</div></div></div>
+            <div class="col-lg-3 col-6"><div class="bento-card kpi-card text-center"><div class="kpi-card-title">Net Production</div><div class="kpi-card-value" id="kpi-prod">—</div><div class="kpi-card-caption is-sim"><i class="fas fa-shuffle"></i> Simulated telemetry</div></div></div>
 
             <!-- CHART ROW with fixed height cards and containers -->
             <div class="col-lg-6"><div class="bento-card chart-card"><h5>Real-time Temperature Analysis</h5><p class="small text-muted mb-2">Process temperature (model input)</p><div class="chart-container"><canvas id="tempChart"></canvas></div></div></div>
@@ -414,8 +423,13 @@ HTML_TEMPLATE = (
         });
 
         async function fetchData() {
-            const response = await fetch('/api/data');
+            const response = await fetch('/api/data', { cache: 'no-store' });
+            if (!response.ok) throw new Error('Telemetry HTTP ' + response.status);
             const data = await response.json();
+            if (!data || !data.current_reading || !data.production_stats ||
+                !Array.isArray(data.event_log)) {
+                throw new Error('Incomplete telemetry payload');
+            }
             const current = data.current_reading;
             document.getElementById('telemetry-clock').textContent =
                 'Last model-scored sample: ' + current.RecordedAtUTC + ' (UTC)';
@@ -502,11 +516,25 @@ HTML_TEMPLATE = (
             if (overlay) overlay.classList.add('hidden');
         }
 
+        // Slow free-tier responses cannot race and overwrite newer readings.
+        let dashboardRefreshing = false;
+        async function refreshDashboard() {
+            if (dashboardRefreshing) return;
+            dashboardRefreshing = true;
+            try {
+                await fetchData();
+            } catch (_error) {
+                document.getElementById('telemetry-clock').textContent =
+                    'Telemetry temporarily unavailable — retrying automatically';
+            } finally {
+                dashboardRefreshing = false;
+                hideColdStartOverlay();
+            }
+        }
+
         const refreshMs = parseInt(localStorage.getItem('sf_refresh_ms'), 10) || 2000;
-        setInterval(fetchData, refreshMs);
-        document.addEventListener('DOMContentLoaded', () => {
-            fetchData().then(hideColdStartOverlay).catch(hideColdStartOverlay);
-        });
+        setInterval(refreshDashboard, refreshMs);
+        document.addEventListener('DOMContentLoaded', refreshDashboard);
     </script>
 </body>
 </html>
