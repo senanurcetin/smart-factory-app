@@ -6,6 +6,8 @@ and charts render correctly without deformation, while maintaining the existing
 data simulation and backend logic.
 """
 
+import csv
+import io
 import os
 import random
 import time
@@ -15,7 +17,7 @@ from pathlib import Path
 
 import joblib
 import pandas as pd
-from flask import Flask, jsonify, render_template_string, send_from_directory
+from flask import Flask, Response, jsonify, render_template_string, send_from_directory
 
 from analysis.run_ai4i_case_study import (
     MODEL_FEATURES_ENHANCED,
@@ -57,7 +59,7 @@ MACHINE_TYPES = ["L", "M", "H"]
 MACHINE_TYPE_WEIGHTS = [0.6, 0.3, 0.1]
 MAX_RUL_HOURS = 48
 
-historical_data = deque(maxlen=8)
+historical_data = deque(maxlen=240)
 event_log = deque(maxlen=10)
 production_actual = 0
 scrap_count = 0
@@ -599,6 +601,39 @@ def get_data():
             "production_stats": production_stats,
             "event_log": list(event_log),
         }
+    )
+
+
+@app.route("/api/report.csv")
+def export_session_report():
+    """Export actual API-generated demo readings and trained classifier scores.
+
+    The input sensor readings are synthetic AI4I-like signals; this is a
+    demo session export, not real factory telemetry. Readings are not mutated.
+    """
+    stream = io.StringIO()
+    writer = csv.writer(stream)
+    columns = [
+        ("Timestamp", "Timestamp"),
+        ("Type", "Machine type"),
+        ("Temperature", "Process temperature (C)"),
+        ("Tool_Wear", "Tool wear (min)"),
+        ("Torque", "Torque (Nm)"),
+        ("Rotational_Speed", "Rotational speed (rpm)"),
+        ("RiskScore", "Model risk score (0-1)"),
+        ("RUL", "Heuristic RUL proxy (hours)"),
+    ]
+    writer.writerow([header for _, header in columns])
+    for reading in list(historical_data):
+        writer.writerow([reading.get(key, "") for key, _ in columns])
+    return Response(
+        stream.getvalue(),
+        mimetype="text/csv",
+        headers={
+            "Content-Disposition": "attachment; filename=smart-factory-demo-telemetry.csv",
+            "X-Data-Provenance": "simulated-inputs;trained-model-scores",
+            "Cache-Control": "no-store",
+        },
     )
 
 
