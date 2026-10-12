@@ -32,24 +32,7 @@ jobs:
           command: python -m compileall -q main.py case_study.py rul_case_study.py layout.py settings.py analysis tests
       - run:
           name: Verify committed offline artifacts
-          command: |
-            python - <<'PY'
-            from pathlib import Path
-            import json
-            files = [
-                "analysis/artifacts/model.pkl",
-                "analysis/artifacts/rul_model.pkl",
-                "docs/data/ai4i-case-study/summary.json",
-                "docs/data/cmapss-rul-case-study/summary.json",
-                "docs/data/ai4i-case-study/drift-report.json",
-            ]
-            for name in files:
-                file = Path(name)
-                if not file.is_file() or not file.stat().st_size:
-                    raise SystemExit(f"Missing/empty offline artifact: {name}")
-                if file.suffix == ".json":
-                    json.loads(file.read_text(encoding="utf-8"))
-            PY
+          command: python scripts/verify_ci_artifacts.py
       - run:
           name: Generate offline visual assets and SQL analysis
           command: |
