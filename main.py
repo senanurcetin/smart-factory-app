@@ -326,7 +326,7 @@ HTML_TEMPLATE = (
         <div class="page-header">
             <h1 class="page-title">Industrial Analytics Dashboard</h1>
             <p class="page-subtitle">AI4I-simulated telemetry · trained model risk scoring · transparent KPI definitions</p>
-            <div class="report-actions"><span class="source-label">SIMULATED PLANT DATA + TRAINED ML MODEL</span><a class="btn btn-outline-primary" href="/api/report.csv" download="smart-factory-demo-telemetry.csv"><i class="fas fa-file-csv me-2" aria-hidden="true"></i>Export session report (CSV)</a></div>
+            <div class="report-actions"><span class="source-label">SIMULATED PLANT DATA + TRAINED ML MODEL · SHARED DEMO STREAM</span><a class="btn btn-outline-primary" href="/api/report.csv" download="smart-factory-demo-telemetry.csv"><i class="fas fa-file-csv me-2" aria-hidden="true"></i>Export shared demo readings (CSV)</a></div>
         </div>
         <div class="dashboard-intro">
             <i class="fas fa-circle-info"></i>
@@ -646,11 +646,13 @@ def get_data():
 
 
 @app.route("/api/report.csv")
-def export_session_report():
+def export_shared_demo_report():
     """Export actual API-generated demo readings and trained classifier scores.
 
     The input sensor readings are synthetic AI4I-like signals; this is a
-    demo session export, not real factory telemetry. Readings are not mutated.
+    process-local shared demo stream, not a private visitor session or real
+    factory telemetry. Readings are not mutated, and different workers can
+    have different windows.
     """
     stream = io.StringIO()
     writer = csv.writer(stream)
@@ -673,6 +675,7 @@ def export_session_report():
         headers={
             "Content-Disposition": "attachment; filename=smart-factory-demo-telemetry.csv",
             "X-Data-Provenance": "simulated-inputs;trained-model-scores",
+            "X-Data-Scope": "shared-worker-buffer;last-240-readings",
             "Cache-Control": "no-store",
         },
     )
