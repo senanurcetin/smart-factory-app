@@ -3,6 +3,7 @@
 A simulated telemetry series is an honest *working* dashboard, but not
 evidence of plant production or calibrated failure probability.
 """
+
 import csv
 import io
 import unittest
@@ -29,16 +30,12 @@ class SessionReportTests(unittest.TestCase):
         self.assertIn("attachment;", export.headers["Content-Disposition"])
         rows = list(csv.DictReader(io.StringIO(export.get_data(as_text=True))))
         self.assertTrue(rows)
-        self.assertEqual(
-            float(rows[-1]["Model risk score (0-1)"]), scored["RiskScore"]
-        )
+        self.assertEqual(float(rows[-1]["Model risk score (0-1)"]), scored["RiskScore"])
         self.assertEqual(rows[-1]["Timestamp"], scored["Timestamp"])
         self.assertEqual(
             float(rows[-1]["Process temperature (C)"]), scored["Temperature"]
         )
-        self.assertEqual(
-            int(rows[-1]["Heuristic RUL proxy (hours)"]), scored["RUL"]
-        )
+        self.assertEqual(int(rows[-1]["Heuristic RUL proxy (hours)"]), scored["RUL"])
         self.assertGreaterEqual(float(rows[-1]["Model risk score (0-1)"]), 0)
         self.assertLessEqual(float(rows[-1]["Model risk score (0-1)"]), 1)
 
