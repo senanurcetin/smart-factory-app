@@ -1,5 +1,6 @@
 .git/
 .github/
+.circleci/
 .venv/
 .claude/
 __pycache__/
@@ -12,3 +13,9 @@ Dockerfile
 .dockerignore
 .gitignore
 README.md
+
+# Keep local environment files and credentials out of the build context.
+.env
+.env.*
+**/.env
+**/.env.*
