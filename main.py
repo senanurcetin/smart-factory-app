@@ -6,6 +6,8 @@ and charts render correctly without deformation, while maintaining the existing
 data simulation and backend logic.
 """
 
+import csv
+import io
 import os
 import random
 import time
@@ -15,7 +17,7 @@ from pathlib import Path
 
 import joblib
 import pandas as pd
-from flask import Flask, jsonify, render_template_string, send_from_directory
+from flask import Flask, Response, jsonify, render_template_string, send_from_directory
 
 from analysis.run_ai4i_case_study import (
     MODEL_FEATURES_ENHANCED,
@@ -57,7 +59,7 @@ MACHINE_TYPES = ["L", "M", "H"]
 MACHINE_TYPE_WEIGHTS = [0.6, 0.3, 0.1]
 MAX_RUL_HOURS = 48
 
-historical_data = deque(maxlen=8)
+historical_data = deque(maxlen=240)
 event_log = deque(maxlen=10)
 production_actual = 0
 scrap_count = 0
@@ -77,7 +79,7 @@ HTML_TEMPLATE = (
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SmartFactory - Bento Dashboard</title>
+    <title>Smart Factory | Industrial Analytics Dashboard</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -93,8 +95,8 @@ HTML_TEMPLATE = (
             --border: #223856;
             --text: #edf4ff;
             --muted: #9fb4d1;
-            --accent: #5eead4;
-            --accent-2: #60a5fa;
+            --accent: #8F9BFF;
+            --accent-2: #4EA8FF;
         }
 
         body {
@@ -103,7 +105,7 @@ HTML_TEMPLATE = (
             color: var(--text);
             background:
                 radial-gradient(circle at top left, rgba(96, 165, 250, 0.16), transparent 30%),
-                radial-gradient(circle at bottom right, rgba(94, 234, 212, 0.12), transparent 28%),
+                radial-gradient(circle at bottom right, rgba(143, 155, 255, 0.12), transparent 28%),
                 var(--bg);
         }
         .text-muted { color: var(--muted) !important; }
@@ -295,6 +297,19 @@ HTML_TEMPLATE = (
         }
 
         .progress { background-color: var(--panel-soft) !important; }
+        .report-actions { display:flex; flex-wrap:wrap; align-items:center; gap:12px; margin-top:14px; }
+        .report-actions .btn { border-color: #4EA8FF; color: #eaf1fa; font-size: 0.85rem; font-weight: 600; }
+        .report-actions .btn:hover, .report-actions .btn:focus-visible { background: #214f7f; color: #ffffff; }
+        .source-label { display:inline-flex; align-items:center; gap:7px; color:#cbd9ed; font-size:0.78rem; font-weight:700; letter-spacing:0.04em; }
+        .source-label::before { content:""; width:8px; height:8px; border-radius:50%; background:#8F9BFF; }
+        .metric-breakdown { display:grid; gap:18px; padding-top:12px; }
+        .metric-breakdown .metric-row { display:flex; justify-content:space-between; margin-bottom:7px; color:var(--text); font-size:0.85rem; }
+        .metric-breakdown .progress { height:9px; }
+        .metric-breakdown .progress-bar { background:#4EA8FF; }
+        .metric-breakdown .metric:nth-child(2) .progress-bar { background:#8F9BFF; }
+        .metric-breakdown .metric:nth-child(3) .progress-bar { background:#F6B95F; }
+        .evidence-caption { font-size:0.8rem; line-height:1.5; color:var(--muted); margin-top:auto; padding-top:12px; }
+        @media(max-width:575px) { .kpi-card { min-height:150px; height:auto; } .kpi-card-value { font-size:1.7rem; } .bento-card { padding:1rem; } }
 
     </style>
 </head>
@@ -309,20 +324,21 @@ HTML_TEMPLATE = (
 
     <main class="main-content" id="main-content">
         <div class="page-header">
-            <h1 class="page-title">Live Production Dashboard</h1>
-            <p class="page-subtitle">Real-time simulated telemetry, scored live by the trained AI4I model</p>
+            <h1 class="page-title">Industrial Analytics Dashboard</h1>
+            <p class="page-subtitle">AI4I-simulated telemetry · trained model risk scoring · transparent KPI definitions</p>
+            <div class="report-actions"><span class="source-label">SIMULATED PLANT DATA + TRAINED ML MODEL</span><a class="btn btn-outline-primary" href="/api/report.csv" download="smart-factory-demo-telemetry.csv"><i class="fas fa-file-csv me-2" aria-hidden="true"></i>Export session report (CSV)</a></div>
         </div>
         <div class="dashboard-intro">
             <i class="fas fa-circle-info"></i>
             <p>
                 <strong>What you're looking at:</strong> synthetic AI4I-schema sensor readings are generated every 2 seconds to imitate a running machine, then scored live by the same trained pipeline validated in the
-                <a href="/case-study">Case Study</a> (PR-AUC 0.90 on held-out data). The <strong>Failure Risk Score</strong> and <strong>RUL Forecast</strong> cards are genuine model outputs — everything else (OEE, production count, cost) is simulated plant telemetry used only to feed the model realistic inputs.
+                <a href="/case-study">Case Study</a> (PR-AUC 0.90 on held-out data). The <strong>Failure Risk Score</strong> is computed by the trained classifier on synthetic sensors; the <strong>RUL Proxy</strong> is a risk-derived heuristic, <em>not</em> a calibrated remaining-life regression. OEE, production and costs use simulated plant counters. For actual evaluated regression, open the RUL Case Study.
             </p>
         </div>
         <div class="row g-4">
             <!-- KPI ROW with fixed height cards -->
             <div class="col-lg-3 col-6"><div class="bento-card kpi-card text-center"><div class="kpi-card-title">Failure Risk Score <span class="risk-badge" id="kpi-risk-badge">--</span></div><div class="kpi-card-value" id="kpi-risk">0%</div><div class="kpi-card-caption is-model"><i class="fas fa-robot"></i> Live model output</div></div></div>
-            <div class="col-lg-3 col-6"><div class="bento-card kpi-card text-center"><div class="kpi-card-title">AI Forecast (RUL)</div><div class="kpi-card-value" id="kpi-rul" title="Heuristic estimate derived from the model's risk score — not a calibrated survival/RUL model. See the RUL Case Study for genuine RUL regression.">0 Hr</div><div class="kpi-card-caption is-model"><i class="fas fa-robot"></i> Derived from risk score</div></div></div>
+            <div class="col-lg-3 col-6"><div class="bento-card kpi-card text-center"><div class="kpi-card-title">RUL Proxy (heuristic)</div><div class="kpi-card-value" id="kpi-rul" title="Heuristic estimate derived from the model's risk score — not a calibrated survival/RUL model. See the RUL Case Study for genuine RUL regression.">0 Hr</div><div class="kpi-card-caption is-model"><i class="fas fa-robot"></i> Derived from risk score</div></div></div>
             <div class="col-lg-3 col-6"><div class="bento-card kpi-card text-center"><div class="kpi-card-title">OEE</div><div class="kpi-card-value" id="kpi-oee">0%</div><div class="kpi-card-caption is-sim"><i class="fas fa-shuffle"></i> Simulated telemetry</div></div></div>
             <div class="col-lg-3 col-6"><div class="bento-card kpi-card text-center"><div class="kpi-card-title">Net Production</div><div class="kpi-card-value" id="kpi-prod">0</div><div class="kpi-card-caption is-sim"><i class="fas fa-shuffle"></i> Simulated telemetry</div></div></div>
 
@@ -330,6 +346,13 @@ HTML_TEMPLATE = (
             <div class="col-lg-6"><div class="bento-card chart-card"><h5>Real-time Temperature Analysis</h5><p class="small text-muted mb-2">Process temperature (model input)</p><div class="chart-container"><canvas id="tempChart"></canvas></div></div></div>
             <div class="col-lg-6"><div class="bento-card chart-card"><h5>Real-time Tool Wear Analysis</h5><p class="small text-muted mb-2">Tool wear accumulation (model input)</p><div class="chart-container"><canvas id="vibrationChart"></canvas></div></div></div>
 
+            <!-- Model outputs and OEE calculation are bound to the same API stream -->
+            <div class="col-lg-8"><div class="bento-card chart-card"><h5>Model Risk Score Trend</h5><p class="small text-muted mb-2">Trained AI4I classifier score on synthetic sensors. Higher means more model-assessed risk; not a calibrated failure probability.</p><div class="chart-container"><canvas id="riskChart" aria-label="Model risk score trend over simulated timestamps" role="img"></canvas></div></div></div>
+            <div class="col-lg-4"><div class="bento-card chart-card"><h5>OEE Decomposition</h5><p class="small text-muted">Availability × Performance × Quality</p><div class="metric-breakdown">
+              <div class="metric"><div class="metric-row"><span>Availability</span><strong id="oee-availability">—</strong></div><div class="progress"><div class="progress-bar" id="oee-availability-bar" style="width:0%"></div></div></div>
+              <div class="metric"><div class="metric-row"><span>Performance</span><strong id="oee-performance">—</strong></div><div class="progress"><div class="progress-bar" id="oee-performance-bar" style="width:0%"></div></div></div>
+              <div class="metric"><div class="metric-row"><span>Quality</span><strong id="oee-quality">—</strong></div><div class="progress"><div class="progress-bar" id="oee-quality-bar" style="width:0%"></div></div></div>
+            </div><p class="evidence-caption">Calculated from simulated production/downtime/scrap. Demonstrates the standard OEE formula; does not describe a live factory.</p></div></div>
             <!-- DETAIL ROW with fixed height cards -->
             <div class="col-lg-4"><div class="bento-card detail-card scrollable-content"><h6 class="mb-3">Shift Information</h6><div id="shift-info-panel"></div></div></div>
             <div class="col-lg-4"><div class="bento-card detail-card"><h6 class="mb-3">System Health</h6><div id="health-panel" class="mt-4"></div></div></div>
@@ -353,12 +376,12 @@ HTML_TEMPLATE = (
             type: 'line',
             data: { labels: [], datasets: [{
                 data: [],
-                borderColor: '#ef4444',
+                borderColor: '#4EA8FF',
                 tension: 0.4,           // Makes lines curved
                 borderWidth: 2,         // Sets line thickness
                 pointRadius: 0,
                 fill: true,
-                backgroundColor: 'rgba(239, 68, 68, 0.05)'
+                backgroundColor: 'rgba(78, 168, 255, 0.07)'
             }] },
             options: { ...chartDefaults, scales: { ...chartDefaults.scales, y: { ...chartDefaults.scales.y, ticks: { callback: value => value + '°C' } } } }
         });
@@ -366,14 +389,27 @@ HTML_TEMPLATE = (
             type: 'line',
             data: { labels: [], datasets: [{
                 data: [],
-                borderColor: '#3b82f6',
+                borderColor: '#8F9BFF',
                 tension: 0.4,           // Makes lines curved
                 borderWidth: 2,         // Sets line thickness
                 pointRadius: 0,
                 fill: true,
-                backgroundColor: 'rgba(59, 130, 246, 0.05)'
+                backgroundColor: 'rgba(143, 155, 255, 0.07)'
             }] },
             options: { ...chartDefaults, scales: { ...chartDefaults.scales, y: { ...chartDefaults.scales.y, ticks: { callback: value => value + ' min' } } } }
+        });
+
+        const riskChart = new Chart(document.getElementById('riskChart'), {
+            type: 'line',
+            data: { labels: [], datasets: [{
+                label: 'Model risk score (%)', data: [],
+                borderColor: '#F6B95F', borderWidth: 2.5, pointRadius: 0,
+                tension: 0.25, fill: true, backgroundColor: 'rgba(246,185,95,0.10)'
+            }] },
+            options: { ...chartDefaults, scales: { ...chartDefaults.scales,
+                y: { ...chartDefaults.scales.y, min: 0, max: 100,
+                    ticks: { color: '#9fb4d1', callback: value => value + '%' } }
+            } }
         });
 
         async function fetchData() {
@@ -385,6 +421,11 @@ HTML_TEMPLATE = (
 
             // --- Update KPIs ---
             document.getElementById('kpi-oee').textContent = prod.oee.toFixed(1) + '%';
+            ['availability', 'performance', 'quality'].forEach(function (key) {
+                const pct = Math.max(0, Math.min(100, Number(prod[key]) || 0));
+                document.getElementById('oee-' + key).textContent = pct.toFixed(1) + '%';
+                document.getElementById('oee-' + key + '-bar').style.width = pct + '%';
+            });
             document.getElementById('kpi-prod').textContent = prod.actual;
             document.getElementById('kpi-rul').textContent = `${current.RUL} Hr`;
 
@@ -433,14 +474,16 @@ HTML_TEMPLATE = (
 
             // --- Update Charts ---
             const label = current.Timestamp;
-            [tempChart, vibrationChart].forEach(chart => {
-                if (chart.data.labels.length > 20) { chart.data.labels.shift(); chart.data.datasets[0].data.shift(); }
+            [tempChart, vibrationChart, riskChart].forEach(chart => {
+                if (chart.data.labels.length >= 30) { chart.data.labels.shift(); chart.data.datasets[0].data.shift(); }
                 chart.data.labels.push(label);
             });
             tempChart.data.datasets[0].data.push(current.Temperature);
             vibrationChart.data.datasets[0].data.push(current.Tool_Wear);
+            riskChart.data.datasets[0].data.push(current.RiskScore * 100);
             tempChart.update();
             vibrationChart.update();
+            riskChart.update();
 
             // --- Update Log Box ---
             const logBox = document.getElementById('log-box');
@@ -599,6 +642,39 @@ def get_data():
             "production_stats": production_stats,
             "event_log": list(event_log),
         }
+    )
+
+
+@app.route("/api/report.csv")
+def export_session_report():
+    """Export actual API-generated demo readings and trained classifier scores.
+
+    The input sensor readings are synthetic AI4I-like signals; this is a
+    demo session export, not real factory telemetry. Readings are not mutated.
+    """
+    stream = io.StringIO()
+    writer = csv.writer(stream)
+    columns = [
+        ("Timestamp", "Timestamp"),
+        ("Type", "Machine type"),
+        ("Temperature", "Process temperature (C)"),
+        ("Tool_Wear", "Tool wear (min)"),
+        ("Torque", "Torque (Nm)"),
+        ("Rotational_Speed", "Rotational speed (rpm)"),
+        ("RiskScore", "Model risk score (0-1)"),
+        ("RUL", "Heuristic RUL proxy (hours)"),
+    ]
+    writer.writerow([header for _, header in columns])
+    for reading in list(historical_data):
+        writer.writerow([reading.get(key, "") for key, _ in columns])
+    return Response(
+        stream.getvalue(),
+        mimetype="text/csv",
+        headers={
+            "Content-Disposition": "attachment; filename=smart-factory-demo-telemetry.csv",
+            "X-Data-Provenance": "simulated-inputs;trained-model-scores",
+            "Cache-Control": "no-store",
+        },
     )
 
 
