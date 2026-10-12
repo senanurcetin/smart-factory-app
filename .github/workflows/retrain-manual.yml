@@ -1,0 +1,67 @@
+# Run expensive, network-dependent retraining intentionally, not on each PR.
+# This job requires public UCI/NASA datasets with working TLS certificates.
+name: Retrain ML artifacts (manual)
+
+on:
+  workflow_dispatch:
+    inputs:
+      dataset:
+        description: "Choose which public benchmark to regenerate"
+        required: true
+        type: choice
+        default: all
+        options:
+          - all
+          - ai4i
+          - cmapss
+
+permissions:
+  contents: read
+
+concurrency:
+  group: smart-factory-retrain-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  retrain:
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    steps:
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v5
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: pip
+          cache-dependency-path: requirements-dev.txt
+
+      - name: Install dependencies
+        run: pip install -r requirements-dev.txt
+
+      - name: Train and validate AI4I (requires UCI download)
+        if: inputs.dataset == 'all' || inputs.dataset == 'ai4i'
+        run: |
+          python analysis/run_ai4i_case_study.py
+          python analysis/check_drift.py
+          python -m unittest discover -s tests -p 'test_artifacts.py' -v
+          RUN_REAL_DATA_TESTS=1 python -m unittest discover -s tests -p 'test_drift_check.py' -v
+
+      - name: Train and validate C-MAPSS (requires NASA download)
+        if: inputs.dataset == 'all' || inputs.dataset == 'cmapss'
+        run: |
+          python analysis/run_cmapss_rul_case_study.py
+          python -m unittest discover -s tests -p 'test_rul_artifacts.py' -v
+
+      - name: Upload regenerated research artifacts for manual review
+        if: always()
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: smart-factory-retrained-${{ inputs.dataset }}
+          path: |
+            analysis/artifacts/*.pkl
+            docs/data/ai4i-case-study/*.json
+            docs/data/cmapss-rul-case-study/*.json
+          retention-days: 7
+          if-no-files-found: warn

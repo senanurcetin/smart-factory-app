@@ -1,5 +1,6 @@
 """Tests for the PSI-based drift check (analysis/check_drift.py)."""
 
+import os
 import unittest
 
 import numpy as np
@@ -57,11 +58,24 @@ class CategoricalPsiTests(unittest.TestCase):
 
 
 class DriftReportIntegrationTests(unittest.TestCase):
-    """End-to-end: the real AI4I data + the real injected-shift scenario."""
+    """Offline end-to-end check with a seeded AI4I-schema fixture."""
 
     @classmethod
     def setUpClass(cls):
-        df = load_dataset()
+        # PR checks must never download a dataset. Cover the full PSI/report
+        # integration deterministically; real-dataset coverage is opt-in below.
+        rng = np.random.default_rng(42)
+        rows = 10_000
+        df = pd.DataFrame(
+            {
+                "Type": rng.choice(["L", "M", "H"], size=rows, p=[0.3, 0.5, 0.2]),
+                "Air temperature [K]": rng.normal(300, 2, rows),
+                "Process temperature [K]": rng.normal(310, 2, rows),
+                "Rotational speed [rpm]": rng.normal(1500, 230, rows),
+                "Torque [Nm]": rng.uniform(5, 75, rows),
+                "Tool wear [min]": rng.uniform(0, 250, rows),
+            }
+        )
         cls.reference_df = add_derived_features(df)
         cls.live_batch = build_synthetic_live_batch(df)
         cls.report = build_drift_report(cls.reference_df, cls.live_batch)
@@ -80,6 +94,21 @@ class DriftReportIntegrationTests(unittest.TestCase):
         for key in ("method", "thresholds", "scenario", "features", "drift_detected"):
             with self.subTest(key=key):
                 self.assertIn(key, self.report)
+
+
+@unittest.skipUnless(
+    os.environ.get("RUN_REAL_DATA_TESTS") == "1",
+    "real AI4I data is only downloaded during manual benchmark validation",
+)
+class RealDatasetDriftIntegrationTests(DriftReportIntegrationTests):
+    """Re-run the same assertions on UCI data during opt-in retraining."""
+
+    @classmethod
+    def setUpClass(cls):
+        df = load_dataset()
+        cls.reference_df = add_derived_features(df)
+        cls.live_batch = build_synthetic_live_batch(df)
+        cls.report = build_drift_report(cls.reference_df, cls.live_batch)
 
 
 class PsiBoundaryRegressionTests(unittest.TestCase):
