@@ -16,6 +16,7 @@ from __future__ import annotations
 import threading
 import time
 import unittest
+from pathlib import Path
 import urllib.request
 from urllib.error import URLError
 
@@ -99,6 +100,9 @@ class E2ESmokeTests(unittest.TestCase):
             )
             self.assertTrue(page.is_visible("#kpi-risk"))
             self.assertEqual(console_errors, [])
+            gallery = Path("artifacts/gallery")
+            gallery.mkdir(parents=True, exist_ok=True)
+            page.screenshot(path=str(gallery / "smart-factory-dashboard-desktop.png"), full_page=True, animations="disabled")
         finally:
             page.close()
 
@@ -163,6 +167,9 @@ class E2ESmokeTests(unittest.TestCase):
             page.click(".sidebar-backdrop")
             self.assertFalse(page.is_visible(".sidebar.open"))
             self.assertEqual(console_errors, [])
+            gallery = Path("artifacts/gallery")
+            gallery.mkdir(parents=True, exist_ok=True)
+            page.screenshot(path=str(gallery / "smart-factory-dashboard-mobile.png"), full_page=True, animations="disabled")
         finally:
             page.close()
 
