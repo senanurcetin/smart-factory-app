@@ -64,7 +64,9 @@ def validate_batch(frame: pd.DataFrame, sample_limit: int = 10) -> dict:
 
         if field == CATEGORICAL_FIELD:
             categories = values.astype("string")
-            invalid_type = (~values.isna() & ~categories.isin(ALLOWED_TYPES)).to_numpy(dtype=bool)
+            invalid_type = (~values.isna() & ~categories.isin(ALLOWED_TYPES)).to_numpy(
+                dtype=bool
+            )
             record(field, "unknown_category", invalid_type)
             continue
 
@@ -98,7 +100,10 @@ def validate_batch(frame: pd.DataFrame, sample_limit: int = 10) -> dict:
         "missing_columns": missing_columns,
         "errors_by_field": errors_by_field,
         "error_examples": examples,
-        "error_examples_truncated": sum(sum(v.values()) for k, v in errors_by_field.items() if k != "_batch") > len(examples),
+        "error_examples_truncated": (
+            sum(sum(v.values()) for k, v in errors_by_field.items() if k != "_batch")
+            > len(examples)
+        ),
         "notes": [
             "Unknown additional columns are allowed; they are not validated.",
             "Sensor row duplicates are permitted because repeated readings can be legitimate.",
@@ -108,10 +113,14 @@ def validate_batch(frame: pd.DataFrame, sample_limit: int = 10) -> dict:
 
 
 def main(argv: list[str] | None = None) -> int:
-    parser = argparse.ArgumentParser(description="Check AI4I CSV batches against the inference data contract.")
+    parser = argparse.ArgumentParser(
+        description="Check AI4I CSV batches against the inference data contract."
+    )
     parser.add_argument("csv", type=Path, help="CSV with AI4I raw feature columns")
     parser.add_argument("--report", type=Path, help="Optional path to save the JSON report")
-    parser.add_argument("--sample-limit", type=int, default=10, help="Maximum error examples (default: 10)")
+    parser.add_argument(
+        "--sample-limit", type=int, default=10, help="Maximum error examples (default: 10)"
+    )
     args = parser.parse_args(argv)
     if args.sample_limit < 0:
         parser.error("--sample-limit cannot be negative")
