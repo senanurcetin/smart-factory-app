@@ -82,5 +82,59 @@ class DriftReportIntegrationTests(unittest.TestCase):
                 self.assertIn(key, self.report)
 
 
+class PsiBoundaryRegressionTests(unittest.TestCase):
+    """Pure statistical checks that do not depend on remote dataset downloads."""
+
+    def test_verdict_thresholds_are_inclusive(self):
+        self.assertEqual(verdict(0.1), "moderate_drift")
+        self.assertEqual(verdict(0.2), "significant_drift")
+        self.assertEqual(verdict(0.0), "no_significant_drift")
+
+    def test_identical_numeric_samples_have_exactly_zero_psi(self):
+        values = pd.Series(np.linspace(1.0, 100.0, 1000))
+        self.assertAlmostEqual(compute_numeric_psi(values, values.copy()), 0.0)
+
+    def test_numeric_psi_drops_missing_values(self):
+        reference = pd.Series([1.0, 2.0, 3.0, 4.0, np.nan])
+        current = pd.Series([1.0, 2.0, 3.0, 4.0])
+        self.assertAlmostEqual(compute_numeric_psi(reference, current, buckets=4), 0.0)
+
+    def test_empty_numeric_stream_does_not_raise_false_alert(self):
+        samples = pd.Series([], dtype=float)
+        self.assertEqual(compute_numeric_psi(samples, pd.Series([1.0, 2.0])), 0.0)
+        self.assertEqual(compute_numeric_psi(pd.Series([1.0, 2.0]), samples), 0.0)
+
+    def test_constant_numeric_sensor_does_not_crash_quantile_binning(self):
+        constant = pd.Series([25.0] * 100)
+        self.assertEqual(compute_numeric_psi(constant, constant.copy()), 0.0)
+
+    def test_strong_numeric_shift_triggers_significant_drift(self):
+        baseline = pd.Series(np.linspace(1, 100, 1000))
+        shifted = baseline + 1000
+        self.assertEqual(verdict(compute_numeric_psi(baseline, shifted)), "significant_drift")
+
+    def test_same_categorical_distribution_in_different_order_has_no_drift(self):
+        baseline = pd.Series(["A"] * 80 + ["B"] * 20)
+        reordered = pd.Series(["B"] * 20 + ["A"] * 80)
+        self.assertAlmostEqual(compute_categorical_psi(baseline, reordered), 0.0)
+
+    def test_emerging_sensor_state_is_detected(self):
+        baseline = pd.Series(["healthy"] * 95 + ["warning"] * 5)
+        current = pd.Series(["healthy"] * 10 + ["warning"] * 5 + ["critical"] * 85)
+        self.assertEqual(
+            verdict(compute_categorical_psi(baseline, current)),
+            "significant_drift",
+        )
+
+    def test_empty_categorical_inputs_are_safe(self):
+        missing = pd.Series([], dtype=object)
+        self.assertEqual(compute_categorical_psi(missing, missing), 0.0)
+
+    def test_identical_numeric_sensor_ignores_missing_in_both_batches(self):
+        baseline = pd.Series([1.0, 2.0, 3.0, 4.0, np.nan, np.nan])
+        current = pd.Series([np.nan, 1.0, 2.0, 3.0, 4.0, np.nan])
+        self.assertAlmostEqual(compute_numeric_psi(baseline, current, buckets=4), 0.0)
+
+
 if __name__ == "__main__":
     unittest.main()
