@@ -87,7 +87,11 @@ class E2ESmokeTests(unittest.TestCase):
         page, console_errors = self._open("/")
         try:
             self.assertTrue(page.is_visible(".sidebar"))
-            self.assertEqual(page.text_content(".page-title").strip(), "Live Production Dashboard")
+            self.assertEqual(page.text_content(".page-title").strip(), "Industrial Analytics Dashboard")
+            self.assertTrue(page.is_visible("#riskChart"))
+            self.assertTrue(page.is_visible("#oee-availability"))
+            self.assertTrue(page.is_visible('a[href="/api/report.csv"]'))
+            page.wait_for_function("() => document.querySelector('#riskChart') && document.querySelector('#oee-availability').textContent !== '—'")
             self.assertTrue(page.is_visible("#kpi-risk"))
             self.assertEqual(console_errors, [])
         finally:
