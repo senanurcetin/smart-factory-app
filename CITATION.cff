@@ -1,0 +1,10 @@
+cff-version: 1.2.0
+message: "If you reuse the code or research workflow, please cite this software repository."
+type: software
+title: "Smart Factory — Predictive Maintenance Analytics"
+authors:
+  - family-names: "Çetin"
+    given-names: "Senanur"
+repository-code: "https://github.com/senanurcetin/smart-factory-app"
+url: "https://github.com/senanurcetin/smart-factory-app"
+license: MIT
