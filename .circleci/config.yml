@@ -61,7 +61,24 @@ jobs:
           name: Import Flask app
           command: python -c "import main; print(main.app.name)"
 
+  format-probe:
+    docker:
+      - image: cimg/python:3.11
+    resource_class: small
+    steps:
+      - checkout
+      - run:
+          name: Install pinned formatting tools
+          command: |
+            python -m pip install --disable-pip-version-check black ruff
+      - run:
+          name: Check only new/modified Flask and test sources
+          command: |
+            black --check main.py tests/test_e2e.py tests/test_dashboard_reporting.py
+            ruff check main.py tests/test_e2e.py tests/test_dashboard_reporting.py
+
 workflows:
   verify:
     jobs:
       - python-quality
+      - format-probe
