@@ -25,6 +25,7 @@ from analysis.run_ai4i_case_study import (
     add_derived_features,
 )
 from case_study import case_study_bp
+from demo_state import synchronized_demo_view
 from layout import SIDEBAR_CSS, render_sidebar
 from rul_case_study import rul_case_study_bp
 from settings import settings_bp
@@ -528,6 +529,7 @@ def serve_asset(filename):
 
 
 @app.route("/api/data")
+@synchronized_demo_view
 def get_data():
     global production_actual, scrap_count, downtime_seconds, tool_wear_minutes
 
@@ -649,6 +651,7 @@ def get_data():
 
 
 @app.route("/api/report.csv")
+@synchronized_demo_view
 def export_shared_demo_report():
     """Export actual API-generated demo readings and trained classifier scores.
 
