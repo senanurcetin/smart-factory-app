@@ -1,0 +1,49 @@
+name: Bug report
+description: Report a reproducible defect in the dashboard, data pipeline, or documentation
+title: "[Bug]: "
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Do not include passwords, private telemetry, personal data or vulnerability details.
+        For security reports, use the private process in SECURITY.md.
+  - type: dropdown
+    id: area
+    attributes:
+      label: Affected area
+      options:
+        - Flask dashboard
+        - AI4I analysis or quality gate
+        - C-MAPSS RUL analysis
+        - Documentation
+        - Other
+    validations:
+      required: true
+  - type: textarea
+    id: description
+    attributes:
+      label: Problem and reproduction
+      description: Steps, input schema (without private records), and observed result
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected behavior
+    validations:
+      required: true
+  - type: textarea
+    id: environment
+    attributes:
+      label: Environment
+      description: Python version, OS, branch/commit, commands run, and tracebacks if relevant
+    validations:
+      required: false
+  - type: checkboxes
+    id: disclosure
+    attributes:
+      label: Safety
+      options:
+        - label: I have removed secrets, private plant data and personally identifiable information.
+          required: true
