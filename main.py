@@ -583,7 +583,7 @@ HTML_TEMPLATE = (
 
         const storedRefresh = Number.parseInt(localStorage.getItem('sf_refresh_ms'), 10);
         const refreshMs = Number.isFinite(storedRefresh)
-            ? Math.max(1000, Math.min(60000, storedRefresh)) : 2000;
+            ? Math.max(500, Math.min(60000, storedRefresh)) : 2000;
         setInterval(refreshDashboard, refreshMs);
         document.addEventListener('DOMContentLoaded', refreshDashboard);
     </script>

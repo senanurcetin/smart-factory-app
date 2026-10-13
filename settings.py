@@ -41,8 +41,8 @@ SETTINGS_TEMPLATE = (
             --border: #223856;
             --text: #edf4ff;
             --muted: #9fb4d1;
-            --accent: #5eead4;
-            --accent-2: #60a5fa;
+            --accent: #4ea8ff;
+            --accent-2: #8f9bff;
         }
         * { box-sizing: border-box; }
         body {
