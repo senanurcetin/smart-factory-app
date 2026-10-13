@@ -151,6 +151,30 @@ class E2ESmokeTests(unittest.TestCase):
         finally:
             page.close()
 
+    def test_nexus_stale_metrics_are_visibly_distinct_on_api_failure(self):
+        page = self.browser.new_page(viewport={"width": 1440, "height": 900})
+        self.addCleanup(page.close)
+        page.route("**/api/data", lambda route: route.abort("failed"))
+        page.goto(BASE_URL + "/", wait_until="load")
+        page.wait_for_function(
+            "() => document.getElementById('nexus-stream-badge')"
+            ".dataset.state === 'unavailable'", timeout=15000
+        )
+        self.assertTrue(page.evaluate(
+            "document.body.classList.contains('sf-telemetry-stale')"
+        ))
+        self.assertIn(
+            "STREAM UNAVAILABLE",
+            page.locator("#nexus-stream-label").inner_text()
+        )
+        output = os.environ.get("E2E_SCREENSHOT_DIR")
+        if output:
+            Path(output).mkdir(parents=True, exist_ok=True)
+            page.screenshot(
+                path=str(Path(output) / "smart-factory-telemetry-outage.png"),
+                full_page=True,
+            )
+
     def test_case_study_loads_with_charts(self):
         page, console_errors = self._open("/case-study")
         try:
