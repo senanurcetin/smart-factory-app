@@ -1,0 +1,137 @@
+/* NEXUS FACTORY STUDIO
+   Predictive maintenance = decision & capacity; RUL = degradation & estimation.
+   Two distinct information architectures, one midnight-blue NEXUS brand. */
+.nexus-maintenance-studio,
+.nexus-prognostics-studio {max-width:1750px;display:flex;flex-direction:column;gap:19px;padding-bottom:40px}
+.nexus-maintenance-studio > *,
+.nexus-prognostics-studio > * {order:60}
+.nexus-maintenance-studio > .workspace-nav,
+.nexus-prognostics-studio > .workspace-nav {order:0;margin-bottom:0}
+.nexus-maintenance-studio > .maintenance-console,
+.nexus-prognostics-studio > .prognostics-console {order:1}
+.nexus-maintenance-studio > .maintenance-metrics,
+.nexus-prognostics-studio > .prognostics-metrics {order:2}
+.nexus-maintenance-studio > .maintenance-chapter-title,
+.nexus-prognostics-studio > .prognostics-chapter-title {order:3}
+.nexus-maintenance-studio > #workspace-queue {order:4}
+.nexus-maintenance-studio > #workspace-validation {order:5}
+.nexus-maintenance-studio > .grid:not(#workspace-queue):not(#workspace-benchmark) {order:6}
+.nexus-maintenance-studio > #workspace-benchmark {order:7}
+.nexus-maintenance-studio > #workspace-exploration {order:8}
+.nexus-maintenance-studio > .panel:not(#workspace-validation):not(#workspace-exploration) {order:9}
+.nexus-prognostics-studio > #workspace-validation {order:4}
+.nexus-prognostics-studio > .grid:not(#workspace-benchmark):not(#workspace-engine) {order:5}
+.nexus-prognostics-studio > #workspace-benchmark {order:6}
+.nexus-prognostics-studio > #workspace-engine {order:7}
+.nexus-prognostics-studio > .panel:not(#workspace-validation) {order:8}
+.nexus-maintenance-studio .workspace-nav,
+.nexus-prognostics-studio .workspace-nav {border-color:#284665;border-radius:12px;background:#071a30;padding:9px 12px;box-shadow:none}
+.nexus-maintenance-studio .workspace-nav a:first-child,
+.nexus-prognostics-studio .workspace-nav a:first-child{color:#dcecff;background:#1b446d}
+.studio-overline{display:flex;gap:13px;align-items:center;flex-wrap:wrap;color:#9cc8fd;font-size:10px;font-weight:800;letter-spacing:.16em;line-height:1.5}
+.studio-overline span{font-weight:560;color:#819fc9;padding-left:13px;border-left:1px solid rgba(154,195,238,.27)}
+.nexus-maintenance-studio .maintenance-console,
+.nexus-prognostics-studio .prognostics-console{
+ position:relative;display:grid;grid-template-columns:minmax(0,1.45fr) minmax(230px,.8fr);gap:29px;
+ padding:clamp(25px,3.6vw,53px);
+ border:1px solid #335b83;border-radius:21px;
+ background:radial-gradient(ellipse at 75% 0,rgba(89,145,232,.22),transparent 52%),linear-gradient(130deg,#113354,#081d33 78%);
+ box-shadow:0 27px 60px rgba(1,9,24,.23),inset 0 1px rgba(205,227,251,.07);
+ overflow:hidden
+}
+.nexus-maintenance-studio .maintenance-console:after,
+.nexus-prognostics-studio .prognostics-console:after{content:"";position:absolute;pointer-events:none;right:-180px;bottom:-230px;width:430px;height:430px;border:1px solid rgba(171,209,248,.11);border-radius:50%;box-shadow:0 0 0 56px rgba(92,148,223,.025),0 0 0 116px rgba(92,148,223,.018)}
+.maintenance-console-intro,.prognostics-console-intro,.maintenance-command-score,.prognostics-hero-metric{position:relative;z-index:1}
+.maintenance-console-index,.prognostics-data-label{display:flex;gap:9px;align-items:center;margin:29px 0 11px;color:#d3e9ff;font-size:10px;font-weight:720;letter-spacing:.085em}
+.pulse-mark{display:inline-block;width:8px;height:8px;border-radius:50%;background:#7bddc8;box-shadow:0 0 0 4px rgba(123,221,200,.12)}
+.nexus-maintenance-studio .maintenance-console h1,.nexus-prognostics-studio .prognostics-console h1{font-size:clamp(38px,4.2vw,68px);font-weight:760;line-height:1.01;letter-spacing:-.063em;max-width:850px;margin:0 0 19px;color:#f6faff}
+.nexus-maintenance-studio .maintenance-console h1 em{font-style:normal;color:#a8d1ff}
+.nexus-prognostics-studio .prognostics-console h1 em{font-style:normal;color:#b5b2ff}
+.maintenance-console-lede,.prognostics-console-intro>p{max-width:690px;font-size:13px;line-height:1.76;color:#b7cde5;margin:0}
+.maintenance-console-caption{display:flex;flex-wrap:wrap;gap:10px 22px;margin-top:28px;color:#9bbbdc;font-size:10px;font-weight:690}
+.maintenance-console-caption span:before{content:"";display:inline-block;vertical-align:2px;margin-right:8px;width:5px;height:5px;border-radius:50%;background:#7ebeff}
+.maintenance-command-score,.prognostics-hero-metric{display:flex;flex-direction:column;justify-content:center;padding:clamp(19px,2vw,31px);border:1px solid rgba(133,183,245,.27);border-radius:16px;background:linear-gradient(130deg,rgba(35,88,145,.43),rgba(12,35,66,.54))}
+.maintenance-score-eyebrow,.prognostics-hero-metric>span{font-size:10px;font-weight:760;letter-spacing:.12em;color:#a9c9ef}
+.maintenance-score-main{font-size:clamp(36px,4.2vw,66px);font-weight:770;letter-spacing:-.06em;color:#f6faff;line-height:1.1;margin:14px 0 9px;overflow-wrap:anywhere}
+.maintenance-command-score>strong{color:#f3faff;font-size:13px;line-height:1.5}
+.maintenance-command-score>p,.prognostics-hero-metric>p{color:#b9d3ee;font-size:11px;line-height:1.6;margin-top:11px}
+.maintenance-score-line{margin-top:18px;height:1px;background:#33577b}
+.maintenance-score-foot{color:#90b1d2;font-size:10px;line-height:1.55;margin-top:13px}
+.maintenance-metrics,.prognostics-metrics{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px}
+.maintenance-metric,.prognostics-metric{position:relative;display:flex;flex-direction:column;gap:10px;justify-content:center;min-height:152px;padding:22px 19px;border:1px solid #2d5173;border-radius:13px;background:linear-gradient(145deg,#163758,#0b253f)}
+.maintenance-metric:before,.prognostics-metric:before{content:"";position:absolute;width:38px;height:3px;top:0;left:19px;border-radius:0 0 4px 4px;background:#81bdff}
+.maintenance-metric.primary{background:linear-gradient(155deg,#1f4b73,#112f53);border-color:#456d9a}
+.maintenance-metric>span,.prognostics-metric>span{font-size:10px;letter-spacing:.11em;font-weight:790;color:#a6c4e4}
+.maintenance-metric>strong,.prognostics-metric>strong{font-size:clamp(26px,2.8vw,41px);letter-spacing:-.046em;line-height:1.13;color:#f2f8ff;font-weight:760;font-variant-numeric:tabular-nums;overflow-wrap:anywhere}
+.maintenance-metric>small,.prognostics-metric>small{font-size:11px;color:#a3bdd8;line-height:1.4}
+.maintenance-chapter-title,.prognostics-chapter-title{display:grid;grid-template-columns:minmax(0,1fr) minmax(160px,.62fr);align-items:end;gap:19px;margin-top:10px;padding:0 3px 17px;border-bottom:1px solid #305170}
+.maintenance-chapter-title span,.prognostics-chapter-title span{grid-column:1/-1;color:#9cbfea;font-size:10px;font-weight:790;letter-spacing:.16em}
+.maintenance-chapter-title h2,.prognostics-chapter-title h2{margin:0;color:#f1f8ff;font-size:clamp(24px,2.7vw,38px);letter-spacing:-.046em;line-height:1.13}
+.maintenance-chapter-title p,.prognostics-chapter-title p{margin:0;color:#98b6d5;font-size:11px;line-height:1.7;max-width:430px}
+.nexus-maintenance-studio .maintenance-priority-board{grid-template-columns:minmax(0,1.42fr) minmax(280px,.76fr);gap:16px}
+.nexus-maintenance-studio .maintenance-priority-board>.panel:first-child{background:linear-gradient(135deg,#173958,#0b2a47);border-color:#497198}
+.nexus-maintenance-studio .maintenance-priority-board>.panel:last-child{background:linear-gradient(140deg,#122f4c,#0a223a)}
+.nexus-maintenance-studio .panel,.nexus-prognostics-studio .panel{border-color:#325574;border-radius:16px;box-shadow:0 14px 35px rgba(0,5,20,.14);padding:clamp(20px,2.1vw,31px)}
+.nexus-maintenance-studio .panel>.section-title,.nexus-prognostics-studio .panel>.section-title{font-weight:740;letter-spacing:-.025em;font-size:clamp(17px,1.4vw,23px);padding-bottom:17px}
+.nexus-maintenance-studio .panel>.section-title::before{background:#87bfff}
+.nexus-prognostics-studio .panel>.section-title::before{background:#aba5ff}
+.nexus-maintenance-studio .maintenance-priority-board .chart-frame{max-width:none;margin-top:16px;border-color:#678eaf;box-shadow:0 8px 22px rgba(1,10,30,.15)}
+.nexus-maintenance-studio .maintenance-evidence-lab{background:#0e263e;border-color:#2c4d6c}
+.nexus-maintenance-studio .maintenance-evidence-lab .chart-gallery{grid-template-columns:repeat(3,minmax(0,1fr))}
+.nexus-maintenance-studio .maintenance-benchmark-studio{grid-template-columns:minmax(0,.85fr) minmax(0,1.15fr)}
+.nexus-maintenance-studio .maintenance-validation-studio .chart-gallery{grid-template-columns:repeat(2,minmax(0,1fr))}
+.nexus-maintenance-studio .panel .footer-note,.nexus-prognostics-studio .panel .footer-note{color:#9fb8d3;line-height:1.75}
+.nexus-maintenance-studio table,.nexus-prognostics-studio table{font-variant-numeric:tabular-nums}
+.nexus-maintenance-studio th,.nexus-prognostics-studio th{font-size:10px;letter-spacing:.07em;color:#a9caed}
+.nexus-maintenance-studio tbody td,.nexus-prognostics-studio tbody td{font-size:11px;color:#d2e1f2}
+.nexus-maintenance-studio .chart-frame,.nexus-prognostics-studio .chart-frame{border-radius:12px;background:#f7fbff;border-color:#7094bb;padding:11px}
+.nexus-maintenance-studio .chart-frame img,.nexus-prognostics-studio .chart-frame img{border-radius:7px;display:block;width:100%}
+.nexus-maintenance-studio .chart-caption,.nexus-prognostics-studio .chart-caption{padding-top:9px;color:#4c6785;font-size:10px;text-transform:uppercase;letter-spacing:.06em}
+.nexus-maintenance-studio .signal-list,.nexus-prognostics-studio .prognostics-signals{display:grid;gap:7px}
+.nexus-prognostics-studio .prognostics-signal{display:grid;grid-template-columns:minmax(120px,1.6fr) minmax(50px,1fr) minmax(55px,auto);align-items:center;gap:9px;padding:9px 7px;border-radius:8px}
+.nexus-prognostics-studio .prognostics-signal:hover{background:rgba(119,148,231,.11)}
+.nexus-prognostics-studio .prognostics-signal-name{font-size:11px;color:#c9d9ef;overflow-wrap:anywhere;font-weight:650}
+.nexus-prognostics-studio .prognostics-signal-track{height:9px;border-radius:4px;background:rgba(135,157,222,.15);overflow:hidden}
+.nexus-prognostics-studio .prognostics-signal-track i{display:block;height:100%;background:linear-gradient(90deg,#6289d8,#b5a8f9);border-radius:4px}
+.nexus-prognostics-studio .prognostics-signal strong{font-size:11px;font-weight:720;color:#e3e5ff;text-align:right;font-variant-numeric:tabular-nums}
+.nexus-prognostics-studio .prognostics-hero-metric{border-color:rgba(163,154,242,.3)}
+.nexus-prognostics-studio .prognostics-hero-metric>strong{font-size:clamp(48px,6.4vw,95px);letter-spacing:-.075em;font-weight:740;line-height:1.03;color:#f5f9ff;font-variant-numeric:tabular-nums;margin-top:18px}
+.nexus-prognostics-studio .prognostics-hero-metric>em{font-style:normal;color:#b8b5ff;font-size:15px;margin-top:6px;font-weight:730}
+.nexus-prognostics-studio .prognostics-data-label{color:#b5adff}
+.nexus-prognostics-studio .prognostics-evidence-rule{margin-top:25px;padding-top:14px;border-top:1px solid #315171;color:#96b7d7;font-size:10px;line-height:1.65}
+.nexus-prognostics-studio .prognostics-metrics{grid-template-columns:repeat(3,minmax(0,1fr))}
+.nexus-prognostics-studio .prognostics-metric:before{background:#a99bf4}
+.nexus-prognostics-studio .prognostics-visual-studio{padding:25px;background:linear-gradient(135deg,#0c2945,#0b2038)}
+.nexus-prognostics-studio .prognostics-visual-studio .chart-gallery{display:grid;grid-template-columns:minmax(0,1.25fr) minmax(0,1fr);grid-template-rows:auto auto;gap:17px}
+.nexus-prognostics-studio .prognostics-visual-studio .chart-gallery figure:first-child{grid-row:span 2;display:flex;flex-direction:column;justify-content:center;background:#eff6ff}
+.nexus-prognostics-studio .prognostics-visual-studio .chart-gallery figure:first-child img{max-height:670px;object-fit:contain}
+.nexus-prognostics-studio .prognostics-visual-studio .chart-gallery figure:nth-child(2),.nexus-prognostics-studio .prognostics-visual-studio .chart-gallery figure:nth-child(3){background:#f5f9ff}
+.nexus-prognostics-studio .prognostics-benchmark{grid-template-columns:minmax(0,.9fr) minmax(0,1.1fr)}
+.nexus-prognostics-studio .prognostics-engineering{grid-template-columns:minmax(0,1fr) minmax(0,1fr)}
+@media(max-width:1160px){
+ .nexus-maintenance-studio .maintenance-console,.nexus-prognostics-studio .prognostics-console{grid-template-columns:1fr}
+ .maintenance-command-score,.prognostics-hero-metric{max-width:750px}
+ .maintenance-metrics{grid-template-columns:repeat(2,minmax(0,1fr))}
+ .nexus-maintenance-studio .maintenance-priority-board{grid-template-columns:1fr 1fr}
+}
+@media(max-width:860px){
+ .nexus-maintenance-studio .maintenance-chapter-title,.nexus-prognostics-studio .prognostics-chapter-title{grid-template-columns:1fr}
+ .nexus-maintenance-studio .maintenance-priority-board,.nexus-maintenance-studio .maintenance-benchmark-studio,.nexus-prognostics-studio .prognostics-benchmark,.nexus-prognostics-studio .prognostics-engineering{grid-template-columns:1fr}
+ .nexus-prognostics-studio .prognostics-visual-studio .chart-gallery{grid-template-columns:1fr}
+ .nexus-prognostics-studio .prognostics-visual-studio .chart-gallery figure:first-child{grid-row:auto}
+ .nexus-maintenance-studio .maintenance-evidence-lab .chart-gallery{grid-template-columns:repeat(2,minmax(0,1fr))}
+}
+@media(max-width:560px){
+ .nexus-maintenance-studio,.nexus-prognostics-studio{gap:15px}
+ .nexus-maintenance-studio .maintenance-console,.nexus-prognostics-studio .prognostics-console{padding:22px 16px;border-radius:14px;gap:19px}
+ .nexus-maintenance-studio .maintenance-console h1,.nexus-prognostics-studio .prognostics-console h1{font-size:clamp(33px,8vw,48px)}
+ .studio-overline{font-size:9px}
+ .maintenance-metrics,.nexus-prognostics-studio .prognostics-metrics{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+ .maintenance-metric,.prognostics-metric{padding:15px 13px;min-height:125px}
+ .maintenance-metric>strong,.prognostics-metric>strong{font-size:clamp(21px,5vw,29px)}
+ .nexus-maintenance-studio .maintenance-evidence-lab .chart-gallery,.nexus-maintenance-studio .maintenance-validation-studio .chart-gallery{grid-template-columns:1fr}
+ .nexus-prognostics-studio .prognostics-signal{grid-template-columns:minmax(82px,1.3fr) minmax(45px,1fr) 55px;gap:5px}
+ .nexus-prognostics-studio .prognostics-signal-name{font-size:10px}
+ .nexus-prognostics-studio .prognostics-visual-studio{padding:13px}
+}
+@media(prefers-reduced-motion:reduce){.nexus-maintenance-studio *,.nexus-prognostics-studio *{scroll-behavior:auto;transition:none!important}}
