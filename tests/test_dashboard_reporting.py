@@ -100,6 +100,10 @@ class SessionReportTests(unittest.TestCase):
         sidebar = render_sidebar("dashboard")
         self.assertIn('class="nexus-mark">NEXUS', sidebar)
         self.assertIn('href="/" class="active"', sidebar)
+        self.assertIn('aria-controls="sidebar"', sidebar)
+        self.assertIn("event.key === 'Escape'", sidebar)
+        self.assertIn("document.body.classList.toggle('sf-nav-open', visible)", sidebar)
+        self.assertIn("sidebar.classList.toggle('open', visible)", sidebar)
 
     def test_stream_connection_is_distinct_from_scored_machine_risk(self):
         html = self.client.get("/").get_data(as_text=True)

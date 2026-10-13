@@ -188,3 +188,17 @@ a:focus-visible, button:focus-visible, select:focus-visible {
   .nexus-stream-badge { font-size:.61rem; line-height:1.4; }
   .main-content .page-header .report-actions { gap:10px; }
 }
+
+/* Accessible mobile navigation: above backdrop, never obscured by its own scrim. */
+@media(max-width:900px) {
+  body.sf-nav-open { overflow:hidden; }
+  .sidebar { z-index:21; }
+  .sidebar-backdrop.open { z-index:18; background:rgba(2,11,25,.74); backdrop-filter:blur(2px); }
+  .sidebar.open { z-index:21; border-right-color:#38699c; }
+  .sidebar-toggle { z-index:32; background:#102d4d; border:1px solid #365d83; box-shadow:0 9px 28px rgba(0,5,18,.34); }
+  .sidebar-toggle[aria-expanded="true"] { color:#d7eaff; background:#1a4975; }
+}
+@media(prefers-reduced-motion:reduce) {
+  .sidebar { transition:none!important; }
+  .sidebar-backdrop { backdrop-filter:none!important; }
+}

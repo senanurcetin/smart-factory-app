@@ -126,7 +126,7 @@ def render_sidebar(active: str) -> str:
     links_html = "\n            ".join(_link(*item) for item in NAV_ITEMS)
     footer_links_html = "\n                ".join(_link(*item) for item in FOOTER_NAV_ITEMS)
     return f"""<a class="skip-link" href="#main-content">Skip to content</a>
-    <button class="sidebar-toggle" id="sidebar-toggle" aria-label="Toggle navigation" aria-expanded="false">
+    <button class="sidebar-toggle" id="sidebar-toggle" aria-label="Open navigation" aria-controls="sidebar" aria-expanded="false">
         <i class="fas fa-bars"></i>
     </button>
     <div class="sidebar-backdrop" id="sidebar-backdrop"></div>
@@ -146,18 +146,37 @@ def render_sidebar(active: str) -> str:
             const sidebar = document.getElementById('sidebar');
             const toggle = document.getElementById('sidebar-toggle');
             const backdrop = document.getElementById('sidebar-backdrop');
-            function closeSidebar() {{
-                sidebar.classList.remove('open');
-                backdrop.classList.remove('open');
-                toggle.setAttribute('aria-expanded', 'false');
+            function setSidebarOpen(open) {{
+                const mobile = window.matchMedia('(max-width: 900px)').matches;
+                const visible = Boolean(open && mobile);
+                sidebar.classList.toggle('open', visible);
+                backdrop.classList.toggle('open', visible);
+                document.body.classList.toggle('sf-nav-open', visible);
+                toggle.setAttribute('aria-expanded', String(visible));
+                toggle.setAttribute('aria-label', visible ? 'Close navigation' : 'Open navigation');
+                if (visible) {{
+                    const first = sidebar.querySelector('a');
+                    if (first) first.focus();
+                }}
             }}
+            function closeSidebar() {{ setSidebarOpen(false); }}
             function toggleSidebar() {{
-                const isOpen = sidebar.classList.toggle('open');
-                backdrop.classList.toggle('open', isOpen);
-                toggle.setAttribute('aria-expanded', String(isOpen));
+                setSidebarOpen(!sidebar.classList.contains('open'));
             }}
             toggle.addEventListener('click', toggleSidebar);
-            backdrop.addEventListener('click', closeSidebar);
+            backdrop.addEventListener('click', function () {{
+                closeSidebar();
+                toggle.focus();
+            }});
+            document.addEventListener('keydown', function (event) {{
+                if (event.key === 'Escape' && sidebar.classList.contains('open')) {{
+                    closeSidebar();
+                    toggle.focus();
+                }}
+            }});
+            window.addEventListener('resize', function () {{
+                if (!window.matchMedia('(max-width: 900px)').matches) closeSidebar();
+            }});
             sidebar.querySelectorAll('a').forEach(function (a) {{
                 a.addEventListener('click', closeSidebar);
             }});
