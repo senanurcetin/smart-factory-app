@@ -61,6 +61,7 @@ jobs:
           name: Import Flask app
           command: python -c "import main; print(main.app.name)"
 
+
   browser-quality:
     docker:
       - image: cimg/python:3.11
@@ -73,23 +74,23 @@ jobs:
             - smart-factory-pip-v1-{{ checksum "requirements-dev.txt" }}
             - smart-factory-pip-v1-
       - run:
-          name: Install locked browser and application dependencies
+          name: Install application and locked browser dependencies
           command: python -m pip install -r requirements-dev.txt
           no_output_timeout: 15m
       - run:
-          name: Install Chromium with system dependencies
+          name: Install real Chromium with required system dependencies
           command: python -m playwright install --with-deps chromium
           no_output_timeout: 15m
       - run:
-          name: Render all real Flask routes and capture desktop/mobile dashboard
+          name: Run real Flask browser checks and capture screenshots
           command: |
             set -eu
-            # Prevent a false-green job if unittest skips all browser cases.
+            export E2E_SCREENSHOT_DIR=artifacts/gallery
+            # Fail rather than silently skipping all browser tests.
             python -c 'from playwright.sync_api import sync_playwright; assert callable(sync_playwright)'
             python -m unittest discover -s tests -p 'test_e2e.py' -v
-            # Captures must exist before CircleCI publishes gallery artifacts.
-            test -s artifacts/gallery/smart-factory-dashboard-desktop.png
-            test -s artifacts/gallery/smart-factory-dashboard-mobile.png
+            test -s artifacts/gallery/smart-factory-desktop-1440.png
+            test -s artifacts/gallery/smart-factory-mobile-375.png
           no_output_timeout: 20m
       - store_artifacts:
           path: artifacts/gallery
