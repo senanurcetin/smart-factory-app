@@ -561,6 +561,7 @@ HTML_TEMPLATE = (
             const label = document.getElementById('nexus-stream-label');
             if (badge) badge.dataset.state = state;
             if (label) label.textContent = text;
+            document.body.classList.toggle('sf-telemetry-stale', state === 'unavailable');
         }
         // Slow free-tier responses cannot race and overwrite newer readings.
         let dashboardRefreshing = false;

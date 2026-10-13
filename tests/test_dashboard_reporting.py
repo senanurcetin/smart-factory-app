@@ -111,6 +111,7 @@ class SessionReportTests(unittest.TestCase):
         self.assertIn("setStreamState('active', 'SIMULATED STREAM CONNECTED')", html)
         self.assertIn("setStreamState('unavailable', 'STREAM UNAVAILABLE", html)
         self.assertIn("prior values may be stale", html)
+        self.assertIn("document.body.classList.toggle('sf-telemetry-stale'", html)
         self.assertIn("const controller = new AbortController()", html)
         self.assertIn("controller.abort(), 8000", html)
         self.assertIn("clearTimeout(timeoutId)", html)

@@ -215,3 +215,20 @@ a:focus-visible, button:focus-visible, select:focus-visible {
   .nexus-eyebrow,.nexus-section-label { font-size:.7rem; }
   .nexus-hero-chips span,.nexus-data-chip,.nexus-stream-badge { font-size:.69rem; }
 }
+
+/* De-emphasize last-known values during transport outages.
+   Historical readings are retained but not presented as current KPI status. */
+body.sf-telemetry-stale .main-content .kpi-card {
+  opacity:.64; border-top-color:#536985;
+  filter:saturate(.75);
+}
+body.sf-telemetry-stale .main-content .chart-card { opacity:.72; }
+body.sf-telemetry-stale .main-content .risk-badge {
+  border-color:#61758e; color:#c1d0e0; background:#273e55;
+}
+body.sf-telemetry-stale .main-content #telemetry-clock {
+  color:#f7ce87; font-weight:700;
+}
+@media(prefers-reduced-motion:reduce) {
+  body.sf-telemetry-stale .main-content .kpi-card { transition:none!important; }
+}
