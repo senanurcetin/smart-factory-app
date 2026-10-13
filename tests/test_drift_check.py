@@ -190,18 +190,17 @@ class PsiBoundaryRegressionTests(unittest.TestCase):
     @staticmethod
     def _report_frame_with_missing():
         values = np.linspace(1.0, 100.0, 100)
-        return pd.DataFrame({
-            "Type": ["L", "M"] * 50,
-            "Air temperature [K]": values + 300,
-            "Process temperature [K]": values + 310,
-            "Rotational speed [rpm]": values + 1400,
-            "Torque [Nm]": values,
-            "Tool wear [min]": np.concatenate(([np.nan], values[1:])),
-            **{
-                name: values
-                for name in DERIVED_FEATURES
-            },
-        })
+        return pd.DataFrame(
+            {
+                "Type": ["L", "M"] * 50,
+                "Air temperature [K]": values + 300,
+                "Process temperature [K]": values + 310,
+                "Rotational speed [rpm]": values + 1400,
+                "Torque [Nm]": values,
+                "Tool wear [min]": np.concatenate(([np.nan], values[1:])),
+                **{name: values for name in DERIVED_FEATURES},
+            }
+        )
 
     def test_identical_numeric_sensor_ignores_missing_in_both_batches(self):
         baseline = pd.Series([1.0, 2.0, 3.0, 4.0, np.nan, np.nan])

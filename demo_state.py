@@ -11,7 +11,6 @@ workers have independent simulated state, as documented in the dashboard.
 from functools import wraps
 from threading import RLock
 
-
 _demo_state_lock = RLock()
 
 

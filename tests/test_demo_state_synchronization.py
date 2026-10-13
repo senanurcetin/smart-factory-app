@@ -58,7 +58,9 @@ class DemoStateLockTests(unittest.TestCase):
 
         for url in ("/api/data", "/api/report.csv"):
             with self.subTest(url=url):
-                endpoint = next(rule.endpoint for rule in app.url_map.iter_rules() if rule.rule == url)
+                endpoint = next(
+                    rule.endpoint for rule in app.url_map.iter_rules() if rule.rule == url
+                )
                 view = app.view_functions[endpoint]
                 self.assertTrue(getattr(view, "demo_state_synchronized", False))
 
