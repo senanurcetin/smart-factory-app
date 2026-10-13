@@ -403,10 +403,24 @@ CASE_STUDY_TEMPLATE = (
             </div>
             <div class="panel">
                 <h2 class="section-title">Signal Importance</h2>
-                {% for row in feature_importance %}
-                    <span class="tag">{{ row.feature }}: {{ row.importance }}</span>
-                {% endfor %}
-                <p class="footer-note">Permutation importance uses average precision as the scoring function to stay aligned with the imbalanced maintenance target.</p>
+                {% set signal_rows = feature_importance.features if feature_importance is mapping else feature_importance %}
+                {% set scale_max = (signal_rows[0].importance | float) if signal_rows else 0 %}
+                {% if signal_rows %}
+                <div class="signal-list" role="list" aria-label="Top permutation importance scores">
+                    {% for row in signal_rows[:7] %}
+                    {% set score = row.importance | float %}
+                    {% set width_pct = (score / scale_max * 100) if scale_max > 0 and score > 0 else 0 %}
+                    <div class="signal-row" role="listitem">
+                        <span class="signal-name">{{ row.feature }}</span>
+                        <span class="signal-track" aria-hidden="true"><span class="signal-fill" style="width: {{ width_pct | round(1) }}%"></span></span>
+                        <strong class="signal-value">{{ "%.4f"|format(score) }}</strong>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% else %}
+                <p class="footer-note">Feature attribution scores were not included in this analysis build.</p>
+                {% endif %}
+                <p class="footer-note">Permutation importance uses average precision as the scoring function to stay aligned with the imbalanced maintenance target. Positive scores show the measured loss of ranking quality when a feature is shuffled.</p>
             </div>
         </section>
 
