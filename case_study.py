@@ -217,16 +217,26 @@ CASE_STUDY_TEMPLATE = (
         }
     </style>
     <link rel="stylesheet" href="/static/nexus-design.css">
+    <link rel="stylesheet" href="/static/nexus-analysis-workspace.css">
 </head>
 <body>
     {{ sidebar_html|safe }}
-    <main class="page" id="main-content">
-        <section class="hero">
+    <main class="page nexus-workspace" id="main-content">
+        <nav class="workspace-nav" aria-label="AI4I workspace chapters">
+            <a href="#workspace-overview">Overview</a>
+            <a href="#workspace-exploration">Signals</a>
+            <a href="#workspace-benchmark">Benchmark</a>
+            <a href="#workspace-validation">Validation</a>
+            <a href="#workspace-queue">Maintenance queue</a>
+            <a href="#workspace-drift">Drift</a>
+        </nav>
+        <section class="hero" id="workspace-overview">
             <div>
                 <div class="eyebrow">Support Case Study</div>
                 <h1>{{ summary.project }}</h1>
             </div>
             <p class="lede">{{ summary.operational_takeaway }}</p>
+            <div class="workspace-decision"><strong>Decision support</strong><span>Use the offline AI4I benchmark to prioritize maintenance reviews. The evidence here is not a live plant feed.</span></div>
             <div class="metrics">
                 <div class="metric">
                     <div class="metric-label">PR-AUC</div>
@@ -251,7 +261,7 @@ CASE_STUDY_TEMPLATE = (
             </div>
         </section>
 
-        <section class="panel" style="margin-bottom: 18px;">
+        <section class="panel" id="workspace-exploration" style="margin-bottom: 18px;">
             <h2 class="section-title">Exploratory Data Analysis</h2>
             <div class="chart-gallery">
                 <figure class="chart-frame" style="margin: 0;">
@@ -270,7 +280,7 @@ CASE_STUDY_TEMPLATE = (
             <p class="footer-note">96.6% of the 10,000 rows are normal operation — 3.39% failure rate drives the PR-AUC-first evaluation strategy used throughout this case study.</p>
         </section>
 
-        <section class="grid">
+        <section class="grid" id="workspace-benchmark">
             <div class="panel">
                 <h2 class="section-title">What this proves</h2>
                 <ul class="bullet-list">
@@ -306,7 +316,7 @@ CASE_STUDY_TEMPLATE = (
             </div>
         </section>
 
-        <section class="panel" style="margin-top: 18px; margin-bottom: 18px;">
+        <section class="panel" id="workspace-validation" style="margin-top: 18px; margin-bottom: 18px;">
             <h2 class="section-title">Model Performance</h2>
             <div class="chart-gallery">
                 <figure class="chart-frame" style="margin: 0;">
@@ -320,7 +330,7 @@ CASE_STUDY_TEMPLATE = (
             </div>
         </section>
 
-        <section class="grid" style="margin-top: 18px;">
+        <section class="grid" id="workspace-queue" style="margin-top: 18px;">
             <div class="panel">
                 <h2 class="section-title">Maintenance Queue</h2>
                 <table>
@@ -409,7 +419,7 @@ CASE_STUDY_TEMPLATE = (
 
         {% if drift_report %}
         <section class="panel" style="margin-top: 18px;">
-            <h2 class="section-title">Drift Check (Demonstrated)</h2>
+            <h2 class="section-title" id="workspace-drift">Drift Check (Demonstrated)</h2>
             <p class="section-copy">{{ drift_report.scenario }}</p>
             <table>
                 <thead>
