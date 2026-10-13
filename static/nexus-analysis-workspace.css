@@ -291,3 +291,49 @@
 @media (prefers-reduced-motion: reduce) {
   .nexus-workspace .workspace-nav a { transition: none; }
 }
+
+/* AI4I model signal ranking from the committed feature-importance artifact. */
+.nexus-workspace .signal-list {
+  display: grid;
+  gap: 4px;
+  padding: 4px 0;
+}
+.nexus-workspace .signal-row {
+  display: grid;
+  grid-template-columns: minmax(110px, 1.45fr) minmax(90px, 1fr) minmax(48px, auto);
+  gap: 10px;
+  align-items: center;
+  min-height: 38px;
+  padding: 6px 8px;
+  border-radius: 7px;
+}
+.nexus-workspace .signal-row:hover { background: rgba(78,168,255,.08); }
+.nexus-workspace .signal-name {
+  color: #c8daef;
+  font-size: 11px;
+  font-weight: 680;
+  overflow-wrap: anywhere;
+}
+.nexus-workspace .signal-track {
+  height: 10px;
+  border-radius: 4px;
+  background: rgba(113,161,214,.16);
+  overflow: hidden;
+}
+.nexus-workspace .signal-fill {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background: linear-gradient(90deg,#4588d6,#84bfff);
+}
+.nexus-workspace .signal-value {
+  color: #e3f1ff;
+  font-size: 11px;
+  font-weight: 740;
+  font-variant-numeric: tabular-nums;
+  text-align: right;
+}
+@media (max-width: 575px) {
+  .nexus-workspace .signal-row { grid-template-columns: minmax(85px, 1.3fr) minmax(55px,1fr) minmax(40px,auto); gap: 6px; }
+  .nexus-workspace .signal-name { font-size: 10px; }
+}
