@@ -217,16 +217,25 @@ RUL_CASE_STUDY_TEMPLATE = (
         }
     </style>
     <link rel="stylesheet" href="/static/nexus-design.css">
+    <link rel="stylesheet" href="/static/nexus-analysis-workspace.css">
 </head>
 <body>
     {{ sidebar_html|safe }}
-    <main class="page" id="main-content">
-        <section class="hero">
+    <main class="page nexus-workspace" id="main-content">
+        <nav class="workspace-nav" aria-label="RUL workspace chapters">
+            <a href="#workspace-overview">Overview</a>
+            <a href="#workspace-benchmark">Baseline</a>
+            <a href="#workspace-validation">Validation</a>
+            <a href="#workspace-engine">Engine signals</a>
+            <a href="#workspace-limits">Limits</a>
+        </nav>
+        <section class="hero" id="workspace-overview">
             <div>
                 <div class="eyebrow">Second Case Study — Genuine RUL Regression</div>
                 <h1>{{ summary.project }}</h1>
             </div>
             <p class="lede">{{ summary.operational_takeaway }}</p>
+            <div class="workspace-decision"><strong>Evidence boundary</strong><span>NASA C-MAPSS engine life-cycle results are offline model validation, not production equipment telemetry.</span></div>
             <div class="metrics">
                 <div class="metric">
                     <div class="metric-label">Test RMSE</div>
@@ -251,7 +260,7 @@ RUL_CASE_STUDY_TEMPLATE = (
             </div>
         </section>
 
-        <section class="grid">
+        <section class="grid" id="workspace-benchmark">
             <div class="panel">
                 <h2 class="section-title">Why this exists alongside the AI4I case study</h2>
                 <ul class="bullet-list">
@@ -288,7 +297,7 @@ RUL_CASE_STUDY_TEMPLATE = (
             </div>
         </section>
 
-        <section class="panel" style="margin-top: 18px; margin-bottom: 18px;">
+        <section class="panel" id="workspace-validation" style="margin-top: 18px; margin-bottom: 18px;">
             <h2 class="section-title">Model Performance</h2>
             <div class="chart-gallery">
                 <figure class="chart-frame" style="margin: 0;">
@@ -306,7 +315,7 @@ RUL_CASE_STUDY_TEMPLATE = (
             </div>
         </section>
 
-        <section class="grid" style="margin-top: 18px;">
+        <section class="grid" id="workspace-engine" style="margin-top: 18px;">
             <div class="panel">
                 <h2 class="section-title">Hyperparameter Tuning</h2>
                 <table>
@@ -363,7 +372,7 @@ RUL_CASE_STUDY_TEMPLATE = (
         </section>
 
         <section class="panel" style="margin-top: 18px;">
-            <h2 class="section-title">Limitations and next step</h2>
+            <h2 class="section-title" id="workspace-limits">Limitations and next step</h2>
             <ul class="bullet-list">
                 {% for item in summary.limitations %}
                     <li>{{ item }}</li>
