@@ -135,3 +135,41 @@
  .nexus-prognostics-studio .prognostics-visual-studio{padding:13px}
 }
 @media(prefers-reduced-motion:reduce){.nexus-maintenance-studio *,.nexus-prognostics-studio *{scroll-behavior:auto;transition:none!important}}
+
+/* Budget studio: interactive controls driven by the committed holdout scenarios. */
+.nexus-maintenance-studio>.maintenance-budget-lab{order:2}
+.nexus-maintenance-studio>.maintenance-metrics{order:3}
+.nexus-maintenance-studio>.maintenance-chapter-title{order:4}
+.nexus-maintenance-studio>#workspace-queue{order:5}
+.nexus-maintenance-studio>#workspace-validation{order:6}
+.nexus-maintenance-studio>.grid:not(#workspace-queue):not(#workspace-benchmark){order:7}
+.nexus-maintenance-studio>#workspace-benchmark{order:8}
+.nexus-maintenance-studio>#workspace-exploration{order:9}
+.nexus-maintenance-studio>.panel:not(#workspace-validation):not(#workspace-exploration){order:10}
+.maintenance-budget-lab{
+ display:grid;grid-template-columns:minmax(210px,.78fr) minmax(0,1.45fr);
+ gap:12px 23px;align-items:center;padding:24px;
+ border:1px solid #31597c;border-radius:16px;
+ background:linear-gradient(125deg,#0d2945,#10243d);
+}
+.maintenance-budget-intro>span{color:#8dbef4;font-size:10px;font-weight:770;letter-spacing:.14em}
+.maintenance-budget-intro h2{margin:10px 0 9px;font-size:clamp(19px,1.85vw,27px);line-height:1.17;letter-spacing:-.035em;color:#f0f7ff;font-weight:730}
+.maintenance-budget-intro p{font-size:11px;color:#9fbcd8;line-height:1.63}
+.maintenance-budget-options{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+.maintenance-budget-option{
+ display:flex;flex-direction:column;align-items:flex-start;gap:9px;cursor:pointer;
+ min-width:0;min-height:140px;text-align:left;padding:17px 13px;
+ border:1px solid #355774;border-radius:11px;
+ background:#112f4c;color:#b3cce6;
+ font:inherit;
+ transition:border-color .15s ease,background .15s ease,transform .15s ease
+}
+.maintenance-budget-option:hover,.maintenance-budget-option:focus-visible{border-color:#87baff;background:#183d61;outline:none;transform:translateY(-2px)}
+.maintenance-budget-option.is-active{border-color:#8abdff;background:linear-gradient(145deg,#214d78,#123a60);box-shadow:inset 0 2px #9ccaff,0 9px 20px rgba(2,11,28,.15)}
+.maintenance-budget-heading{font-size:10px;letter-spacing:.1em;font-weight:750;color:#a7ccf7;text-transform:uppercase}
+.maintenance-budget-option>strong{color:#f8fbff;font-size:clamp(25px,2.5vw,39px);line-height:1.05;letter-spacing:-.05em;font-variant-numeric:tabular-nums}
+.maintenance-budget-option>small{font-size:10px;color:#afc7df;line-height:1.5}
+.maintenance-budget-summary{grid-column:1/-1;padding:10px 0 0;border-top:1px solid #2b4a68;color:#d0e7ff;font-size:11px;line-height:1.55}
+@media(max-width:920px){.maintenance-budget-lab{grid-template-columns:1fr}}
+@media(max-width:580px){.maintenance-budget-lab{padding:16px 12px}.maintenance-budget-options{gap:7px}.maintenance-budget-option{padding:12px 9px;min-height:126px}.maintenance-budget-option>strong{font-size:clamp(20px,5vw,30px)}.maintenance-budget-option>small{font-size:9px}}
+@media(prefers-reduced-motion:reduce){.maintenance-budget-option{transition:none}.maintenance-budget-option:hover{transform:none}}
