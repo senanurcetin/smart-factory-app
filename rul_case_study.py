@@ -234,20 +234,20 @@ RUL_CASE_STUDY_TEMPLATE = (
             <div class="prognostics-console-intro">
                 <div class="studio-overline">NEXUS / ASSET PROGNOSTICS <span>02 — REMAINING LIFE</span></div>
                 <div class="prognostics-data-label">NASA C-MAPSS / RUN-TO-FAILURE BENCHMARK</div>
-                <h1>Know the horizon.<br><em>Quantify the uncertainty.</em></h1>
+                <h1>Read the signals.<br><em>Validate the horizon.</em></h1>
                 <p>{{ summary.operational_takeaway }}</p>
                 <div class="prognostics-evidence-rule">No real plant sensors or live engine deployment are connected to this analysis.</div>
             </div>
             <aside class="prognostics-hero-metric" aria-label="Test model error">
                 <span>OFFICIAL HELD-OUT TEST</span>
-                <strong>{{ summary.final_model.rmse }}</strong>
+                <strong>{{ "%.2f"|format(summary.final_model.rmse | float) }}</strong>
                 <em>cycles RMSE</em>
                 <p>Lower is better. Measured against the official NASA test labels.</p>
             </aside>
         </section>
         <section class="prognostics-metrics" aria-label="Remaining useful life validation">
-            <div class="prognostics-metric"><span>IMPROVEMENT ON BASELINE</span><strong>{{ summary.lift_vs_baseline.rmse_reduction_pct }}%</strong><small>Reduction in test RMSE</small></div>
-            <div class="prognostics-metric"><span>PHM08 SCORE</span><strong>{{ summary.final_model.phm08_score }}</strong><small>Asymmetric late-error penalty</small></div>
+            <div class="prognostics-metric"><span>IMPROVEMENT ON BASELINE</span><strong>{{ "%.1f"|format(summary.lift_vs_baseline.rmse_reduction_pct | float) }}%</strong><small>Reduction in test RMSE</small></div>
+            <div class="prognostics-metric"><span>PHM08 SCORE</span><strong>{{ "%.1f"|format(summary.final_model.phm08_score | float) }}</strong><small>Asymmetric late-error penalty</small></div>
             <div class="prognostics-metric"><span>TRAIN / TEST ENGINES</span><strong>{{ summary.dataset.train_units }} / {{ summary.dataset.test_units }}</strong><small>NASA {{ summary.dataset.subset }}</small></div>
         </section>
         <div class="prognostics-chapter-title"><span>01 / DEGRADATION INTELLIGENCE</span><h2>From sensor history to life estimates.</h2><p>Analyze the degradation trajectory before inspecting model diagnostics and tuning details.</p></div>
