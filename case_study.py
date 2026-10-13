@@ -234,6 +234,7 @@ CASE_STUDY_TEMPLATE = (
         <section class="maintenance-console" id="workspace-overview" aria-label="Predictive maintenance decision workspace">
             <div class="maintenance-console-intro">
                 <div class="studio-overline">NEXUS / OPERATIONS INTELLIGENCE <span>01 — MAINTENANCE STRATEGY</span></div>
+                <div class="studio-research-title">CASE FILE · {{ summary.project }}</div>
                 <div class="maintenance-console-index"><span class="pulse-mark" aria-hidden="true"></span> VALIDATED BENCHMARK · NOT LIVE EQUIPMENT DATA</div>
                 <h1>Maintenance, <em>before failure.</em></h1>
                 <p class="maintenance-console-lede">{{ summary.operational_takeaway }}</p>
