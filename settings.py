@@ -132,15 +132,21 @@ SETTINGS_TEMPLATE = (
         }
     </style>
     <link rel="stylesheet" href="/static/nexus-design.css">
+    <link rel="stylesheet" href="/static/nexus-analysis-workspace.css">
 </head>
 <body>
     {{ sidebar_html|safe }}
-    <main class="page" id="main-content">
-        <div class="eyebrow">Settings</div>
+    <main class="page nexus-workspace" id="main-content">
+        <nav class="workspace-nav" aria-label="Settings sections">
+            <a href="#workspace-controls">Controls</a>
+            <a href="#workspace-models">Model cards</a>
+            <a href="#workspace-resources">Resources</a>
+        </nav>
+        <div class="eyebrow">NEXUS / WORKSPACE CONTROLS</div>
         <h1>Preferences &amp; Model Info</h1>
         <p class="lede">Controls for the live dashboard, plus the model card metadata for both trained pipelines — training date, library versions, and the exact dataset hash each model was fit on.</p>
 
-        <section class="panel">
+        <section class="panel" id="workspace-controls">
             <h2 class="section-title">Dashboard Preferences</h2>
             <p class="section-copy">These apply to the live <a href="/">Dashboard</a> and are saved in your browser (no account, no server round-trip).</p>
             <div class="setting-row">
@@ -161,7 +167,7 @@ SETTINGS_TEMPLATE = (
         </section>
 
         <section class="panel">
-            <h2 class="section-title">Model Card</h2>
+            <h2 class="section-title" id="workspace-models">Model Card</h2>
             <p class="section-copy">Metadata recorded automatically at training time by <code>analysis/run_ai4i_case_study.py</code> and <code>analysis/run_cmapss_rul_case_study.py</code> — regenerated on every CI run, never hand-edited.</p>
             <div class="model-grid">
                 <div>
@@ -202,7 +208,7 @@ SETTINGS_TEMPLATE = (
         </section>
 
         <section class="panel">
-            <h2 class="section-title">Links</h2>
+            <h2 class="section-title" id="workspace-resources">Links</h2>
             <div class="links-list">
                 <a href="https://github.com/senanurcetin/smart-factory-app" target="_blank" rel="noopener"><i class="fab fa-github"></i> Source code on GitHub</a>
                 <a href="https://senanur-cetin.vercel.app/projects/smart-factory-app" target="_blank" rel="noopener"><i class="fas fa-id-badge"></i> Portfolio project entry</a>
