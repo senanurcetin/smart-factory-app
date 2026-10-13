@@ -357,11 +357,11 @@ HTML_TEMPLATE = (
             <div class="col-lg-3 col-6"><div class="bento-card kpi-card text-center"><div class="kpi-card-title">Net Production</div><div class="kpi-card-value" id="kpi-prod">—</div><div class="kpi-card-caption is-sim"><i class="fas fa-shuffle"></i> Simulated telemetry</div></div></div>
 
             <!-- CHART ROW with fixed height cards and containers -->
-            <div class="col-lg-6"><div class="bento-card chart-card"><h5>Real-time Temperature Analysis</h5><p class="small text-muted mb-2">Process temperature (model input)</p><div class="chart-container"><canvas id="tempChart"></canvas></div></div></div>
-            <div class="col-lg-6"><div class="bento-card chart-card"><h5>Real-time Tool Wear Analysis</h5><p class="small text-muted mb-2">Tool wear accumulation (model input)</p><div class="chart-container"><canvas id="vibrationChart"></canvas></div></div></div>
+            <div class="col-lg-6"><div class="bento-card chart-card"><h5>Real-time Temperature Analysis <span class="nexus-data-chip">SIMULATED INPUT · °C</span></h5><p class="small text-muted mb-2">Process temperature (model input)</p><div class="chart-container"><canvas id="tempChart" role="img" aria-label="Temperature over simulated time"></canvas></div></div></div>
+            <div class="col-lg-6"><div class="bento-card chart-card"><h5>Real-time Tool Wear Analysis <span class="nexus-data-chip">SIMULATED INPUT · MIN</span></h5><p class="small text-muted mb-2">Tool wear accumulation (model input)</p><div class="chart-container"><canvas id="vibrationChart" role="img" aria-label="Tool wear over simulated time"></canvas></div></div></div>
 
             <!-- Model outputs and OEE calculation are bound to the same API stream -->
-            <div class="col-lg-8"><div class="bento-card chart-card"><h5>Model Risk Score Trend</h5><p class="small text-muted mb-2">Trained AI4I classifier score on synthetic sensors. Higher means more model-assessed risk; not a calibrated failure probability.</p><div class="chart-container"><canvas id="riskChart" aria-label="Model risk score trend over simulated timestamps" role="img"></canvas></div></div></div>
+            <div class="col-lg-8"><div class="bento-card chart-card"><h5>Model Risk Score Trend <span class="nexus-data-chip nexus-model-chip">MODEL OUTPUT · 0–100</span></h5><p class="small text-muted mb-2">Trained AI4I classifier score on synthetic sensors. Higher means more model-assessed risk; not a calibrated failure probability.</p><div class="chart-container"><canvas id="riskChart" aria-label="Model risk score trend over simulated timestamps" role="img"></canvas></div></div></div>
             <div class="col-lg-4"><div class="bento-card chart-card"><h5>OEE Decomposition</h5><p class="small text-muted">Availability × Performance × Quality</p><div class="metric-breakdown">
               <div class="metric"><div class="metric-row"><span>Availability</span><strong id="oee-availability">—</strong></div><div class="progress"><div class="progress-bar" id="oee-availability-bar" style="width:0%"></div></div></div>
               <div class="metric"><div class="metric-row"><span>Performance</span><strong id="oee-performance">—</strong></div><div class="progress"><div class="progress-bar" id="oee-performance-bar" style="width:0%"></div></div></div>
@@ -380,10 +380,22 @@ HTML_TEMPLATE = (
             responsive: true,
             maintainAspectRatio: false, // CRITICAL: Allows chart to fill container height
             animation: false,
-            plugins: { legend: { display: false } },
+            plugins: {
+                legend: { display: false },
+                tooltip: {
+                    backgroundColor: '#091c31',
+                    titleColor: '#f1f7ff',
+                    bodyColor: '#c3d9f1',
+                    borderColor: 'rgba(78, 168, 255, 0.42)',
+                    borderWidth: 1,
+                    padding: 12,
+                    displayColors: false
+                }
+            },
+            interaction: { intersect: false, mode: 'index' },
             scales: {
-                x: { grid: { display: false }, ticks: { color: '#9ca3af' } },
-                y: { grid: { color: 'rgba(148, 163, 184, 0.15)' }, ticks: { color: '#9ca3af' } }
+                x: { grid: { display: false }, ticks: { color: '#b5c9e1', maxTicksLimit: 7, maxRotation: 0 } },
+                y: { grid: { color: 'rgba(135, 179, 224, 0.13)' }, ticks: { color: '#b5c9e1', maxTicksLimit: 6 } }
             }
         };
         const tempChart = new Chart(document.getElementById('tempChart'), {
