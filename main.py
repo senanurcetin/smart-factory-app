@@ -339,7 +339,7 @@ HTML_TEMPLATE = (
             <h1 class="page-title">Industrial Analytics Dashboard</h1>
             <p class="page-subtitle">AI4I-simulated telemetry · trained model risk scoring · transparent KPI definitions</p>
             <div class="nexus-hero-chips" aria-label="Data classification"><span>SIMULATED SENSOR STREAM</span><span>TRAINED ML CLASSIFIER</span><span>NOT REAL PLANT DATA</span></div>
-            <div class="report-actions"><span class="source-label">SIMULATED PLANT DATA + TRAINED ML MODEL · SHARED DEMO STREAM</span><a class="btn btn-outline-primary" href="/api/report.csv" download="smart-factory-demo-telemetry.csv"><i class="fas fa-file-csv me-2" aria-hidden="true"></i>Export shared demo readings (CSV)</a><span id="telemetry-clock" class="text-muted small" aria-live="polite">Awaiting a simulated reading</span></div>
+            <div class="report-actions"><span class="nexus-stream-badge" id="nexus-stream-badge" data-state="connecting" role="status" aria-live="polite"><span class="nexus-stream-dot" aria-hidden="true"></span><span id="nexus-stream-label">CONNECTING TO DEMO STREAM</span></span><span class="source-label">SIMULATED PLANT DATA + TRAINED ML MODEL · SHARED DEMO STREAM</span><a class="btn btn-outline-primary" href="/api/report.csv" download="smart-factory-demo-telemetry.csv"><i class="fas fa-file-csv me-2" aria-hidden="true"></i>Export shared demo readings (CSV)</a><span id="telemetry-clock" class="text-muted small" aria-live="polite">Awaiting a simulated reading</span></div>
         </div>
         <div class="dashboard-intro">
             <i class="fas fa-circle-info"></i>
@@ -532,6 +532,14 @@ HTML_TEMPLATE = (
             if (overlay) overlay.classList.add('hidden');
         }
 
+        // Reflect transport health separately from the model failure-risk score:
+        // cached measurements are not proof that the stream is still connected.
+        function setStreamState(state, text) {
+            const badge = document.getElementById('nexus-stream-badge');
+            const label = document.getElementById('nexus-stream-label');
+            if (badge) badge.dataset.state = state;
+            if (label) label.textContent = text;
+        }
         // Slow free-tier responses cannot race and overwrite newer readings.
         let dashboardRefreshing = false;
         async function refreshDashboard() {
@@ -539,9 +547,11 @@ HTML_TEMPLATE = (
             dashboardRefreshing = true;
             try {
                 await fetchData();
+                setStreamState('active', 'SIMULATED STREAM CONNECTED');
             } catch (_error) {
+                setStreamState('unavailable', 'STREAM UNAVAILABLE · RETRYING');
                 document.getElementById('telemetry-clock').textContent =
-                    'Telemetry temporarily unavailable — retrying automatically';
+                    'Telemetry temporarily unavailable — retrying automatically (prior values may be stale)';
             } finally {
                 dashboardRefreshing = false;
                 hideColdStartOverlay();

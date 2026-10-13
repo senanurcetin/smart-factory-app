@@ -168,3 +168,23 @@ a:focus-visible, button:focus-visible, select:focus-visible {
   .nexus-data-chip { font-size: .56rem; }
   .main-content .chart-card h5 { font-size: .93rem; }
 }
+
+/* Transport health is not the same as machine risk. Never present old
+   readings as currently connected when the free-tier API is unavailable. */
+.nexus-stream-badge {
+  display:inline-flex; align-items:center; gap:8px;
+  border:1px solid rgba(132,178,226,.35); border-radius:8px;
+  padding:7px 10px; background:rgba(7,27,48,.72);
+  font-size:.68rem; font-weight:780; letter-spacing:.065em;
+  color:#b6cde9; font-variant-numeric:tabular-nums;
+}
+.nexus-stream-dot { display:inline-block; flex:0 0 8px; width:8px; height:8px; border-radius:50%; background:#92a7c4; }
+.nexus-stream-badge[data-state="active"] { border-color:rgba(68,201,158,.44); color:#8ae6bc; }
+.nexus-stream-badge[data-state="active"] .nexus-stream-dot { background:#43c99d; box-shadow:0 0 12px rgba(67,201,157,.40); }
+.nexus-stream-badge[data-state="unavailable"] { border-color:rgba(246,185,95,.5); color:#ffd08a; }
+.nexus-stream-badge[data-state="unavailable"] .nexus-stream-dot { background:#f6b95f; }
+.main-content .report-actions { align-items:center; }
+@media(max-width:575px) {
+  .nexus-stream-badge { font-size:.61rem; line-height:1.4; }
+  .main-content .page-header .report-actions { gap:10px; }
+}

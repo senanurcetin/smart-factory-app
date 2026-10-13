@@ -101,6 +101,14 @@ class SessionReportTests(unittest.TestCase):
         self.assertIn('class="nexus-mark">NEXUS', sidebar)
         self.assertIn('href="/" class="active"', sidebar)
 
+    def test_stream_connection_is_distinct_from_scored_machine_risk(self):
+        html = self.client.get("/").get_data(as_text=True)
+        self.assertIn('id="nexus-stream-badge" data-state="connecting"', html)
+        self.assertIn("setStreamState('active', 'SIMULATED STREAM CONNECTED')", html)
+        self.assertIn("setStreamState('unavailable', 'STREAM UNAVAILABLE", html)
+        self.assertIn("prior values may be stale", html)
+        self.assertIn("riskChart.data.datasets[0].data.push(current.RiskScore * 100)", html)
+
     def test_dashboard_renders_live_chart_and_derived_oee(self):
         response = self.client.get("/")
         self.assertEqual(response.status_code, 200)
