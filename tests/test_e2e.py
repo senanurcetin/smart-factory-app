@@ -114,10 +114,17 @@ class E2ESmokeTests(unittest.TestCase):
                 "() => document.querySelector('#nexus-stream-badge')"
                 ".dataset.state === 'active'", timeout=15000
             )
-            self.assertTrue(page.is_visible(".nexus-hero"))
+            self.assertTrue(page.is_visible(".nexus-eyebrow"))
+            self.assertTrue(page.is_visible(".nexus-hero-chips"))
             self.assertTrue(page.is_visible("#riskChart"))
             self.assertTrue(page.is_visible("#nexus-stream-badge"))
             self.assertTrue(page.is_visible('a[href="/api/report.csv"]'))
+            # A single data point makes genuine charts look empty in screenshots.
+            page.wait_for_function(
+                "() => window.Chart && Chart.getChart('riskChart') && "
+                "Chart.getChart('riskChart').data.labels.length >= 5",
+                timeout=25000,
+            )
             output = os.environ.get("E2E_SCREENSHOT_DIR")
             if output:
                 Path(output).mkdir(parents=True, exist_ok=True)
@@ -145,6 +152,8 @@ class E2ESmokeTests(unittest.TestCase):
             self.assertFalse(page.is_visible(".sidebar.open"))
             page.locator("#riskChart").scroll_into_view_if_needed()
             self.assertTrue(page.is_visible("#riskChart"))
+            # Full-page captures should begin at the viewport top after interaction.
+            page.evaluate("window.scrollTo(0, 0)")
             output = os.environ.get("E2E_SCREENSHOT_DIR")
             if output:
                 Path(output).mkdir(parents=True, exist_ok=True)
@@ -235,7 +244,8 @@ class E2ESmokeTests(unittest.TestCase):
             self.assertEqual(open_transform, "matrix(1, 0, 0, 1, 0, 0)")
             self.assertTrue(page.is_visible(".sidebar.open"))
 
-            page.click(".sidebar-backdrop")
+            # Click the backdrop OUTSIDE the 250px sidebar, not its covered center.
+            page.mouse.click(350, 400)
             self.assertFalse(page.is_visible(".sidebar.open"))
             self.assertEqual(console_errors, [])
         finally:

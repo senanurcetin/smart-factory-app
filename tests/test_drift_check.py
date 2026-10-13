@@ -13,7 +13,7 @@ from analysis.check_drift import (
     compute_numeric_psi,
     verdict,
 )
-from analysis.run_ai4i_case_study import add_derived_features, load_dataset
+from analysis.run_ai4i_case_study import DERIVED_FEATURES, add_derived_features, load_dataset
 
 
 class VerdictThresholdTests(unittest.TestCase):
@@ -134,10 +134,23 @@ class PsiBoundaryRegressionTests(unittest.TestCase):
         current = pd.Series([1.0, 2.0, 3.0, 4.0])
         self.assertAlmostEqual(compute_numeric_psi(reference, current, buckets=4), 0.0)
 
-    def test_empty_numeric_stream_does_not_raise_false_alert(self):
+    def test_empty_numeric_stream_fails_closed(self):
         samples = pd.Series([], dtype=float)
-        self.assertEqual(compute_numeric_psi(samples, pd.Series([1.0, 2.0])), 0.0)
-        self.assertEqual(compute_numeric_psi(pd.Series([1.0, 2.0]), samples), 0.0)
+        with self.assertRaisesRegex(ValueError, "Insufficient numeric PSI data"):
+            compute_numeric_psi(samples, pd.Series([1.0, 2.0]))
+        with self.assertRaisesRegex(ValueError, "Insufficient numeric PSI data"):
+            compute_numeric_psi(pd.Series([1.0, 2.0]), samples)
+
+    def test_all_missing_numeric_stream_fails_closed(self):
+        missing = pd.Series([np.nan, np.nan])
+        with self.assertRaisesRegex(ValueError, "current missing=2"):
+            compute_numeric_psi(pd.Series([1.0, 2.0]), missing)
+
+    def test_infinite_numeric_stream_fails_closed(self):
+        for bad in (np.inf, -np.inf):
+            with self.subTest(value=bad):
+                with self.assertRaisesRegex(ValueError, "Nonfinite numeric PSI input"):
+                    compute_numeric_psi(pd.Series([1.0, 2.0, 3.0]), pd.Series([1.0, bad, 3.0]))
 
     def test_constant_numeric_sensor_does_not_crash_quantile_binning(self):
         constant = pd.Series([25.0] * 100)
@@ -161,9 +174,34 @@ class PsiBoundaryRegressionTests(unittest.TestCase):
             "significant_drift",
         )
 
-    def test_empty_categorical_inputs_are_safe(self):
+    def test_empty_categorical_inputs_fail_closed(self):
         missing = pd.Series([], dtype=object)
-        self.assertEqual(compute_categorical_psi(missing, missing), 0.0)
+        with self.assertRaisesRegex(ValueError, "Insufficient categorical PSI data"):
+            compute_categorical_psi(missing, missing)
+
+    def test_missingness_visible_in_drift_report(self):
+        reference = self._report_frame_with_missing()
+        current = reference.copy()
+        report = build_drift_report(reference, current)
+        by_name = {row["feature"]: row for row in report["features"]}
+        self.assertEqual(by_name["Tool wear [min]"]["reference_missing_count"], 1)
+        self.assertEqual(by_name["Tool wear [min]"]["current_missing_count"], 1)
+
+    @staticmethod
+    def _report_frame_with_missing():
+        values = np.linspace(1.0, 100.0, 100)
+        return pd.DataFrame({
+            "Type": ["L", "M"] * 50,
+            "Air temperature [K]": values + 300,
+            "Process temperature [K]": values + 310,
+            "Rotational speed [rpm]": values + 1400,
+            "Torque [Nm]": values,
+            "Tool wear [min]": np.concatenate(([np.nan], values[1:])),
+            **{
+                name: values
+                for name in DERIVED_FEATURES
+            },
+        })
 
     def test_identical_numeric_sensor_ignores_missing_in_both_batches(self):
         baseline = pd.Series([1.0, 2.0, 3.0, 4.0, np.nan, np.nan])

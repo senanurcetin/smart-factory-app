@@ -65,10 +65,24 @@ def compute_numeric_psi(
     reference: pd.Series, current: pd.Series, buckets: int = NUM_BUCKETS
 ) -> float:
     """PSI over quantile-binned buckets of the reference distribution."""
+    reference_missing = int(reference.isna().sum())
+    current_missing = int(current.isna().sum())
     reference = reference.dropna()
     current = current.dropna()
     if reference.empty or current.empty:
-        return 0.0
+        raise ValueError(
+            "Insufficient numeric PSI data: "
+            f"reference missing={reference_missing}, current missing={current_missing}"
+        )
+    ref_values = reference.to_numpy(dtype=float)
+    cur_values = current.to_numpy(dtype=float)
+    ref_invalid = int((~np.isfinite(ref_values)).sum())
+    cur_invalid = int((~np.isfinite(cur_values)).sum())
+    if ref_invalid or cur_invalid:
+        raise ValueError(
+            "Nonfinite numeric PSI input: "
+            f"reference invalid={ref_invalid}, current invalid={cur_invalid}"
+        )
     breakpoints = np.unique(reference.quantile(np.linspace(0, 1, buckets + 1)).values).astype(float)
     if len(breakpoints) < 3:
         return 0.0
@@ -81,6 +95,12 @@ def compute_numeric_psi(
 
 def compute_categorical_psi(reference: pd.Series, current: pd.Series) -> float:
     """PSI over category frequencies instead of quantile buckets."""
+    if reference.dropna().empty or current.dropna().empty:
+        raise ValueError(
+            "Insufficient categorical PSI data: "
+            f"reference missing={int(reference.isna().sum())}, "
+            f"current missing={int(current.isna().sum())}"
+        )
     categories = sorted(set(reference.dropna().unique()) | set(current.dropna().unique()))
     ref_counts = np.array([(reference == c).sum() for c in categories])
     cur_counts = np.array([(current == c).sum() for c in categories])
@@ -115,10 +135,22 @@ def build_drift_report(reference_df: pd.DataFrame, live_batch: pd.DataFrame) -> 
     feature_reports = []
     for col in NUMERIC_FEATURES + DERIVED_FEATURES:
         psi = compute_numeric_psi(reference_df[col], live_batch[col])
-        feature_reports.append({"feature": col, "psi": to_float(psi), "verdict": verdict(psi)})
+        feature_reports.append({
+            "feature": col,
+            "psi": to_float(psi),
+            "verdict": verdict(psi),
+            "reference_missing_count": int(reference_df[col].isna().sum()),
+            "current_missing_count": int(live_batch[col].isna().sum()),
+        })
     for col in CATEGORICAL_FEATURES:
         psi = compute_categorical_psi(reference_df[col], live_batch[col])
-        feature_reports.append({"feature": col, "psi": to_float(psi), "verdict": verdict(psi)})
+        feature_reports.append({
+            "feature": col,
+            "psi": to_float(psi),
+            "verdict": verdict(psi),
+            "reference_missing_count": int(reference_df[col].isna().sum()),
+            "current_missing_count": int(live_batch[col].isna().sum()),
+        })
 
     feature_reports.sort(key=lambda row: row["psi"], reverse=True)
     drifted = [row for row in feature_reports if row["verdict"] != "no_significant_drift"]

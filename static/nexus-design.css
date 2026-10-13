@@ -1,0 +1,234 @@
+/* NEXUS portfolio design system — shared by the real Flask application.
+   Presentation only: no inferred production data and no mock screenshots. */
+:root {
+  --nexus-night: #061324;
+  --nexus-midnight: #071829;
+  --nexus-card: #0d253d;
+  --nexus-surface: #12324e;
+  --nexus-line: #244764;
+  --nexus-blue: #4ea8ff;
+  --nexus-indigo: #487fd8;
+  --nexus-lavender: #8f9bff;
+  --nexus-ink: #f2f7ff;
+  --nexus-muted: #a9c0dd;
+}
+html { color-scheme: dark; }
+body {
+  background: radial-gradient(ellipse at 85% 3%, rgba(78,168,255,.115), transparent 38%),
+              radial-gradient(ellipse at 25% 85%, rgba(143,155,255,.065), transparent 42%),
+              var(--nexus-night) !important;
+  color: var(--nexus-ink);
+}
+.sidebar {
+  background: linear-gradient(180deg, #06192d 0%, #081d33 52%, #061424 100%) !important;
+  border-right: 1px solid #204163;
+  box-shadow: 10px 0 50px rgba(0,5,17,.26);
+}
+.sidebar-logo {
+  display: flex !important;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 4px;
+  text-align: left !important;
+  padding: 3px 12px 20px;
+  margin-bottom: 23px !important;
+  border-bottom: 1px solid #234564;
+  font-family: Inter, sans-serif !important;
+}
+.nexus-mark { color: var(--nexus-blue); font-size: .73rem; font-weight: 800; letter-spacing: .24em; }
+.nexus-product { color: var(--nexus-ink); font-size: 1.34rem; font-weight: 770; letter-spacing: -.032em; }
+.nexus-caption { color: #95b4d5; font-size: .62rem; font-weight: 680; letter-spacing: .12em; }
+.sidebar-nav a { color: #b1c7e2 !important; border: 1px solid transparent; }
+.sidebar-nav a.active, .sidebar-nav a:hover {
+  background: linear-gradient(92deg, rgba(43,119,217,.35), rgba(18,58,102,.29)) !important;
+  color: #f7faff !important;
+  border-color: rgba(78,168,255,.2);
+}
+.sidebar-nav a.active { box-shadow: inset 3px 0 0 var(--nexus-blue) !important; }
+.sidebar-footer { border-top: 1px solid #234564; padding-top: 13px; }
+.sidebar-footer::after {
+  content: "NEXUS / DATA INTELLIGENCE";
+  color: #7495b8;
+  font-size: .58rem;
+  letter-spacing: .12em;
+  display: block;
+  margin: 17px 12px 5px;
+}
+.sidebar-nav a:focus-visible, .sidebar-toggle:focus-visible,
+a:focus-visible, button:focus-visible, select:focus-visible {
+  outline: 2px solid var(--nexus-blue);
+  outline-offset: 3px;
+}
+.main-content .page-header {
+  position: relative;
+  overflow: hidden;
+  margin-bottom: 23px;
+  padding: clamp(22px, 2.7vw, 38px);
+  background: linear-gradient(115deg, #123352 0%, #0b2540 51%, #0a1930 100%);
+  border: 1px solid #315a7d;
+  border-radius: 18px;
+  box-shadow: 0 24px 50px rgba(0,7,20,.24), inset 0 1px 0 rgba(170,202,242,.12);
+}
+.main-content .page-header::after {
+  content: "";
+  pointer-events: none;
+  position: absolute;
+  width: 330px;
+  height: 330px;
+  top: -215px;
+  right: -65px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(78,168,255,.25), transparent 70%);
+}
+.nexus-eyebrow, .nexus-section-label {
+  color: #94c9ff;
+  font-size: .72rem;
+  font-weight: 750;
+  letter-spacing: .15em;
+  text-transform: uppercase;
+}
+.nexus-eyebrow { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; margin-bottom: 12px; }
+.nexus-eyebrow::before { content: ""; width: 23px; height: 2px; background: var(--nexus-blue); }
+.nexus-eyebrow span { color: #afbdd7; font-weight: 550; letter-spacing: .11em; }
+.main-content .page-title { font-size: clamp(1.85rem, 2.5vw, 2.65rem); font-weight: 780; letter-spacing: -.04em; }
+.main-content .page-subtitle { color: #becfe6; }
+.nexus-hero-chips { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 17px; }
+.nexus-hero-chips span {
+  padding: 7px 10px;
+  background: rgba(8,27,47,.75);
+  border: 1px solid rgba(101,160,227,.38);
+  border-radius: 7px;
+  color: #d6e7fc;
+  font-size: .67rem;
+  font-weight: 700;
+  letter-spacing: .055em;
+}
+.nexus-hero-chips span:nth-child(2) { border-color: rgba(143,155,255,.5); color: #d6d5ff; }
+.nexus-section-label { margin: 5px 0 16px; }
+.main-content .bento-card {
+  background: linear-gradient(150deg, rgba(19,49,76,.97), rgba(9,28,48,.985));
+  border: 1px solid var(--nexus-line);
+  border-radius: 16px;
+  box-shadow: 0 14px 34px rgba(0,5,16,.21), inset 0 1px 0 rgba(191,217,255,.06);
+}
+.main-content .bento-card:hover { border-color: rgba(78,168,255,.56); }
+.main-content .kpi-card { border-top: 2px solid rgba(78,168,255,.64); }
+.main-content .kpi-card-title { color: #aec3de; font-size: .76rem; font-weight: 650; letter-spacing: .032em; }
+.main-content .kpi-card-value { font-size: clamp(1.7rem, 2.1vw, 2.25rem); font-weight: 750; letter-spacing: -.045em; }
+.main-content .kpi-card-caption { font-size: .69rem; letter-spacing: .025em; }
+.main-content .chart-card h5 { color: #f0f7ff; font-size: 1.03rem; font-weight: 730; letter-spacing: -.018em; }
+.main-content .chart-card p { line-height: 1.5; }
+.main-content .dashboard-intro {
+  border-color: #2a5378;
+  background: rgba(20,52,80,.65);
+  border-radius: 13px;
+}
+.main-content .log-box { background: #0b2035; border: 1px solid #1c3c60; }
+.main-content .source-label { color: #d4e2f4; }
+@media (max-width: 575px) {
+  .main-content .page-header { padding: 20px 16px; }
+  .nexus-eyebrow { font-size: .62rem; }
+  .nexus-hero-chips span { font-size: .6rem; }
+  .main-content .kpi-card-value { font-size: 1.7rem; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .main-content .bento-card { transition: none; }
+  .main-content .bento-card:hover { transform: none; }
+}
+
+/* Chart polish: source chips and dense first-screen composition. */
+.main-content .chart-card h5 {
+  display: flex; align-items: center; justify-content: space-between;
+  flex-wrap: wrap; gap: 7px; line-height: 1.3;
+}
+.nexus-data-chip {
+  display: inline-flex; align-items: center;
+  flex-shrink: 0;
+  border: 1px solid rgba(78,168,255,.34);
+  background: rgba(8,29,53,.64);
+  border-radius: 7px;
+  color: #abd7ff;
+  padding: 5px 8px;
+  font-size: .59rem; letter-spacing: .055em; font-weight: 730;
+}
+.nexus-model-chip { border-color: rgba(143,155,255,.45); color: #d0d1ff; }
+.main-content .chart-container {
+  border-top: 1px solid rgba(124,168,217,.17);
+  padding-top: 10px;
+}
+.main-content .risk-badge { border: 1px solid transparent; padding: 4px 9px; }
+.main-content .risk-badge.risk-low { background: rgba(45,169,125,.17); color: #7be8bd; border-color: rgba(89,204,158,.40); }
+.main-content .risk-badge.risk-medium { background: rgba(246,185,95,.13); color: #f7ce87; border-color: rgba(246,185,95,.4); }
+.main-content .risk-badge.risk-high { background: rgba(243,122,136,.16); color: #ffadba; border-color: rgba(243,122,136,.40); }
+@media (min-width: 1200px) {
+  .main-content .kpi-card { height: 120px; }
+  .main-content .chart-card { height: 365px; }
+}
+@media (max-width: 575px) {
+  .nexus-data-chip { font-size: .56rem; }
+  .main-content .chart-card h5 { font-size: .93rem; }
+}
+
+/* Transport health is not the same as machine risk. Never present old
+   readings as currently connected when the free-tier API is unavailable. */
+.nexus-stream-badge {
+  display:inline-flex; align-items:center; gap:8px;
+  border:1px solid rgba(132,178,226,.35); border-radius:8px;
+  padding:7px 10px; background:rgba(7,27,48,.72);
+  font-size:.68rem; font-weight:780; letter-spacing:.065em;
+  color:#b6cde9; font-variant-numeric:tabular-nums;
+}
+.nexus-stream-dot { display:inline-block; flex:0 0 8px; width:8px; height:8px; border-radius:50%; background:#92a7c4; }
+.nexus-stream-badge[data-state="active"] { border-color:rgba(68,201,158,.44); color:#8ae6bc; }
+.nexus-stream-badge[data-state="active"] .nexus-stream-dot { background:#43c99d; box-shadow:0 0 12px rgba(67,201,157,.40); }
+.nexus-stream-badge[data-state="unavailable"] { border-color:rgba(246,185,95,.5); color:#ffd08a; }
+.nexus-stream-badge[data-state="unavailable"] .nexus-stream-dot { background:#f6b95f; }
+.main-content .report-actions { align-items:center; }
+@media(max-width:575px) {
+  .nexus-stream-badge { font-size:.61rem; line-height:1.4; }
+  .main-content .page-header .report-actions { gap:10px; }
+}
+
+/* Accessible mobile navigation: above backdrop, never obscured by its own scrim. */
+@media(max-width:900px) {
+  body.sf-nav-open { overflow:hidden; }
+  .sidebar { z-index:21; }
+  .sidebar-backdrop.open { z-index:18; background:rgba(2,11,25,.74); backdrop-filter:blur(2px); }
+  .sidebar.open { z-index:21; border-right-color:#38699c; }
+  .sidebar-toggle { z-index:32; background:#102d4d; border:1px solid #365d83; box-shadow:0 9px 28px rgba(0,5,18,.34); }
+  .sidebar-toggle[aria-expanded="true"] { color:#d7eaff; background:#1a4975; }
+}
+@media(prefers-reduced-motion:reduce) {
+  .sidebar { transition:none!important; }
+  .sidebar-backdrop { backdrop-filter:none!important; }
+}
+
+/* At portfolio capture sizes, editorial captions remain 11–12px
+   instead of shrinking to unreadable decorative microtype. */
+.nexus-eyebrow,.nexus-section-label { font-size:.75rem;line-height:1.5; }
+.nexus-hero-chips span { font-size:.73rem;line-height:1.4; }
+.nexus-data-chip { font-size:.7rem;line-height:1.35; }
+.nexus-stream-badge { font-size:.72rem;line-height:1.45; }
+.sidebar-footer::after { font-size:.67rem;line-height:1.5; }
+.main-content .kpi-card-caption { font-size:.72rem;line-height:1.45; }
+@media(max-width:575px) {
+  .nexus-eyebrow,.nexus-section-label { font-size:.7rem; }
+  .nexus-hero-chips span,.nexus-data-chip,.nexus-stream-badge { font-size:.69rem; }
+}
+
+/* De-emphasize last-known values during transport outages.
+   Historical readings are retained but not presented as current KPI status. */
+body.sf-telemetry-stale .main-content .kpi-card {
+  opacity:.64; border-top-color:#536985;
+  filter:saturate(.75);
+}
+body.sf-telemetry-stale .main-content .chart-card { opacity:.72; }
+body.sf-telemetry-stale .main-content .risk-badge {
+  border-color:#61758e; color:#c1d0e0; background:#273e55;
+}
+body.sf-telemetry-stale .main-content #telemetry-clock {
+  color:#f7ce87; font-weight:700;
+}
+@media(prefers-reduced-motion:reduce) {
+  body.sf-telemetry-stale .main-content .kpi-card { transition:none!important; }
+}
