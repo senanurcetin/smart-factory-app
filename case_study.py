@@ -241,12 +241,34 @@ CASE_STUDY_TEMPLATE = (
             </div>
             <aside class="maintenance-command-score" aria-label="Selected review queue outcome">
                 <span class="maintenance-score-eyebrow">PRIORITIZED REVIEW / HOLDOUT</span>
-                <div class="maintenance-score-main">{{ summary.review_queue.failure_capture_rate }}</div>
+                <div class="maintenance-score-main" id="maintenance-score-main">{{ "%.1f"|format((summary.review_queue.failure_capture_rate | float) * 100) }}%</div>
                 <strong>Failures caught by the selected queue</strong>
-                <p>{{ summary.review_queue.reviewed_assets }} assets reviewed · {{ summary.review_queue.selected_budget_label }}</p>
+                <p id="maintenance-score-context">{{ summary.review_queue.reviewed_assets }} assets reviewed · {{ summary.review_queue.selected_budget_label }}</p>
                 <div class="maintenance-score-line"></div>
                 <span class="maintenance-score-foot">Measured evaluation result. Do not interpret as a live alarm or a deployed work-order system.</span>
             </aside>
+        </section>
+        <section class="maintenance-budget-lab" aria-labelledby="maintenance-budget-title">
+            <div class="maintenance-budget-intro">
+                <span>02 / REVIEW CAPACITY</span>
+                <h2 id="maintenance-budget-title">Choose the maintenance review budget.</h2>
+                <p>Compare three measured holdout queues. These are fixed benchmark scenarios; selecting a budget does not run a live prediction or schedule maintenance.</p>
+            </div>
+            <div class="maintenance-budget-options" role="group" aria-label="Review budget scenarios">
+            {% for row in review_queue.review_budgets %}
+                <button type="button" class="maintenance-budget-option{{ ' is-active' if row.review_fraction == summary.review_queue.selected_budget_fraction else '' }}"
+                    data-queue-capture="{{ row.failure_capture_rate }}"
+                    data-queue-review-count="{{ row.reviewed_assets }}"
+                    data-queue-lift="{{ row.yield_lift_vs_random }}"
+                    data-queue-budget="{{ (row.review_fraction * 100) | int }}"
+                    aria-pressed="{{ 'true' if row.review_fraction == summary.review_queue.selected_budget_fraction else 'false' }}">
+                    <span class="maintenance-budget-heading">{{ (row.review_fraction * 100) | int }}% reviewed</span>
+                    <strong>{{ "%.1f"|format(row.failure_capture_rate * 100) }}%</strong>
+                    <small>{{ row.captured_failures }} failures captured · {{ row.reviewed_assets }} assets</small>
+                </button>
+            {% endfor %}
+            </div>
+            <div class="maintenance-budget-summary" id="maintenance-budget-summary" aria-live="polite">Selected: top {{ (summary.review_queue.selected_budget_fraction * 100) | int }}% queue · {{ summary.review_queue.reviewed_assets }} assets reviewed · {{ "%.2f"|format(summary.review_queue.yield_lift_vs_random | float) }}× yield versus random.</div>
         </section>
         <section class="maintenance-metrics" aria-label="Predictive maintenance model evidence">
             <div class="maintenance-metric primary"><span>QUEUE YIELD VS RANDOM</span><strong>{{ summary.review_queue.yield_lift_vs_random }}×</strong><small>Observed triage leverage</small></div>
@@ -462,6 +484,25 @@ CASE_STUDY_TEMPLATE = (
             <p class="footer-note"><span style="color: var(--warning);">Next step:</span> {{ model_selection.next_step }}</p>
         </section>
     </main>
+<script>
+document.querySelectorAll('.maintenance-budget-option').forEach(function(button) {
+  button.addEventListener('click', function () {
+    var group = document.querySelectorAll('.maintenance-budget-option');
+    group.forEach(function(item) {
+      var active = item === button;
+      item.classList.toggle('is-active', active);
+      item.setAttribute('aria-pressed', String(active));
+    });
+    var fraction = Number(button.dataset.queueCapture);
+    var budget = Number(button.dataset.queueBudget);
+    var count = Number(button.dataset.queueReviewCount);
+    var lift = Number(button.dataset.queueLift);
+    document.getElementById('maintenance-score-main').textContent = (fraction * 100).toFixed(1) + '%';
+    document.getElementById('maintenance-score-context').textContent = count.toLocaleString('en-US') + ' assets reviewed · top ' + budget + '% queue';
+    document.getElementById('maintenance-budget-summary').textContent = 'Selected: top ' + budget + '% queue · ' + count.toLocaleString('en-US') + ' assets reviewed · ' + lift.toFixed(2) + '× yield versus random.';
+  });
+});
+</script>
 </body>
 </html>
 """
