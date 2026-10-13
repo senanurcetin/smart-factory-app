@@ -113,6 +113,16 @@ class SessionReportTests(unittest.TestCase):
         self.assertIn("prior values may be stale", html)
         self.assertIn("riskChart.data.datasets[0].data.push(current.RiskScore * 100)", html)
 
+    def test_simulated_text_is_rendered_as_data_not_html(self):
+        html = self.client.get("/").get_data(as_text=True)
+        self.assertIn("const escapeHtml = value => String(value ?? '')", html)
+        self.assertIn("escapeHtml(current.Operator)", html)
+        self.assertIn("escapeHtml(current.Shift_ID)", html)
+        self.assertIn("escapeHtml(current.Type)", html)
+        self.assertIn("when.textContent", html)
+        self.assertIn("document.createTextNode", html)
+        self.assertNotIn("logBox.innerHTML +=", html)
+
     def test_dashboard_renders_live_chart_and_derived_oee(self):
         response = self.client.get("/")
         self.assertEqual(response.status_code, 200)

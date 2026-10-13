@@ -438,6 +438,12 @@ HTML_TEMPLATE = (
             } }
         });
 
+        // Text produced by the simulated API is data, not executable markup.
+        // Never insert operator names or event descriptions as raw HTML.
+        const escapeHtml = value => String(value ?? '').replace(/[&<>"']/g, ch => ({
+            '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
+        }[ch]));
+
         async function fetchData() {
             const response = await fetch('/api/data', { cache: 'no-store' });
             if (!response.ok) throw new Error('Telemetry HTTP ' + response.status);
@@ -479,11 +485,11 @@ HTML_TEMPLATE = (
             // --- Update Shift Info Panel ---
             const shiftPanel = document.getElementById('shift-info-panel');
             shiftPanel.innerHTML = `
-                <div class="info-list-item"><span class="label">Shift ID</span><span class="value">${current.Shift_ID}</span></div>
-                <div class="info-list-item"><span class="label">Operator</span><span class="value">${current.Operator}</span></div>
+                <div class="info-list-item"><span class="label">Shift ID</span><span class="value">${escapeHtml(current.Shift_ID)}</span></div>
+                <div class="info-list-item"><span class="label">Operator</span><span class="value">${escapeHtml(current.Operator)}</span></div>
                 <div class="info-list-item"><span class="label">Cycle Time</span><span class="value">${current.Cycle_Time.toFixed(1)}s</span></div>
                 <div class="info-list-item"><span class="label">Power Factor</span><span class="value">${current.Power_Factor.toFixed(2)}</span></div>
-                <div class="info-list-item"><span class="label">Machine Type</span><span class="value">${current.Type}</span></div>
+                <div class="info-list-item"><span class="label">Machine Type</span><span class="value">${escapeHtml(current.Type)}</span></div>
                 <div class="info-list-item"><span class="label">Energy Cost</span><span class="value">$${current.Energy_Cost_Per_Hour.toFixed(2)}/hr</span></div>
             `;
 
@@ -520,9 +526,14 @@ HTML_TEMPLATE = (
 
             // --- Update Log Box ---
             const logBox = document.getElementById('log-box');
-            logBox.innerHTML = '';
+            logBox.replaceChildren();
             events.forEach(event => {
-                logBox.innerHTML += `<p><span class="text-muted">[${event.timestamp}]</span> ${event.message}</p>`;
+                const line = document.createElement('p');
+                const when = document.createElement('span');
+                when.className = 'text-muted';
+                when.textContent = '[' + String(event.timestamp ?? '') + ']';
+                line.append(when, document.createTextNode(' ' + String(event.message ?? '')));
+                logBox.appendChild(line);
             });
             logBox.scrollTop = logBox.scrollHeight;
         }
