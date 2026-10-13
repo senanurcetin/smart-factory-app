@@ -173,3 +173,5 @@
 @media(max-width:920px){.maintenance-budget-lab{grid-template-columns:1fr}}
 @media(max-width:580px){.maintenance-budget-lab{padding:16px 12px}.maintenance-budget-options{gap:7px}.maintenance-budget-option{padding:12px 9px;min-height:126px}.maintenance-budget-option>strong{font-size:clamp(20px,5vw,30px)}.maintenance-budget-option>small{font-size:9px}}
 @media(prefers-reduced-motion:reduce){.maintenance-budget-option{transition:none}.maintenance-budget-option:hover{transform:none}}
+
+.studio-research-title{margin-top:15px;color:#a9c9eb;font-size:10px;line-height:1.5;letter-spacing:.035em;font-weight:620;opacity:.85;}
