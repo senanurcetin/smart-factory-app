@@ -233,6 +233,7 @@ RUL_CASE_STUDY_TEMPLATE = (
         <section class="prognostics-console" id="workspace-overview" aria-label="Remaining useful life research workspace">
             <div class="prognostics-console-intro">
                 <div class="studio-overline">NEXUS / ASSET PROGNOSTICS <span>02 — REMAINING LIFE</span></div>
+                <div class="studio-research-title">RESEARCH FILE · {{ summary.project }}</div>
                 <div class="prognostics-data-label">NASA C-MAPSS / RUN-TO-FAILURE BENCHMARK</div>
                 <h1>Read the signals.<br><em>Validate the horizon.</em></h1>
                 <p>{{ summary.operational_takeaway }}</p>
