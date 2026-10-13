@@ -131,7 +131,7 @@ def render_sidebar(active: str) -> str:
     </button>
     <div class="sidebar-backdrop" id="sidebar-backdrop"></div>
     <div class="sidebar" id="sidebar">
-        <div class="sidebar-logo"><i class="fas fa-bolt"></i> SmartFactory</div>
+        <div class="sidebar-logo"><span class="nexus-mark">NEXUS</span><span class="nexus-product">Smart Factory</span><span class="nexus-caption">INDUSTRIAL INTELLIGENCE</span></div>
         <nav class="sidebar-nav" aria-label="Primary">
             {links_html}
         </nav>

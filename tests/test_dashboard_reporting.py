@@ -84,6 +84,19 @@ class SessionReportTests(unittest.TestCase):
             with self.subTest(contract=contract):
                 self.assertIn(contract, html)
 
+    def test_nexus_dashboard_uses_real_shared_portfolio_design(self):
+        from layout import render_sidebar
+
+        html = self.client.get("/").get_data(as_text=True)
+        self.assertIn('href="/static/nexus-design.css"', html)
+        self.assertIn("NEXUS / INDUSTRIAL INTELLIGENCE", html)
+        self.assertIn("NOT REAL PLANT DATA", html)
+        self.assertIn("nexus-hero-chips", html)
+        self.assertIn("nexus-section-label", html)
+        sidebar = render_sidebar("dashboard")
+        self.assertIn('class="nexus-mark">NEXUS', sidebar)
+        self.assertIn('href="/" class="active"', sidebar)
+
     def test_dashboard_renders_live_chart_and_derived_oee(self):
         response = self.client.get("/")
         self.assertEqual(response.status_code, 200)

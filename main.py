@@ -322,6 +322,7 @@ HTML_TEMPLATE = (
         }
 
     </style>
+    <link rel="stylesheet" href="/static/nexus-design.css">
 </head>
 <body>
     {{ sidebar_html|safe }}
@@ -334,8 +335,10 @@ HTML_TEMPLATE = (
 
     <main class="main-content" id="main-content">
         <div class="page-header">
+            <div class="nexus-eyebrow">NEXUS / INDUSTRIAL INTELLIGENCE <span>01 — OPERATIONS</span></div>
             <h1 class="page-title">Industrial Analytics Dashboard</h1>
             <p class="page-subtitle">AI4I-simulated telemetry · trained model risk scoring · transparent KPI definitions</p>
+            <div class="nexus-hero-chips" aria-label="Data classification"><span>SIMULATED SENSOR STREAM</span><span>TRAINED ML CLASSIFIER</span><span>NOT REAL PLANT DATA</span></div>
             <div class="report-actions"><span class="source-label">SIMULATED PLANT DATA + TRAINED ML MODEL · SHARED DEMO STREAM</span><a class="btn btn-outline-primary" href="/api/report.csv" download="smart-factory-demo-telemetry.csv"><i class="fas fa-file-csv me-2" aria-hidden="true"></i>Export shared demo readings (CSV)</a><span id="telemetry-clock" class="text-muted small" aria-live="polite">Awaiting a simulated reading</span></div>
         </div>
         <div class="dashboard-intro">
@@ -345,6 +348,7 @@ HTML_TEMPLATE = (
                 <a href="/case-study">Case Study</a> (PR-AUC 0.90 on held-out data). The <strong>Failure Risk Score</strong> is computed by the trained classifier on synthetic sensors; the <strong>RUL Proxy</strong> is a risk-derived heuristic, <em>not</em> a calibrated remaining-life regression. OEE, production and costs use simulated plant counters. For actual evaluated regression, open the RUL Case Study.
             </p>
         </div>
+        <div class="nexus-section-label">01 / LIVE OPERATIONS OVERVIEW</div>
         <div class="row g-4">
             <!-- KPI ROW with fixed height cards -->
             <div class="col-lg-3 col-6"><div class="bento-card kpi-card text-center"><div class="kpi-card-title">Failure Risk Score <span class="risk-badge" id="kpi-risk-badge">--</span></div><div class="kpi-card-value" id="kpi-risk">—</div><div class="kpi-card-caption is-model"><i class="fas fa-robot"></i> Live model output</div></div></div>
