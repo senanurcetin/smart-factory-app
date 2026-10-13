@@ -218,10 +218,11 @@ CASE_STUDY_TEMPLATE = (
     </style>
     <link rel="stylesheet" href="/static/nexus-design.css">
     <link rel="stylesheet" href="/static/nexus-analysis-workspace.css">
+    <link rel="stylesheet" href="/static/nexus-factory-studio.css">
 </head>
 <body>
     {{ sidebar_html|safe }}
-    <main class="page nexus-workspace" id="main-content">
+    <main class="page nexus-workspace nexus-maintenance-studio" id="main-content">
         <nav class="workspace-nav" aria-label="AI4I workspace chapters">
             <a href="#workspace-overview">Overview</a>
             <a href="#workspace-exploration">Signals</a>
@@ -230,38 +231,32 @@ CASE_STUDY_TEMPLATE = (
             <a href="#workspace-queue">Maintenance queue</a>
             <a href="#workspace-drift">Drift</a>
         </nav>
-        <section class="hero" id="workspace-overview">
-            <div>
-                <div class="eyebrow">Support Case Study</div>
-                <h1>{{ summary.project }}</h1>
+        <section class="maintenance-console" id="workspace-overview" aria-label="Predictive maintenance decision workspace">
+            <div class="maintenance-console-intro">
+                <div class="studio-overline">NEXUS / OPERATIONS INTELLIGENCE <span>01 — MAINTENANCE STRATEGY</span></div>
+                <div class="maintenance-console-index"><span class="pulse-mark" aria-hidden="true"></span> VALIDATED BENCHMARK · NOT LIVE EQUIPMENT DATA</div>
+                <h1>Maintenance, <em>before failure.</em></h1>
+                <p class="maintenance-console-lede">{{ summary.operational_takeaway }}</p>
+                <div class="maintenance-console-caption"><span>UCI AI4I 2020</span><span>Class imbalance: {{ summary.dataset.failure_rate }}</span><span>Offline, reproducible evaluation</span></div>
             </div>
-            <p class="lede">{{ summary.operational_takeaway }}</p>
-            <div class="workspace-decision"><strong>Decision support</strong><span>Use the offline AI4I benchmark to prioritize maintenance reviews. The evidence here is not a live plant feed.</span></div>
-            <div class="metrics">
-                <div class="metric">
-                    <div class="metric-label">PR-AUC</div>
-                    <div class="metric-value">{{ summary.final_model.pr_auc }}</div>
-                    <div class="metric-note">Primary selection metric because the failure class is only {{ summary.dataset.failure_rate }} of the full dataset.</div>
-                </div>
-                <div class="metric">
-                    <div class="metric-label">ROC-AUC</div>
-                    <div class="metric-value">{{ summary.final_model.roc_auc }}</div>
-                    <div class="metric-note">Strong ranking quality on the imbalanced holdout split.</div>
-                </div>
-                <div class="metric">
-                    <div class="metric-label">F1 at 0.5</div>
-                    <div class="metric-value">{{ summary.final_model.f1 }}</div>
-                    <div class="metric-note">Balanced precision and recall for a simple deployment threshold.</div>
-                </div>
-                <div class="metric">
-                    <div class="metric-label">Queue Lift</div>
-                    <div class="metric-value">{{ summary.review_queue.yield_lift_vs_random }}x</div>
-                    <div class="metric-note">{{ summary.review_queue.selected_budget_label }} beat random review by a wide margin.</div>
-                </div>
-            </div>
+            <aside class="maintenance-command-score" aria-label="Selected review queue outcome">
+                <span class="maintenance-score-eyebrow">PRIORITIZED REVIEW / HOLDOUT</span>
+                <div class="maintenance-score-main">{{ summary.review_queue.failure_capture_rate }}</div>
+                <strong>Failures caught by the selected queue</strong>
+                <p>{{ summary.review_queue.reviewed_assets }} assets reviewed · {{ summary.review_queue.selected_budget_label }}</p>
+                <div class="maintenance-score-line"></div>
+                <span class="maintenance-score-foot">Measured evaluation result. Do not interpret as a live alarm or a deployed work-order system.</span>
+            </aside>
         </section>
+        <section class="maintenance-metrics" aria-label="Predictive maintenance model evidence">
+            <div class="maintenance-metric primary"><span>QUEUE YIELD VS RANDOM</span><strong>{{ summary.review_queue.yield_lift_vs_random }}×</strong><small>Observed triage leverage</small></div>
+            <div class="maintenance-metric"><span>PRECISION–RECALL AUC</span><strong>{{ summary.final_model.pr_auc }}</strong><small>Imbalanced failure classification</small></div>
+            <div class="maintenance-metric"><span>ROC–AUC</span><strong>{{ summary.final_model.roc_auc }}</strong><small>Holdout ranking performance</small></div>
+            <div class="maintenance-metric"><span>F1 AT 0.5</span><strong>{{ summary.final_model.f1 }}</strong><small>Fixed operating threshold</small></div>
+        </section>
+        <div class="maintenance-chapter-title"><span>01 / TRIAGE WORKSPACE</span><h2>Put the right assets first.</h2><p>Review budget and maintenance economics are the main operational decisions; exploratory plots are supporting evidence.</p></div>
 
-        <section class="panel" id="workspace-exploration" style="margin-bottom: 18px;">
+        <section class="panel maintenance-evidence-lab" id="workspace-exploration">
             <h2 class="section-title">Exploratory Data Analysis</h2>
             <div class="chart-gallery">
                 <figure class="chart-frame" style="margin: 0;">
@@ -280,7 +275,7 @@ CASE_STUDY_TEMPLATE = (
             <p class="footer-note">96.6% of the 10,000 rows are normal operation — 3.39% failure rate drives the PR-AUC-first evaluation strategy used throughout this case study.</p>
         </section>
 
-        <section class="grid" id="workspace-benchmark">
+        <section class="grid maintenance-benchmark-studio" id="workspace-benchmark">
             <div class="panel">
                 <h2 class="section-title">What this proves</h2>
                 <ul class="bullet-list">
@@ -316,7 +311,7 @@ CASE_STUDY_TEMPLATE = (
             </div>
         </section>
 
-        <section class="panel" id="workspace-validation" style="margin-top: 18px; margin-bottom: 18px;">
+        <section class="panel maintenance-validation-studio" id="workspace-validation">
             <h2 class="section-title">Model Performance</h2>
             <div class="chart-gallery">
                 <figure class="chart-frame" style="margin: 0;">
@@ -330,9 +325,9 @@ CASE_STUDY_TEMPLATE = (
             </div>
         </section>
 
-        <section class="grid" id="workspace-queue" style="margin-top: 18px;">
+        <section class="grid maintenance-priority-board" id="workspace-queue">
             <div class="panel">
-                <h2 class="section-title">Maintenance Queue</h2>
+                <h2 class="section-title">Review Capacity / Failure Capture</h2>
                 <table>
                     <thead>
                         <tr>
