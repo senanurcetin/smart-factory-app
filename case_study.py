@@ -237,7 +237,7 @@ CASE_STUDY_TEMPLATE = (
                 <div class="maintenance-console-index"><span class="pulse-mark" aria-hidden="true"></span> VALIDATED BENCHMARK · NOT LIVE EQUIPMENT DATA</div>
                 <h1>Maintenance, <em>before failure.</em></h1>
                 <p class="maintenance-console-lede">{{ summary.operational_takeaway }}</p>
-                <div class="maintenance-console-caption"><span>UCI AI4I 2020</span><span>Class imbalance: {{ summary.dataset.failure_rate }}</span><span>Offline, reproducible evaluation</span></div>
+                <div class="maintenance-console-caption"><span>UCI AI4I 2020</span><span>Failure prevalence: {{ "%.2f"|format((summary.dataset.failure_rate | float) * 100) }}%</span><span>Offline, reproducible evaluation</span></div>
             </div>
             <aside class="maintenance-command-score" aria-label="Selected review queue outcome">
                 <span class="maintenance-score-eyebrow">PRIORITIZED REVIEW / HOLDOUT</span>
@@ -374,7 +374,7 @@ CASE_STUDY_TEMPLATE = (
                     <img src="/assets/review-queue-curve.png" alt="Failure capture rate vs. review budget curve">
                     <figcaption class="chart-caption">Capture rate vs. review budget</figcaption>
                 </figure>
-                <p class="footer-note">At the selected `10%` queue, the model captures {{ summary.review_queue.failure_capture_rate }} of holdout failures while reviewing only {{ summary.review_queue.reviewed_assets }} assets.</p>
+                <p class="footer-note">At the selected `10%` queue, the model captures {{ "%.1f"|format((summary.review_queue.failure_capture_rate | float) * 100) }}% of holdout failures while reviewing only {{ summary.review_queue.reviewed_assets }} assets.</p>
             </div>
             <div class="panel">
                 <h2 class="section-title">Illustrative Cost Model</h2>
