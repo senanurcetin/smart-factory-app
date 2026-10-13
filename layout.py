@@ -106,8 +106,8 @@ SIDEBAR_CSS = """
 
 NAV_ITEMS = [
     ("dashboard", "/", "fa-tachometer-alt", "Dashboard"),
-    ("case-study", "/case-study", "fa-chart-line", "Case Study"),
-    ("rul-case-study", "/rul-case-study", "fa-hourglass-half", "RUL Case Study"),
+    ("case-study", "/case-study", "fa-chart-line", "Predictive Maintenance"),
+    ("rul-case-study", "/rul-case-study", "fa-hourglass-half", "RUL Prognostics"),
 ]
 
 FOOTER_NAV_ITEMS = [
@@ -120,7 +120,7 @@ def render_sidebar(active: str) -> str:
     or FOOTER_NAV_ITEMS keys) as the current page."""
 
     def _link(key: str, href: str, icon: str, label: str) -> str:
-        active_class = ' class="active"' if key == active else ""
+        active_class = ' class="active" aria-current="page"' if key == active else ""
         return f'<a href="{href}"{active_class}><i class="fas {icon}"></i> {label}</a>'
 
     links_html = "\n            ".join(_link(*item) for item in NAV_ITEMS)
