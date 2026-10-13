@@ -81,6 +81,8 @@ class E2ESmokeTests(unittest.TestCase):
             "console",
             lambda msg: console_errors.append(msg.text) if msg.type == "error" else None,
         )
+        # Unhandled exceptions are not guaranteed to appear as console errors.
+        page.on("pageerror", lambda error: console_errors.append(str(error)))
         page.goto(f"{BASE_URL}{path}", wait_until="networkidle")
         return page, console_errors
 

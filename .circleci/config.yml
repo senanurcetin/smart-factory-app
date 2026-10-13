@@ -82,7 +82,14 @@ jobs:
           no_output_timeout: 15m
       - run:
           name: Render all real Flask routes and capture desktop/mobile dashboard
-          command: python -m unittest discover -s tests -p 'test_e2e.py' -v
+          command: |
+            set -eu
+            # Prevent a false-green job if unittest skips all browser cases.
+            python -c 'from playwright.sync_api import sync_playwright; assert callable(sync_playwright)'
+            python -m unittest discover -s tests -p 'test_e2e.py' -v
+            # Captures must exist before CircleCI publishes gallery artifacts.
+            test -s artifacts/gallery/smart-factory-dashboard-desktop.png
+            test -s artifacts/gallery/smart-factory-dashboard-mobile.png
           no_output_timeout: 20m
       - store_artifacts:
           path: artifacts/gallery
