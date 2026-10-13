@@ -111,6 +111,10 @@ class SessionReportTests(unittest.TestCase):
         self.assertIn("setStreamState('active', 'SIMULATED STREAM CONNECTED')", html)
         self.assertIn("setStreamState('unavailable', 'STREAM UNAVAILABLE", html)
         self.assertIn("prior values may be stale", html)
+        self.assertIn("const controller = new AbortController()", html)
+        self.assertIn("controller.abort(), 8000", html)
+        self.assertIn("clearTimeout(timeoutId)", html)
+        self.assertIn("Math.max(1000, Math.min(60000, storedRefresh))", html)
         self.assertIn("riskChart.data.datasets[0].data.push(current.RiskScore * 100)", html)
 
     def test_simulated_text_is_rendered_as_data_not_html(self):

@@ -445,9 +445,20 @@ HTML_TEMPLATE = (
         }[ch]));
 
         async function fetchData() {
-            const response = await fetch('/api/data', { cache: 'no-store' });
-            if (!response.ok) throw new Error('Telemetry HTTP ' + response.status);
-            const data = await response.json();
+            // A hung free-tier API must not leave the dashboard permanently
+            // "connected" or block every subsequent refresh attempt.
+            const controller = new AbortController();
+            const timeoutId = setTimeout(() => controller.abort(), 8000);
+            let data;
+            try {
+                const response = await fetch('/api/data', {
+                    cache: 'no-store', signal: controller.signal
+                });
+                if (!response.ok) throw new Error('Telemetry HTTP ' + response.status);
+                data = await response.json();
+            } finally {
+                clearTimeout(timeoutId);
+            }
             if (!data || !data.current_reading || !data.production_stats ||
                 !Array.isArray(data.event_log)) {
                 throw new Error('Incomplete telemetry payload');
@@ -569,7 +580,9 @@ HTML_TEMPLATE = (
             }
         }
 
-        const refreshMs = parseInt(localStorage.getItem('sf_refresh_ms'), 10) || 2000;
+        const storedRefresh = Number.parseInt(localStorage.getItem('sf_refresh_ms'), 10);
+        const refreshMs = Number.isFinite(storedRefresh)
+            ? Math.max(1000, Math.min(60000, storedRefresh)) : 2000;
         setInterval(refreshDashboard, refreshMs);
         document.addEventListener('DOMContentLoaded', refreshDashboard);
     </script>
