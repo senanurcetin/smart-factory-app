@@ -38,6 +38,20 @@ The dashboard is delivered by the existing Flask application, not by the README 
 
 ---
 
+## Genuine Chromium dashboard verification
+
+The [CircleCI browser-quality job](.circleci/config.yml) is configured to launch the actual Flask application in Chromium, run the [end-to-end browser tests](tests/test_e2e.py), check real chart/control interactions and mobile navigation, and retain the resulting application screenshots. This is a **configured test**, not a claim that a CircleCI run has passed.
+
+When executed with `E2E_SCREENSHOT_DIR=artifacts/gallery`, the suite produces:
+
+- `smart-factory-desktop-1440.png` — 1440px executive dashboard after the simulated stream becomes active.
+- `smart-factory-mobile-375.png` — 375px dashboard after checking keyboard navigation and overflow.
+- `smart-factory-telemetry-outage.png` — optional failure-state capture if the outage scenario is reached.
+
+These are renderings of **simulated telemetry**, not readings from real factory hardware. Artifacts remain in the CircleCI job and are **not** automatically copied into the README or portfolio. A successful browser job does not verify that a public Render deployment runs the same commit; screenshots still require human review before publication.
+
+---
+
 ## Live Demo
 
 **[smart-factory-app.onrender.com](https://smart-factory-app.onrender.com)** — deployed via the `render.yaml` blueprint already committed in this repo (Render's free tier, Docker runtime, no manual configuration).

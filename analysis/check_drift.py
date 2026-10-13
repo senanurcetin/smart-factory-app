@@ -135,22 +135,26 @@ def build_drift_report(reference_df: pd.DataFrame, live_batch: pd.DataFrame) -> 
     feature_reports = []
     for col in NUMERIC_FEATURES + DERIVED_FEATURES:
         psi = compute_numeric_psi(reference_df[col], live_batch[col])
-        feature_reports.append({
-            "feature": col,
-            "psi": to_float(psi),
-            "verdict": verdict(psi),
-            "reference_missing_count": int(reference_df[col].isna().sum()),
-            "current_missing_count": int(live_batch[col].isna().sum()),
-        })
+        feature_reports.append(
+            {
+                "feature": col,
+                "psi": to_float(psi),
+                "verdict": verdict(psi),
+                "reference_missing_count": int(reference_df[col].isna().sum()),
+                "current_missing_count": int(live_batch[col].isna().sum()),
+            }
+        )
     for col in CATEGORICAL_FEATURES:
         psi = compute_categorical_psi(reference_df[col], live_batch[col])
-        feature_reports.append({
-            "feature": col,
-            "psi": to_float(psi),
-            "verdict": verdict(psi),
-            "reference_missing_count": int(reference_df[col].isna().sum()),
-            "current_missing_count": int(live_batch[col].isna().sum()),
-        })
+        feature_reports.append(
+            {
+                "feature": col,
+                "psi": to_float(psi),
+                "verdict": verdict(psi),
+                "reference_missing_count": int(reference_df[col].isna().sum()),
+                "current_missing_count": int(live_batch[col].isna().sum()),
+            }
+        )
 
     feature_reports.sort(key=lambda row: row["psi"], reverse=True)
     drifted = [row for row in feature_reports if row["verdict"] != "no_significant_drift"]

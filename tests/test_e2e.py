@@ -14,11 +14,11 @@ in README.md), so no retraining is needed to serve real pages here.
 from __future__ import annotations
 
 import os
-from pathlib import Path
 import threading
 import time
 import unittest
 import urllib.request
+from pathlib import Path
 from urllib.error import URLError
 
 from werkzeug.serving import make_server
@@ -82,6 +82,8 @@ class E2ESmokeTests(unittest.TestCase):
             "console",
             lambda msg: console_errors.append(msg.text) if msg.type == "error" else None,
         )
+        # Runtime exceptions can occur without a console-error message.
+        page.on("pageerror", lambda error: console_errors.append(str(error)))
         page.goto(f"{BASE_URL}{path}", wait_until="networkidle")
         return page, console_errors
 
@@ -109,17 +111,26 @@ class E2ESmokeTests(unittest.TestCase):
         try:
             page.set_viewport_size({"width": 1440, "height": 900})
             page.wait_for_function(
-                "() => document.querySelector('#nexus-stream-badge')"
-                ".dataset.state === 'active'", timeout=15000
+                "() => document.querySelector('#nexus-stream-badge')" ".dataset.state === 'active'",
+                timeout=15000,
             )
-            self.assertTrue(page.is_visible(".nexus-hero"))
+            self.assertTrue(page.is_visible(".nexus-eyebrow"))
+            self.assertTrue(page.is_visible(".nexus-hero-chips"))
             self.assertTrue(page.is_visible("#riskChart"))
             self.assertTrue(page.is_visible("#nexus-stream-badge"))
             self.assertTrue(page.is_visible('a[href="/api/report.csv"]'))
+            # A single data point makes genuine charts look empty in screenshots.
+            page.wait_for_function(
+                "() => window.Chart && Chart.getChart('riskChart') && "
+                "Chart.getChart('riskChart').data.labels.length >= 5",
+                timeout=25000,
+            )
             output = os.environ.get("E2E_SCREENSHOT_DIR")
             if output:
                 Path(output).mkdir(parents=True, exist_ok=True)
-                page.screenshot(path=str(Path(output) / "smart-factory-desktop-1440.png"), full_page=True)
+                page.screenshot(
+                    path=str(Path(output) / "smart-factory-desktop-1440.png"), full_page=True
+                )
             self.assertEqual(console_errors, [])
         finally:
             page.close()
@@ -131,22 +142,28 @@ class E2ESmokeTests(unittest.TestCase):
             page.wait_for_timeout(300)
             self.assertLessEqual(
                 page.evaluate("document.documentElement.scrollWidth"),
-                page.evaluate("document.documentElement.clientWidth") + 1
+                page.evaluate("document.documentElement.clientWidth") + 1,
             )
             page.click("#sidebar-toggle")
             self.assertEqual(page.locator("#sidebar-toggle").get_attribute("aria-expanded"), "true")
             self.assertTrue(page.evaluate("document.body.classList.contains('sf-nav-open')"))
             self.assertTrue(page.is_visible(".sidebar.open"))
             page.keyboard.press("Escape")
-            self.assertEqual(page.locator("#sidebar-toggle").get_attribute("aria-expanded"), "false")
+            self.assertEqual(
+                page.locator("#sidebar-toggle").get_attribute("aria-expanded"), "false"
+            )
             self.assertFalse(page.evaluate("document.body.classList.contains('sf-nav-open')"))
             self.assertFalse(page.is_visible(".sidebar.open"))
             page.locator("#riskChart").scroll_into_view_if_needed()
             self.assertTrue(page.is_visible("#riskChart"))
+            # Full-page captures should begin at the viewport top after interaction.
+            page.evaluate("window.scrollTo(0, 0)")
             output = os.environ.get("E2E_SCREENSHOT_DIR")
             if output:
                 Path(output).mkdir(parents=True, exist_ok=True)
-                page.screenshot(path=str(Path(output) / "smart-factory-mobile-375.png"), full_page=True)
+                page.screenshot(
+                    path=str(Path(output) / "smart-factory-mobile-375.png"), full_page=True
+                )
             self.assertEqual(console_errors, [])
         finally:
             page.close()
@@ -158,15 +175,11 @@ class E2ESmokeTests(unittest.TestCase):
         page.goto(BASE_URL + "/", wait_until="load")
         page.wait_for_function(
             "() => document.getElementById('nexus-stream-badge')"
-            ".dataset.state === 'unavailable'", timeout=15000
+            ".dataset.state === 'unavailable'",
+            timeout=15000,
         )
-        self.assertTrue(page.evaluate(
-            "document.body.classList.contains('sf-telemetry-stale')"
-        ))
-        self.assertIn(
-            "STREAM UNAVAILABLE",
-            page.locator("#nexus-stream-label").inner_text()
-        )
+        self.assertTrue(page.evaluate("document.body.classList.contains('sf-telemetry-stale')"))
+        self.assertIn("STREAM UNAVAILABLE", page.locator("#nexus-stream-label").inner_text())
         output = os.environ.get("E2E_SCREENSHOT_DIR")
         if output:
             Path(output).mkdir(parents=True, exist_ok=True)
@@ -233,7 +246,8 @@ class E2ESmokeTests(unittest.TestCase):
             self.assertEqual(open_transform, "matrix(1, 0, 0, 1, 0, 0)")
             self.assertTrue(page.is_visible(".sidebar.open"))
 
-            page.click(".sidebar-backdrop")
+            # Click the backdrop OUTSIDE the 250px sidebar, not its covered center.
+            page.mouse.click(350, 400)
             self.assertFalse(page.is_visible(".sidebar.open"))
             self.assertEqual(console_errors, [])
         finally:

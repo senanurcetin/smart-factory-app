@@ -61,7 +61,43 @@ jobs:
           name: Import Flask app
           command: python -c "import main; print(main.app.name)"
 
+
+  browser-quality:
+    docker:
+      - image: cimg/python:3.11
+    resource_class: medium
+    working_directory: ~/project
+    steps:
+      - checkout
+      - restore_cache:
+          keys:
+            - smart-factory-pip-v1-{{ checksum "requirements-dev.txt" }}
+            - smart-factory-pip-v1-
+      - run:
+          name: Install application and locked browser dependencies
+          command: python -m pip install -r requirements-dev.txt
+          no_output_timeout: 15m
+      - run:
+          name: Install real Chromium with required system dependencies
+          command: python -m playwright install --with-deps chromium
+          no_output_timeout: 15m
+      - run:
+          name: Run real Flask browser checks and capture screenshots
+          command: |
+            set -eu
+            export E2E_SCREENSHOT_DIR=artifacts/gallery
+            # Fail rather than silently skipping all browser tests.
+            python -c 'from playwright.sync_api import sync_playwright; assert callable(sync_playwright)'
+            python -m unittest discover -s tests -p 'test_e2e.py' -v
+            test -s artifacts/gallery/smart-factory-desktop-1440.png
+            test -s artifacts/gallery/smart-factory-mobile-375.png
+          no_output_timeout: 20m
+      - store_artifacts:
+          path: artifacts/gallery
+          destination: real-dashboard-screenshots
+
 workflows:
   verify:
     jobs:
       - python-quality
+      - browser-quality
