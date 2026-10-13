@@ -23,6 +23,15 @@ class SettingsRouteTests(unittest.TestCase):
         self.assertIn(b"Preferences", response.data)
         self.assertIn(b"Model Card", response.data)
 
+    def test_refresh_preference_matches_dashboard_polling_and_nexus_palette(self):
+        client = app.test_client()
+        settings_html = client.get("/settings").get_data(as_text=True)
+        dashboard_html = client.get("/").get_data(as_text=True)
+        self.assertIn('<option value="500">0.5s</option>', settings_html)
+        self.assertIn("Math.max(500, Math.min(60000, storedRefresh))", dashboard_html)
+        self.assertIn("--accent: #4ea8ff", settings_html)
+        self.assertIn("--accent-2: #8f9bff", settings_html)
+
     def test_sidebar_settings_link_is_wired(self):
         client = app.test_client()
         response = client.get("/")

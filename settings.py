@@ -41,8 +41,8 @@ SETTINGS_TEMPLATE = (
             --border: #223856;
             --text: #edf4ff;
             --muted: #9fb4d1;
-            --accent: #5eead4;
-            --accent-2: #60a5fa;
+            --accent: #4ea8ff;
+            --accent-2: #8f9bff;
         }
         * { box-sizing: border-box; }
         body {
@@ -131,6 +131,7 @@ SETTINGS_TEMPLATE = (
             .model-grid { grid-template-columns: 1fr; }
         }
     </style>
+    <link rel="stylesheet" href="/static/nexus-design.css">
 </head>
 <body>
     {{ sidebar_html|safe }}

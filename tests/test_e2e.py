@@ -13,6 +13,8 @@ in README.md), so no retraining is needed to serve real pages here.
 
 from __future__ import annotations
 
+import os
+from pathlib import Path
 import threading
 import time
 import unittest
@@ -101,6 +103,77 @@ class E2ESmokeTests(unittest.TestCase):
             self.assertEqual(console_errors, [])
         finally:
             page.close()
+
+    def test_nexus_executive_design_at_1440_and_optional_screenshot(self):
+        page, console_errors = self._open("/")
+        try:
+            page.set_viewport_size({"width": 1440, "height": 900})
+            page.wait_for_function(
+                "() => document.querySelector('#nexus-stream-badge')"
+                ".dataset.state === 'active'", timeout=15000
+            )
+            self.assertTrue(page.is_visible(".nexus-hero"))
+            self.assertTrue(page.is_visible("#riskChart"))
+            self.assertTrue(page.is_visible("#nexus-stream-badge"))
+            self.assertTrue(page.is_visible('a[href="/api/report.csv"]'))
+            output = os.environ.get("E2E_SCREENSHOT_DIR")
+            if output:
+                Path(output).mkdir(parents=True, exist_ok=True)
+                page.screenshot(path=str(Path(output) / "smart-factory-desktop-1440.png"), full_page=True)
+            self.assertEqual(console_errors, [])
+        finally:
+            page.close()
+
+    def test_nexus_mobile_menu_keyboard_navigation_and_overflow(self):
+        page, console_errors = self._open("/")
+        try:
+            page.set_viewport_size({"width": 375, "height": 812})
+            page.wait_for_timeout(300)
+            self.assertLessEqual(
+                page.evaluate("document.documentElement.scrollWidth"),
+                page.evaluate("document.documentElement.clientWidth") + 1
+            )
+            page.click("#sidebar-toggle")
+            self.assertEqual(page.locator("#sidebar-toggle").get_attribute("aria-expanded"), "true")
+            self.assertTrue(page.evaluate("document.body.classList.contains('sf-nav-open')"))
+            self.assertTrue(page.is_visible(".sidebar.open"))
+            page.keyboard.press("Escape")
+            self.assertEqual(page.locator("#sidebar-toggle").get_attribute("aria-expanded"), "false")
+            self.assertFalse(page.evaluate("document.body.classList.contains('sf-nav-open')"))
+            self.assertFalse(page.is_visible(".sidebar.open"))
+            page.locator("#riskChart").scroll_into_view_if_needed()
+            self.assertTrue(page.is_visible("#riskChart"))
+            output = os.environ.get("E2E_SCREENSHOT_DIR")
+            if output:
+                Path(output).mkdir(parents=True, exist_ok=True)
+                page.screenshot(path=str(Path(output) / "smart-factory-mobile-375.png"), full_page=True)
+            self.assertEqual(console_errors, [])
+        finally:
+            page.close()
+
+    def test_nexus_stale_metrics_are_visibly_distinct_on_api_failure(self):
+        page = self.browser.new_page(viewport={"width": 1440, "height": 900})
+        self.addCleanup(page.close)
+        page.route("**/api/data", lambda route: route.abort("failed"))
+        page.goto(BASE_URL + "/", wait_until="load")
+        page.wait_for_function(
+            "() => document.getElementById('nexus-stream-badge')"
+            ".dataset.state === 'unavailable'", timeout=15000
+        )
+        self.assertTrue(page.evaluate(
+            "document.body.classList.contains('sf-telemetry-stale')"
+        ))
+        self.assertIn(
+            "STREAM UNAVAILABLE",
+            page.locator("#nexus-stream-label").inner_text()
+        )
+        output = os.environ.get("E2E_SCREENSHOT_DIR")
+        if output:
+            Path(output).mkdir(parents=True, exist_ok=True)
+            page.screenshot(
+                path=str(Path(output) / "smart-factory-telemetry-outage.png"),
+                full_page=True,
+            )
 
     def test_case_study_loads_with_charts(self):
         page, console_errors = self._open("/case-study")

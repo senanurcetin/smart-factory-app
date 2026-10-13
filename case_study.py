@@ -216,6 +216,7 @@ CASE_STUDY_TEMPLATE = (
             .grid { grid-template-columns: 1fr; }
         }
     </style>
+    <link rel="stylesheet" href="/static/nexus-design.css">
 </head>
 <body>
     {{ sidebar_html|safe }}

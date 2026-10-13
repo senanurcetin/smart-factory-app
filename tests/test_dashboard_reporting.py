@@ -84,6 +84,50 @@ class SessionReportTests(unittest.TestCase):
             with self.subTest(contract=contract):
                 self.assertIn(contract, html)
 
+    def test_nexus_dashboard_uses_real_shared_portfolio_design(self):
+        from layout import render_sidebar
+
+        html = self.client.get("/").get_data(as_text=True)
+        self.assertIn('href="/static/nexus-design.css"', html)
+        self.assertIn("NEXUS / INDUSTRIAL INTELLIGENCE", html)
+        self.assertIn("NOT REAL PLANT DATA", html)
+        self.assertIn("nexus-hero-chips", html)
+        self.assertIn("nexus-section-label", html)
+        self.assertIn('class="nexus-data-chip"', html)
+        self.assertIn('id="tempChart" role="img"', html)
+        self.assertIn('id="vibrationChart" role="img"', html)
+        self.assertIn("interaction: { intersect: false, mode: 'index' }", html)
+        sidebar = render_sidebar("dashboard")
+        self.assertIn('class="nexus-mark">NEXUS', sidebar)
+        self.assertIn('href="/" class="active"', sidebar)
+        self.assertIn('aria-controls="sidebar"', sidebar)
+        self.assertIn("event.key === 'Escape'", sidebar)
+        self.assertIn("document.body.classList.toggle('sf-nav-open', visible)", sidebar)
+        self.assertIn("sidebar.classList.toggle('open', visible)", sidebar)
+
+    def test_stream_connection_is_distinct_from_scored_machine_risk(self):
+        html = self.client.get("/").get_data(as_text=True)
+        self.assertIn('id="nexus-stream-badge" data-state="connecting"', html)
+        self.assertIn("setStreamState('active', 'SIMULATED STREAM CONNECTED')", html)
+        self.assertIn("setStreamState('unavailable', 'STREAM UNAVAILABLE", html)
+        self.assertIn("prior values may be stale", html)
+        self.assertIn("document.body.classList.toggle('sf-telemetry-stale'", html)
+        self.assertIn("const controller = new AbortController()", html)
+        self.assertIn("controller.abort(), 8000", html)
+        self.assertIn("clearTimeout(timeoutId)", html)
+        self.assertIn("Math.max(500, Math.min(60000, storedRefresh))", html)
+        self.assertIn("riskChart.data.datasets[0].data.push(current.RiskScore * 100)", html)
+
+    def test_simulated_text_is_rendered_as_data_not_html(self):
+        html = self.client.get("/").get_data(as_text=True)
+        self.assertIn("const escapeHtml = value => String(value ?? '')", html)
+        self.assertIn("escapeHtml(current.Operator)", html)
+        self.assertIn("escapeHtml(current.Shift_ID)", html)
+        self.assertIn("escapeHtml(current.Type)", html)
+        self.assertIn("when.textContent", html)
+        self.assertIn("document.createTextNode", html)
+        self.assertNotIn("logBox.innerHTML +=", html)
+
     def test_dashboard_renders_live_chart_and_derived_oee(self):
         response = self.client.get("/")
         self.assertEqual(response.status_code, 200)

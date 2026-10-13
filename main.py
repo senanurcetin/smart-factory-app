@@ -322,6 +322,7 @@ HTML_TEMPLATE = (
         }
 
     </style>
+    <link rel="stylesheet" href="/static/nexus-design.css">
 </head>
 <body>
     {{ sidebar_html|safe }}
@@ -334,9 +335,11 @@ HTML_TEMPLATE = (
 
     <main class="main-content" id="main-content">
         <div class="page-header">
+            <div class="nexus-eyebrow">NEXUS / INDUSTRIAL INTELLIGENCE <span>01 — OPERATIONS</span></div>
             <h1 class="page-title">Industrial Analytics Dashboard</h1>
             <p class="page-subtitle">AI4I-simulated telemetry · trained model risk scoring · transparent KPI definitions</p>
-            <div class="report-actions"><span class="source-label">SIMULATED PLANT DATA + TRAINED ML MODEL · SHARED DEMO STREAM</span><a class="btn btn-outline-primary" href="/api/report.csv" download="smart-factory-demo-telemetry.csv"><i class="fas fa-file-csv me-2" aria-hidden="true"></i>Export shared demo readings (CSV)</a><span id="telemetry-clock" class="text-muted small" aria-live="polite">Awaiting a simulated reading</span></div>
+            <div class="nexus-hero-chips" aria-label="Data classification"><span>SIMULATED SENSOR STREAM</span><span>TRAINED ML CLASSIFIER</span><span>NOT REAL PLANT DATA</span></div>
+            <div class="report-actions"><span class="nexus-stream-badge" id="nexus-stream-badge" data-state="connecting" role="status" aria-live="polite"><span class="nexus-stream-dot" aria-hidden="true"></span><span id="nexus-stream-label">CONNECTING TO DEMO STREAM</span></span><span class="source-label">SIMULATED PLANT DATA + TRAINED ML MODEL · SHARED DEMO STREAM</span><a class="btn btn-outline-primary" href="/api/report.csv" download="smart-factory-demo-telemetry.csv"><i class="fas fa-file-csv me-2" aria-hidden="true"></i>Export shared demo readings (CSV)</a><span id="telemetry-clock" class="text-muted small" aria-live="polite">Awaiting a simulated reading</span></div>
         </div>
         <div class="dashboard-intro">
             <i class="fas fa-circle-info"></i>
@@ -345,6 +348,7 @@ HTML_TEMPLATE = (
                 <a href="/case-study">Case Study</a> (PR-AUC 0.90 on held-out data). The <strong>Failure Risk Score</strong> is computed by the trained classifier on synthetic sensors; the <strong>RUL Proxy</strong> is a risk-derived heuristic, <em>not</em> a calibrated remaining-life regression. OEE, production and costs use simulated plant counters. For actual evaluated regression, open the RUL Case Study.
             </p>
         </div>
+        <div class="nexus-section-label">01 / LIVE OPERATIONS OVERVIEW</div>
         <div class="row g-4">
             <!-- KPI ROW with fixed height cards -->
             <div class="col-lg-3 col-6"><div class="bento-card kpi-card text-center"><div class="kpi-card-title">Failure Risk Score <span class="risk-badge" id="kpi-risk-badge">--</span></div><div class="kpi-card-value" id="kpi-risk">—</div><div class="kpi-card-caption is-model"><i class="fas fa-robot"></i> Live model output</div></div></div>
@@ -353,11 +357,11 @@ HTML_TEMPLATE = (
             <div class="col-lg-3 col-6"><div class="bento-card kpi-card text-center"><div class="kpi-card-title">Net Production</div><div class="kpi-card-value" id="kpi-prod">—</div><div class="kpi-card-caption is-sim"><i class="fas fa-shuffle"></i> Simulated telemetry</div></div></div>
 
             <!-- CHART ROW with fixed height cards and containers -->
-            <div class="col-lg-6"><div class="bento-card chart-card"><h5>Real-time Temperature Analysis</h5><p class="small text-muted mb-2">Process temperature (model input)</p><div class="chart-container"><canvas id="tempChart"></canvas></div></div></div>
-            <div class="col-lg-6"><div class="bento-card chart-card"><h5>Real-time Tool Wear Analysis</h5><p class="small text-muted mb-2">Tool wear accumulation (model input)</p><div class="chart-container"><canvas id="vibrationChart"></canvas></div></div></div>
+            <div class="col-lg-6"><div class="bento-card chart-card"><h5>Real-time Temperature Analysis <span class="nexus-data-chip">SIMULATED INPUT · °C</span></h5><p class="small text-muted mb-2">Process temperature (model input)</p><div class="chart-container"><canvas id="tempChart" role="img" aria-label="Temperature over simulated time"></canvas></div></div></div>
+            <div class="col-lg-6"><div class="bento-card chart-card"><h5>Real-time Tool Wear Analysis <span class="nexus-data-chip">SIMULATED INPUT · MIN</span></h5><p class="small text-muted mb-2">Tool wear accumulation (model input)</p><div class="chart-container"><canvas id="vibrationChart" role="img" aria-label="Tool wear over simulated time"></canvas></div></div></div>
 
             <!-- Model outputs and OEE calculation are bound to the same API stream -->
-            <div class="col-lg-8"><div class="bento-card chart-card"><h5>Model Risk Score Trend</h5><p class="small text-muted mb-2">Trained AI4I classifier score on synthetic sensors. Higher means more model-assessed risk; not a calibrated failure probability.</p><div class="chart-container"><canvas id="riskChart" aria-label="Model risk score trend over simulated timestamps" role="img"></canvas></div></div></div>
+            <div class="col-lg-8"><div class="bento-card chart-card"><h5>Model Risk Score Trend <span class="nexus-data-chip nexus-model-chip">MODEL OUTPUT · 0–100</span></h5><p class="small text-muted mb-2">Trained AI4I classifier score on synthetic sensors. Higher means more model-assessed risk; not a calibrated failure probability.</p><div class="chart-container"><canvas id="riskChart" aria-label="Model risk score trend over simulated timestamps" role="img"></canvas></div></div></div>
             <div class="col-lg-4"><div class="bento-card chart-card"><h5>OEE Decomposition</h5><p class="small text-muted">Availability × Performance × Quality</p><div class="metric-breakdown">
               <div class="metric"><div class="metric-row"><span>Availability</span><strong id="oee-availability">—</strong></div><div class="progress"><div class="progress-bar" id="oee-availability-bar" style="width:0%"></div></div></div>
               <div class="metric"><div class="metric-row"><span>Performance</span><strong id="oee-performance">—</strong></div><div class="progress"><div class="progress-bar" id="oee-performance-bar" style="width:0%"></div></div></div>
@@ -376,10 +380,22 @@ HTML_TEMPLATE = (
             responsive: true,
             maintainAspectRatio: false, // CRITICAL: Allows chart to fill container height
             animation: false,
-            plugins: { legend: { display: false } },
+            plugins: {
+                legend: { display: false },
+                tooltip: {
+                    backgroundColor: '#091c31',
+                    titleColor: '#f1f7ff',
+                    bodyColor: '#c3d9f1',
+                    borderColor: 'rgba(78, 168, 255, 0.42)',
+                    borderWidth: 1,
+                    padding: 12,
+                    displayColors: false
+                }
+            },
+            interaction: { intersect: false, mode: 'index' },
             scales: {
-                x: { grid: { display: false }, ticks: { color: '#9ca3af' } },
-                y: { grid: { color: 'rgba(148, 163, 184, 0.15)' }, ticks: { color: '#9ca3af' } }
+                x: { grid: { display: false }, ticks: { color: '#b5c9e1', maxTicksLimit: 7, maxRotation: 0 } },
+                y: { grid: { color: 'rgba(135, 179, 224, 0.13)' }, ticks: { color: '#b5c9e1', maxTicksLimit: 6 } }
             }
         };
         const tempChart = new Chart(document.getElementById('tempChart'), {
@@ -422,10 +438,27 @@ HTML_TEMPLATE = (
             } }
         });
 
+        // Text produced by the simulated API is data, not executable markup.
+        // Never insert operator names or event descriptions as raw HTML.
+        const escapeHtml = value => String(value ?? '').replace(/[&<>"']/g, ch => ({
+            '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
+        }[ch]));
+
         async function fetchData() {
-            const response = await fetch('/api/data', { cache: 'no-store' });
-            if (!response.ok) throw new Error('Telemetry HTTP ' + response.status);
-            const data = await response.json();
+            // A hung free-tier API must not leave the dashboard permanently
+            // "connected" or block every subsequent refresh attempt.
+            const controller = new AbortController();
+            const timeoutId = setTimeout(() => controller.abort(), 8000);
+            let data;
+            try {
+                const response = await fetch('/api/data', {
+                    cache: 'no-store', signal: controller.signal
+                });
+                if (!response.ok) throw new Error('Telemetry HTTP ' + response.status);
+                data = await response.json();
+            } finally {
+                clearTimeout(timeoutId);
+            }
             if (!data || !data.current_reading || !data.production_stats ||
                 !Array.isArray(data.event_log)) {
                 throw new Error('Incomplete telemetry payload');
@@ -463,11 +496,11 @@ HTML_TEMPLATE = (
             // --- Update Shift Info Panel ---
             const shiftPanel = document.getElementById('shift-info-panel');
             shiftPanel.innerHTML = `
-                <div class="info-list-item"><span class="label">Shift ID</span><span class="value">${current.Shift_ID}</span></div>
-                <div class="info-list-item"><span class="label">Operator</span><span class="value">${current.Operator}</span></div>
+                <div class="info-list-item"><span class="label">Shift ID</span><span class="value">${escapeHtml(current.Shift_ID)}</span></div>
+                <div class="info-list-item"><span class="label">Operator</span><span class="value">${escapeHtml(current.Operator)}</span></div>
                 <div class="info-list-item"><span class="label">Cycle Time</span><span class="value">${current.Cycle_Time.toFixed(1)}s</span></div>
                 <div class="info-list-item"><span class="label">Power Factor</span><span class="value">${current.Power_Factor.toFixed(2)}</span></div>
-                <div class="info-list-item"><span class="label">Machine Type</span><span class="value">${current.Type}</span></div>
+                <div class="info-list-item"><span class="label">Machine Type</span><span class="value">${escapeHtml(current.Type)}</span></div>
                 <div class="info-list-item"><span class="label">Energy Cost</span><span class="value">$${current.Energy_Cost_Per_Hour.toFixed(2)}/hr</span></div>
             `;
 
@@ -504,9 +537,14 @@ HTML_TEMPLATE = (
 
             // --- Update Log Box ---
             const logBox = document.getElementById('log-box');
-            logBox.innerHTML = '';
+            logBox.replaceChildren();
             events.forEach(event => {
-                logBox.innerHTML += `<p><span class="text-muted">[${event.timestamp}]</span> ${event.message}</p>`;
+                const line = document.createElement('p');
+                const when = document.createElement('span');
+                when.className = 'text-muted';
+                when.textContent = '[' + String(event.timestamp ?? '') + ']';
+                line.append(when, document.createTextNode(' ' + String(event.message ?? '')));
+                logBox.appendChild(line);
             });
             logBox.scrollTop = logBox.scrollHeight;
         }
@@ -516,6 +554,15 @@ HTML_TEMPLATE = (
             if (overlay) overlay.classList.add('hidden');
         }
 
+        // Reflect transport health separately from the model failure-risk score:
+        // cached measurements are not proof that the stream is still connected.
+        function setStreamState(state, text) {
+            const badge = document.getElementById('nexus-stream-badge');
+            const label = document.getElementById('nexus-stream-label');
+            if (badge) badge.dataset.state = state;
+            if (label) label.textContent = text;
+            document.body.classList.toggle('sf-telemetry-stale', state === 'unavailable');
+        }
         // Slow free-tier responses cannot race and overwrite newer readings.
         let dashboardRefreshing = false;
         async function refreshDashboard() {
@@ -523,16 +570,20 @@ HTML_TEMPLATE = (
             dashboardRefreshing = true;
             try {
                 await fetchData();
+                setStreamState('active', 'SIMULATED STREAM CONNECTED');
             } catch (_error) {
+                setStreamState('unavailable', 'STREAM UNAVAILABLE · RETRYING');
                 document.getElementById('telemetry-clock').textContent =
-                    'Telemetry temporarily unavailable — retrying automatically';
+                    'Telemetry temporarily unavailable — retrying automatically (prior values may be stale)';
             } finally {
                 dashboardRefreshing = false;
                 hideColdStartOverlay();
             }
         }
 
-        const refreshMs = parseInt(localStorage.getItem('sf_refresh_ms'), 10) || 2000;
+        const storedRefresh = Number.parseInt(localStorage.getItem('sf_refresh_ms'), 10);
+        const refreshMs = Number.isFinite(storedRefresh)
+            ? Math.max(500, Math.min(60000, storedRefresh)) : 2000;
         setInterval(refreshDashboard, refreshMs);
         document.addEventListener('DOMContentLoaded', refreshDashboard);
     </script>
