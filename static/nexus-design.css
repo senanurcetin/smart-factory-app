@@ -202,3 +202,16 @@ a:focus-visible, button:focus-visible, select:focus-visible {
   .sidebar { transition:none!important; }
   .sidebar-backdrop { backdrop-filter:none!important; }
 }
+
+/* At portfolio capture sizes, editorial captions remain 11–12px
+   instead of shrinking to unreadable decorative microtype. */
+.nexus-eyebrow,.nexus-section-label { font-size:.75rem;line-height:1.5; }
+.nexus-hero-chips span { font-size:.73rem;line-height:1.4; }
+.nexus-data-chip { font-size:.7rem;line-height:1.35; }
+.nexus-stream-badge { font-size:.72rem;line-height:1.45; }
+.sidebar-footer::after { font-size:.67rem;line-height:1.5; }
+.main-content .kpi-card-caption { font-size:.72rem;line-height:1.45; }
+@media(max-width:575px) {
+  .nexus-eyebrow,.nexus-section-label { font-size:.7rem; }
+  .nexus-hero-chips span,.nexus-data-chip,.nexus-stream-badge { font-size:.69rem; }
+}
