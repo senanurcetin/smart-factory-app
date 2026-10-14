@@ -212,10 +212,10 @@
   min-width: 0;
   overflow: hidden;
   margin-top: 8px;
-  background: #f5f9ff;
-  border: 1px solid #638bb3;
+  background: #0f1929; /* Exact source-chart canvas; no light frame around dark plots. */
+  border: 1px solid rgba(117, 167, 214, .25);
   border-radius: 12px;
-  padding: 12px;
+  padding: 10px;
 }
 .nexus-workspace .chart-frame img {
   max-width: 100%;
@@ -225,7 +225,7 @@
 }
 .nexus-workspace .chart-caption {
   margin-top: 9px;
-  color: #344d68;
+  color: #aec8e5;
   font-size: 11px;
   font-weight: 740;
   text-transform: uppercase;

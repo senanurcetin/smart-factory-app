@@ -84,7 +84,7 @@
 .nexus-maintenance-studio table,.nexus-prognostics-studio table{font-variant-numeric:tabular-nums}
 .nexus-maintenance-studio th,.nexus-prognostics-studio th{font-size:10px;letter-spacing:.07em;color:#a9caed}
 .nexus-maintenance-studio tbody td,.nexus-prognostics-studio tbody td{font-size:11px;color:#d2e1f2}
-.nexus-maintenance-studio .chart-frame,.nexus-prognostics-studio .chart-frame{border-radius:12px;background:#f7fbff;border-color:#7094bb;padding:11px}
+.nexus-maintenance-studio .chart-frame,.nexus-prognostics-studio .chart-frame{border-radius:12px;background:#0f1929;border-color:rgba(117,167,214,.25);padding:10px}
 .nexus-maintenance-studio .chart-frame img,.nexus-prognostics-studio .chart-frame img{border-radius:7px;display:block;width:100%}
 .nexus-maintenance-studio .chart-caption,.nexus-prognostics-studio .chart-caption{padding-top:9px;color:#4c6785;font-size:10px;text-transform:uppercase;letter-spacing:.06em}
 .nexus-maintenance-studio .signal-list,.nexus-prognostics-studio .prognostics-signals{display:grid;gap:7px}
@@ -103,9 +103,9 @@
 .nexus-prognostics-studio .prognostics-metric:before{background:#a99bf4}
 .nexus-prognostics-studio .prognostics-visual-studio{padding:25px;background:linear-gradient(135deg,#0c2945,#0b2038)}
 .nexus-prognostics-studio .prognostics-visual-studio .chart-gallery{display:grid;grid-template-columns:minmax(0,1.25fr) minmax(0,1fr);grid-template-rows:auto auto;gap:17px}
-.nexus-prognostics-studio .prognostics-visual-studio .chart-gallery figure:first-child{grid-row:span 2;display:flex;flex-direction:column;justify-content:center;background:#eff6ff}
+.nexus-prognostics-studio .prognostics-visual-studio .chart-gallery figure:first-child{grid-row:span 2;display:flex;flex-direction:column;justify-content:center;background:#0f1929}
 .nexus-prognostics-studio .prognostics-visual-studio .chart-gallery figure:first-child img{max-height:670px;object-fit:contain}
-.nexus-prognostics-studio .prognostics-visual-studio .chart-gallery figure:nth-child(2),.nexus-prognostics-studio .prognostics-visual-studio .chart-gallery figure:nth-child(3){background:#f5f9ff}
+.nexus-prognostics-studio .prognostics-visual-studio .chart-gallery figure:nth-child(2),.nexus-prognostics-studio .prognostics-visual-studio .chart-gallery figure:nth-child(3){background:#0f1929}
 .nexus-prognostics-studio .prognostics-benchmark{grid-template-columns:minmax(0,.9fr) minmax(0,1.1fr)}
 .nexus-prognostics-studio .prognostics-engineering{grid-template-columns:minmax(0,1fr) minmax(0,1fr)}
 @media(max-width:1160px){
