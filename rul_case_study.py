@@ -24,7 +24,29 @@ RUL_CASE_STUDY_TEMPLATE = (
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Smart Factory RUL Case Study</title>
+    <title>Smart Factory RUL Prognostics | NASA C-MAPSS Study</title>
+    <link rel="icon" type="image/svg+xml" href="/assets/seo/favicon.svg">
+    <meta name="description" content="NASA C-MAPSS remaining useful life regression study, with held-out engine evaluation, documented model limits and baseline comparisons.">
+    <meta name="robots" content="index,follow,max-image-preview:large">
+    <meta name="theme-color" content="#071829">
+    <meta property="og:type" content="website">
+    <meta property="og:site_name" content="NEXUS">
+    <meta property="og:locale" content="en_US">
+    <meta property="og:title" content="Smart Factory RUL Prognostics | NASA C-MAPSS Study">
+    <meta property="og:description" content="NASA C-MAPSS remaining useful life regression study, with held-out engine evaluation, documented model limits and baseline comparisons.">
+    <meta property="og:url" content="https://smart-factory-app.onrender.com/rul-case-study">
+    <meta property="og:image" content="https://smart-factory-app.onrender.com/assets/seo/rul-social.jpg">
+    <meta property="og:image:secure_url" content="https://smart-factory-app.onrender.com/assets/seo/rul-social.jpg">
+    <meta property="og:image:width" content="1200">
+    <meta property="og:image:height" content="630">
+    <meta property="og:image:type" content="image/jpeg">
+    <meta property="og:image:alt" content="NASA C-MAPSS RUL benchmark dashboard">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Smart Factory RUL Prognostics | NASA C-MAPSS Study">
+    <meta name="twitter:description" content="NASA C-MAPSS remaining useful life regression study, with held-out engine evaluation, documented model limits and baseline comparisons.">
+    <meta name="twitter:image" content="https://smart-factory-app.onrender.com/assets/seo/rul-social.jpg">
+    <link rel="canonical" href="https://smart-factory-app.onrender.com/rul-case-study">
+    <script type="application/ld+json">{"@context":"https://schema.org","@type":"WebPage","name":"Smart Factory RUL Prognostics | NASA C-MAPSS Study","description":"NASA C-MAPSS remaining useful life regression study, with held-out engine evaluation, documented model limits and baseline comparisons.","url":"https://smart-factory-app.onrender.com/rul-case-study","isPartOf":{"@type":"WebSite","name":"NEXUS","url":"https://smart-factory-app.onrender.com/"},"primaryImageOfPage":{"@type":"ImageObject","url":"https://smart-factory-app.onrender.com/assets/seo/rul-social.jpg"}}</script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <style>"""

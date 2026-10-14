@@ -82,7 +82,29 @@ HTML_TEMPLATE = (
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Smart Factory | Industrial Analytics Dashboard</title>
+    <title>NEXUS Smart Factory | Industrial Analytics Dashboard</title>
+    <link rel="icon" type="image/svg+xml" href="/assets/seo/favicon.svg">
+    <meta name="description" content="Simulated AI4I industrial telemetry scored by a trained failure-risk model. Live demo, not actual plant equipment readings.">
+    <meta name="robots" content="index,follow,max-image-preview:large">
+    <meta name="theme-color" content="#071829">
+    <meta property="og:type" content="website">
+    <meta property="og:site_name" content="NEXUS">
+    <meta property="og:locale" content="en_US">
+    <meta property="og:title" content="NEXUS Smart Factory | Industrial Analytics Dashboard">
+    <meta property="og:description" content="Simulated AI4I industrial telemetry scored by a trained failure-risk model. Live demo, not actual plant equipment readings.">
+    <meta property="og:url" content="https://smart-factory-app.onrender.com/">
+    <meta property="og:image" content="https://smart-factory-app.onrender.com/assets/seo/factory-social.jpg">
+    <meta property="og:image:secure_url" content="https://smart-factory-app.onrender.com/assets/seo/factory-social.jpg">
+    <meta property="og:image:width" content="1200">
+    <meta property="og:image:height" content="630">
+    <meta property="og:image:type" content="image/jpeg">
+    <meta property="og:image:alt" content="Simulated Smart Factory risk scoring dashboard">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="NEXUS Smart Factory | Industrial Analytics Dashboard">
+    <meta name="twitter:description" content="Simulated AI4I industrial telemetry scored by a trained failure-risk model. Live demo, not actual plant equipment readings.">
+    <meta name="twitter:image" content="https://smart-factory-app.onrender.com/assets/seo/factory-social.jpg">
+    <link rel="canonical" href="https://smart-factory-app.onrender.com/">
+    <script type="application/ld+json">{"@context":"https://schema.org","@type":"WebPage","name":"NEXUS Smart Factory | Industrial Analytics Dashboard","description":"Simulated AI4I industrial telemetry scored by a trained failure-risk model. Live demo, not actual plant equipment readings.","url":"https://smart-factory-app.onrender.com/","isPartOf":{"@type":"WebSite","name":"NEXUS","url":"https://smart-factory-app.onrender.com/"},"primaryImageOfPage":{"@type":"ImageObject","url":"https://smart-factory-app.onrender.com/assets/seo/factory-social.jpg"}}</script>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -772,6 +794,22 @@ def export_shared_demo_report():
 # =============================================================================
 # 4. APPLICATION RUNNER (UNCHANGED)
 # =============================================================================
+
+
+# Public search discovery routes; API endpoints are excluded from the sitemap.
+ROBOTS_TXT = "User-agent: *\nAllow: /\nDisallow: /api/\nSitemap: https://smart-factory-app.onrender.com/sitemap.xml\n"
+SITEMAP_XML = '<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n  <url><loc>https://smart-factory-app.onrender.com/</loc></url>\n  <url><loc>https://smart-factory-app.onrender.com/case-study</loc></url>\n  <url><loc>https://smart-factory-app.onrender.com/rul-case-study</loc></url>\n</urlset>\n'
+
+
+@app.get("/robots.txt")
+def robots_txt():
+    return Response(ROBOTS_TXT, mimetype="text/plain")
+
+
+@app.get("/sitemap.xml")
+def sitemap_xml():
+    return Response(SITEMAP_XML, mimetype="application/xml")
+
 
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 8080))

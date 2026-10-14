@@ -55,7 +55,8 @@ jobs:
               test_drift_check \
               test_rul_artifacts \
               test_rul_case_study \
-              test_settings; do
+              test_settings \
+              test_seo_public; do
               python -m unittest discover -s tests -p "${test_file}.py" -v
             done
       - run:

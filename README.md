@@ -1,5 +1,7 @@
 # Smart Factory App
 
+**SEO and social cards:** [Documented canonical URLs, screenshot sources and preview assets](docs/SEO_AND_SOCIAL_PREVIEW_GUIDE.md).
+
 **Technical reviewer brief:** [Methods, evidence and responsible-use boundaries](docs/hiring-summary.md).
 
 [CircleCI Python quality — passed](https://circleci.com/gh/senanurcetin/smart-factory-app/38) · [CircleCI Chromium browser — passed](https://circleci.com/gh/senanurcetin/smart-factory-app/39) · [Render production](https://smart-factory-app.onrender.com/)
