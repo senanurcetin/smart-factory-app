@@ -47,6 +47,7 @@ jobs:
             # A separate browser job must install Chromium before test_e2e.py.
             for test_file in \
               test_artifacts \
+              test_container_contract \
               test_batch_quality \
               test_case_study \
               test_dashboard_model \
@@ -96,8 +97,52 @@ jobs:
           path: artifacts/gallery
           destination: real-dashboard-screenshots
 
+  container-quality:
+    docker:
+      - image: cimg/base:stable
+    resource_class: medium
+    steps:
+      - checkout
+      - setup_remote_docker
+      - run:
+          name: Build actual Render image and verify Flask routes and NEXUS assets
+          command: |
+            set -eu
+            docker build -t smart-factory-app:smoke .
+            docker run -d --name smart-smoke smart-factory-app:smoke
+            trap 'docker logs smart-smoke || true; docker rm -f smart-smoke || true' EXIT
+            ready=0
+            for attempt in $(seq 1 30); do
+              if docker exec smart-smoke python -c "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8080/api/data', timeout=3)"; then
+                ready=1
+                break
+              fi
+              sleep 2
+            done
+            test "$ready" -eq 1
+            docker exec -i smart-smoke python - <<'PY'
+            import urllib.request
+
+            checks = {
+                "/api/data": "RiskScore",
+                "/case-study": "nexus-factory-studio.css",
+                "/rul-case-study": "nexus-factory-studio.css",
+                "/studio/maintenance": "decision-studio.css",
+                "/studio/rul": "decision-studio.css",
+                "/static/nexus-factory-studio.css": "nexus-maintenance-studio",
+                "/static/decision-studio.js": "NEXUS Decision Studio",
+            }
+            for path, marker in checks.items():
+                with urllib.request.urlopen("http://127.0.0.1:8080" + path, timeout=12) as response:
+                    body = response.read().decode("utf-8")
+                    assert response.status == 200 and marker in body, (path, response.status, marker)
+                    print("PASS", path)
+            PY
+          no_output_timeout: 15m
+
 workflows:
   verify:
     jobs:
       - python-quality
       - browser-quality
+      - container-quality

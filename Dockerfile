@@ -13,9 +13,10 @@ COPY --from=builder /root/.local /root/.local
 ENV PATH=/root/.local/bin:$PATH \
     PYTHONUNBUFFERED=1
 
-COPY main.py demo_state.py case_study.py rul_case_study.py layout.py settings.py ./
+COPY main.py demo_state.py case_study.py rul_case_study.py decision_studio.py layout.py settings.py ./
 COPY analysis/ ./analysis/
 COPY docs/ ./docs/
+COPY static/ ./static/
 
 EXPOSE 8080
 CMD ["gunicorn", "--bind", "0.0.0.0:8080", "--workers", "2", "--timeout", "60", "main:app"]
