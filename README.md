@@ -2,7 +2,7 @@
 
 **Technical reviewer brief:** [Methods, evidence and responsible-use boundaries](docs/hiring-summary.md).
 
-[![CI](https://github.com/senanurcetin/smart-factory-app/actions/workflows/ci.yml/badge.svg)](https://github.com/senanurcetin/smart-factory-app/actions/workflows/ci.yml)
+[CircleCI Python quality — passed](https://circleci.com/gh/senanurcetin/smart-factory-app/38) · [CircleCI Chromium browser — passed](https://circleci.com/gh/senanurcetin/smart-factory-app/39) · [Render production](https://smart-factory-app.onrender.com/)
 ![Python](https://img.shields.io/badge/Python-3.11-blue)
 ![License](https://img.shields.io/badge/License-MIT-green)
 
@@ -42,13 +42,13 @@ Short historical video: [`docs/assets/smart-factory-dashboard.webm`](docs/assets
 
 **Time semantics:** the on-screen risk and sensor trends use a short server-local time-of-day label. The newest scored reading also displays a full UTC timestamp; the CSV exports that timezone-aware timestamp for reliable downstream sorting and cross-day analysis. An explicit provenance header identifies the process-local shared buffer. No real plant timestamps are inferred.
 
-The dashboard is delivered by the existing Flask application, not by the README cover image. [Source-level dashboard/report tests](tests/test_dashboard_reporting.py) check that the CSV rows reflect API-scored values. [Browser smoke tests](tests/test_e2e.py) exercise the actual DOM, although GitHub Actions may be skipped during the CI quota hold.
+The dashboard is delivered by the existing Flask application, not by the README cover image. [Source-level dashboard/report tests](tests/test_dashboard_reporting.py) check that the CSV rows reflect API-scored values. [Browser smoke tests](tests/test_e2e.py) exercise the actual DOM. CircleCI is the automatic quality provider; GitHub Actions workflows are manual-only while hosted runner minutes are constrained.
 
 ---
 
 ## Genuine Chromium dashboard verification
 
-The [CircleCI browser-quality job](.circleci/config.yml) is configured to launch the actual Flask application in Chromium, run the [end-to-end browser tests](tests/test_e2e.py), check real chart/control interactions and mobile navigation, and retain the resulting application screenshots. This is a **configured test**, not a claim that a CircleCI run has passed.
+The [CircleCI browser-quality job](.circleci/config.yml) launches Flask in real Chromium, verifies charts, keyboard/mobile navigation and JavaScript/asset loading, and retains screenshots. [Python-quality #38](https://circleci.com/gh/senanurcetin/smart-factory-app/38) and [browser-quality #39](https://circleci.com/gh/senanurcetin/smart-factory-app/39) **passed** on the final UI PR (14 October 2026). The later `container-quality` job is configured to build the exact Render image, but a hosted success for that job has **not yet been confirmed**; the real Render Docker build and production browser smoke passed separately.
 
 When executed with `E2E_SCREENSHOT_DIR=artifacts/gallery`, the suite produces:
 
@@ -70,7 +70,7 @@ These are renderings of **simulated telemetry**, not readings from real factory 
 - Settings (dashboard preferences + model card): [`/settings`](https://smart-factory-app.onrender.com/settings)
 - Hugging Face: [ONNX model card](https://huggingface.co/senanurcetin/ai4i-failure-hgb) and an [in-browser failure-risk demo](https://huggingface.co/spaces/senanurcetin/ai4i-failure-risk) (sliders, no server)
 
-All four pages share one design system — a dark, glass-panel theme with a responsive sidebar (collapses to a hamburger menu below 900px) — instead of each route looking like a different product.
+The dashboard, settings, AI4I Maintenance, C-MAPSS RUL, and both Decision Studio routes share NEXUS navigation and accessibility rules, while the analytical workspaces deliberately use distinct layouts and evidence-driven visuals. The sidebar collapses below 900px.
 
 Free-tier services spin down after ~15 minutes idle; the first request after that takes ~30-60 seconds to wake up — a known free-tier tradeoff, not a bug.
 
@@ -290,7 +290,7 @@ Full methodology, feature engineering, evaluation protocol, and limitations: [`d
 | SQL analysis | DuckDB (in-memory, reads JSON natively) |
 | Visualization | Matplotlib |
 | Frontend | HTML, CSS, JavaScript |
-| CI | GitHub Actions |
+| CI | CircleCI `python-quality`, `browser-quality` and configured `container-quality`; GitHub Actions are manual-only |
 
 ---
 
@@ -324,13 +324,17 @@ smart-factory-app/
 │   ├── test_rul_case_study.py         # RUL route and integration tests
 │   ├── test_rul_artifacts.py          # RUL data quality and metrics contract tests
 │   ├── test_settings.py               # Settings route and model-card rendering
-│   └── test_e2e.py                    # Playwright: all 4 routes in a real browser
-├── main.py                            # Live bento dashboard, scored by the real AI4I model
+│   ├── test_e2e.py                    # Chromium desktop/tablet/mobile routes and visual contracts
+│   └── test_container_contract.py     # Docker module/static asset inclusion regression
+├── static/                            # NEXUS CSS/JS + evidence-driven Decision Studio page assets
+├── decision_studio.py                  # Routes for standalone AI4I & RUL decision studios
+├── main.py                            # Dashboard + current studio registrations
 ├── case_study.py                      # AI4I case-study page
 ├── rul_case_study.py                  # RUL case-study page
 ├── settings.py                        # Dashboard preferences + model card
-├── layout.py                          # Shared responsive sidebar nav, reused by all 4 pages
-├── Dockerfile                         # Multi-stage build, served via gunicorn
+├── layout.py                          # Shared accessible NEXUS navigation
+├── .circleci/config.yml               # Automated Python, browser, Docker-quality jobs
+├── Dockerfile                         # Multi-stage build, includes decision_studio + static assets
 ├── render.yaml                        # One-click Render Blueprint (Docker runtime)
 ├── requirements.txt
 └── requirements-dev.txt               # + ruff, black, playwright
@@ -382,20 +386,20 @@ docker build -t smart-factory-app .
 docker run -p 8080:8080 smart-factory-app
 ```
 
-Multi-stage build, served by `gunicorn` (2 workers) instead of the Flask development server. The committed `analysis/artifacts/model.pkl` and `rul_model.pkl` are both baked into the image, so no dataset download or retraining is needed to run the container. Built and smoke-tested on every push via the `docker` job in CI ([`.github/workflows/ci.yml`](.github/workflows/ci.yml)).
+Multi-stage build, served by `gunicorn` (2 workers) instead of the Flask development server. The committed `analysis/artifacts/model.pkl` and `rul_model.pkl` are both baked into the image, so no dataset download or retraining is needed to run the container. The actual Docker image built and deployed successfully to Render on 14 October 2026 after the packaging hotfix; container import and route smoke passed in production. A separate CircleCI `container-quality` job now exists, but its hosted run is still an open verification item (see [release checklist](docs/render-release-verification.md)).
 
 ---
 
 ## Tests
 
 ```bash
-# All 91 tests: routes, artifact contracts, metrics thresholds, chart file
+# Backend/unit coverage: routes, artifacts, metric thresholds, chart file
 # presence, hyperparameter-tuning/validation-robustness/model-card contracts,
 # live dashboard <-> real model integration, drift-check correctness, the
 # RUL case study's own artifact contracts and routes, the Settings page's
 # model-card rendering, negative-path tests for missing artifacts, and
-# 5 real-browser Playwright E2E smoke tests (requires
-# `playwright install chromium` once)
+# Real-browser Playwright E2E regressions (requires
+# `playwright install chromium` once; run the separate CI browser job)
 python -m unittest discover -s tests -v
 
 # Lint and format check
@@ -500,7 +504,7 @@ Most "production considerations" lists (including the one below) are just docume
 
 ### Real-Browser Testing (Not Just Backend Mocks)
 
-All 86 non-E2E tests exercise the backend only — `unittest` + Flask's `test_client()` — which would never catch a broken script tag, a 404'ing asset, or a JS error. [`tests/test_e2e.py`](tests/test_e2e.py) closes that gap: it starts the actual Flask app in a background thread and drives it with Playwright in a real, headless Chromium instance, once per route. Each check asserts on zero browser console errors and on real DOM/CSS state — e.g. the mobile-nav test resizes the viewport and asserts the sidebar's computed `transform` actually moved off-screen, not just that a CSS class got toggled (an earlier, weaker version of this test passed locally while failing in CI, because it only checked the class — the rewrite catches the real regression). Runs in its own parallel CI job (`e2e`) with a real Chromium install, alongside the backend `quality` job and the Docker `docker` job.
+Backend/contract tests use Flask's `test_client()` and real offline model artifacts; they cannot catch browser JavaScript failures, CSS regressions or missing deployed assets by themselves. [`tests/test_e2e.py`](tests/test_e2e.py) uses headless Chromium to verify desktop, 1024px tablet and 375px mobile layouts and real DOM/CSS state. The dedicated CircleCI jobs are `python-quality`, `browser-quality`, and `container-quality` (the last job's hosted result is pending). The 14 October local pinned-dependency suite passed **139 tests, 4 opt-in skips, 248 subtests**; four additional real-AI4I drift integrations were run separately and passed from checksum-matched cached public CSV copies. [Release evidence](docs/qa_release_acceptance_20261014.md).
 
 ### Production Considerations
 
