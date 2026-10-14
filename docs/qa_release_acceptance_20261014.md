@@ -1,5 +1,9 @@
 # Smart Factory — release acceptance evidence (2026-10-14)
 
+> **Release outcome — 14 October 2026:** NEXUS studios PR #22 merged (`852feb6`) after CircleCI Python-quality **#38** and browser-quality **#39** succeeded. The first Render image failed to import `decision_studio`; Docker packaging hotfix PR #23 merged (`747f0ce`) and fixed production. On the corrected Render release, **7/7 live HTTP source/route checks** and **6/6 Chromium 1440/1024/375px checks** passed. README screenshot PR #24 was published on Render as commit `0512457` (`live`). The `required CI` and `merge only when` section below is **historical pre-merge acceptance guidance**, not a statement that PR #22 remains pending. The newer CircleCI `container-quality` job exists, but no separate hosted pass was verified in this audit; the actual production Docker build/health check did pass.
+
+---
+
 PR: #22, branch `design/nexus-analysis-workspaces-20261013`.
 
 ## Local regression
