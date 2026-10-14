@@ -24,7 +24,29 @@ CASE_STUDY_TEMPLATE = (
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Smart Factory Case Study</title>
+    <title>Smart Factory Predictive Maintenance | AI4I Case Study</title>
+    <link rel="icon" type="image/svg+xml" href="/assets/seo/favicon.svg">
+    <meta name="description" content="Source-backed AI4I predictive maintenance model and risk-ranked holdout review queues. Offline evaluation, not deployed plant alerts.">
+    <meta name="robots" content="index,follow,max-image-preview:large">
+    <meta name="theme-color" content="#071829">
+    <meta property="og:type" content="website">
+    <meta property="og:site_name" content="NEXUS">
+    <meta property="og:locale" content="en_US">
+    <meta property="og:title" content="Smart Factory Predictive Maintenance | AI4I Case Study">
+    <meta property="og:description" content="Source-backed AI4I predictive maintenance model and risk-ranked holdout review queues. Offline evaluation, not deployed plant alerts.">
+    <meta property="og:url" content="https://smart-factory-app.onrender.com/case-study">
+    <meta property="og:image" content="https://smart-factory-app.onrender.com/assets/seo/maintenance-social.jpg">
+    <meta property="og:image:secure_url" content="https://smart-factory-app.onrender.com/assets/seo/maintenance-social.jpg">
+    <meta property="og:image:width" content="1200">
+    <meta property="og:image:height" content="630">
+    <meta property="og:image:type" content="image/jpeg">
+    <meta property="og:image:alt" content="AI4I maintenance evaluation and review queue">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Smart Factory Predictive Maintenance | AI4I Case Study">
+    <meta name="twitter:description" content="Source-backed AI4I predictive maintenance model and risk-ranked holdout review queues. Offline evaluation, not deployed plant alerts.">
+    <meta name="twitter:image" content="https://smart-factory-app.onrender.com/assets/seo/maintenance-social.jpg">
+    <link rel="canonical" href="https://smart-factory-app.onrender.com/case-study">
+    <script type="application/ld+json">{"@context":"https://schema.org","@type":"WebPage","name":"Smart Factory Predictive Maintenance | AI4I Case Study","description":"Source-backed AI4I predictive maintenance model and risk-ranked holdout review queues. Offline evaluation, not deployed plant alerts.","url":"https://smart-factory-app.onrender.com/case-study","isPartOf":{"@type":"WebSite","name":"NEXUS","url":"https://smart-factory-app.onrender.com/"},"primaryImageOfPage":{"@type":"ImageObject","url":"https://smart-factory-app.onrender.com/assets/seo/maintenance-social.jpg"}}</script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <style>"""
