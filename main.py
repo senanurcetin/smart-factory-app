@@ -25,8 +25,8 @@ from analysis.run_ai4i_case_study import (
     add_derived_features,
 )
 from case_study import case_study_bp
-from demo_state import advance_production_counts, synchronized_demo_view
 from decision_studio import decision_studio_bp
+from demo_state import advance_production_counts, synchronized_demo_view
 from layout import SIDEBAR_CSS, render_sidebar
 from rul_case_study import rul_case_study_bp
 from settings import settings_bp

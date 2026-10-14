@@ -4,6 +4,7 @@ The original /case-study and /rul-case-study routes remain unchanged.
 The studio fetches the existing /api/case-study and /api/rul-case-study
 endpoints, preserving source truth and error handling.
 """
+
 from pathlib import Path
 
 from flask import Blueprint, send_from_directory
