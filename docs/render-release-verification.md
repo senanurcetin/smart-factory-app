@@ -1,5 +1,9 @@
 # Smart Factory — Render release and rollback verification
 
+> **Last verified production — 14 October 2026:** Render `smart-factory-app` in the SmartFaactory workspace deployed the current README screenshot revision `0512457` as **live**. The original app-content hotfix was `747f0ce` (PR #23); production accepted seven HTTP routes/assets and six Chromium viewport checks. The steps below remain the release and rollback checklist **for future code deployments**, not a claim that the 14 October hotfix is waiting for merge. Separate CircleCI `container-quality` job green status was not verified and remains a follow-up check.
+
+---
+
 ## Release artifact
 
 The production process starts `gunicorn ... main:app` from the final
