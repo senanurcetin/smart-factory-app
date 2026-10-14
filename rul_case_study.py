@@ -217,41 +217,43 @@ RUL_CASE_STUDY_TEMPLATE = (
         }
     </style>
     <link rel="stylesheet" href="/static/nexus-design.css">
+    <link rel="stylesheet" href="/static/nexus-analysis-workspace.css">
+    <link rel="stylesheet" href="/static/nexus-factory-studio.css">
 </head>
 <body>
     {{ sidebar_html|safe }}
-    <main class="page" id="main-content">
-        <section class="hero">
-            <div>
-                <div class="eyebrow">Second Case Study — Genuine RUL Regression</div>
-                <h1>{{ summary.project }}</h1>
+    <main class="page nexus-workspace nexus-prognostics-studio" id="main-content">
+        <nav class="workspace-nav" aria-label="RUL workspace chapters">
+            <a href="#workspace-overview">Overview</a>
+            <a href="#workspace-benchmark">Baseline</a>
+            <a href="#workspace-validation">Validation</a>
+            <a href="#workspace-engine">Engine signals</a>
+            <a href="#workspace-limits">Limits</a>
+        </nav>
+        <section class="prognostics-console" id="workspace-overview" aria-label="Remaining useful life research workspace">
+            <div class="prognostics-console-intro">
+                <div class="studio-overline">NEXUS / ASSET PROGNOSTICS <span>02 — REMAINING LIFE</span></div>
+                <div class="studio-research-title">RESEARCH FILE · {{ summary.project }}</div>
+                <div class="prognostics-data-label">NASA C-MAPSS / RUN-TO-FAILURE BENCHMARK</div>
+                <h1>Read the signals.<br><em>Validate the horizon.</em></h1>
+                <p>{{ summary.operational_takeaway }}</p>
+                <div class="prognostics-evidence-rule">No real plant sensors or live engine deployment are connected to this analysis.</div>
             </div>
-            <p class="lede">{{ summary.operational_takeaway }}</p>
-            <div class="metrics">
-                <div class="metric">
-                    <div class="metric-label">Test RMSE</div>
-                    <div class="metric-value">{{ summary.final_model.rmse }} cycles</div>
-                    <div class="metric-note">On NASA's official held-out test protocol — one row per engine, its final observed cycle.</div>
-                </div>
-                <div class="metric">
-                    <div class="metric-label">PHM08 Score</div>
-                    <div class="metric-value">{{ summary.final_model.phm08_score }}</div>
-                    <div class="metric-note">Asymmetric scoring — over-optimistic (late) predictions penalized harder than conservative ones.</div>
-                </div>
-                <div class="metric">
-                    <div class="metric-label">RMSE Lift vs Baseline</div>
-                    <div class="metric-value">{{ summary.lift_vs_baseline.rmse_reduction_pct }}%</div>
-                    <div class="metric-note">vs. always predicting the median training RUL ({{ summary.baseline.rmse }} cycles RMSE).</div>
-                </div>
-                <div class="metric">
-                    <div class="metric-label">Dataset</div>
-                    <div class="metric-value">{{ summary.dataset.train_units }} / {{ summary.dataset.test_units }}</div>
-                    <div class="metric-note">Train / test engines, {{ summary.dataset.subset }}.</div>
-                </div>
-            </div>
+            <aside class="prognostics-hero-metric" aria-label="Test model error">
+                <span>OFFICIAL HELD-OUT TEST</span>
+                <strong>{{ "%.2f"|format(summary.final_model.rmse | float) }}</strong>
+                <em>cycles RMSE</em>
+                <p>Lower is better. Measured against the official NASA test labels.</p>
+            </aside>
         </section>
+        <section class="prognostics-metrics" aria-label="Remaining useful life validation">
+            <div class="prognostics-metric"><span>IMPROVEMENT ON BASELINE</span><strong>{{ "%.1f"|format(summary.lift_vs_baseline.rmse_reduction_pct | float) }}%</strong><small>Reduction in test RMSE</small></div>
+            <div class="prognostics-metric"><span>PHM08 SCORE</span><strong>{{ "%.1f"|format(summary.final_model.phm08_score | float) }}</strong><small>Asymmetric late-error penalty</small></div>
+            <div class="prognostics-metric"><span>TRAIN / TEST ENGINES</span><strong>{{ summary.dataset.train_units }} / {{ summary.dataset.test_units }}</strong><small>NASA {{ summary.dataset.subset }}</small></div>
+        </section>
+        <div class="prognostics-chapter-title"><span>01 / DEGRADATION INTELLIGENCE</span><h2>From sensor history to life estimates.</h2><p>Analyze the degradation trajectory before inspecting model diagnostics and tuning details.</p></div>
 
-        <section class="grid">
+        <section class="grid prognostics-benchmark" id="workspace-benchmark">
             <div class="panel">
                 <h2 class="section-title">Why this exists alongside the AI4I case study</h2>
                 <ul class="bullet-list">
@@ -288,7 +290,7 @@ RUL_CASE_STUDY_TEMPLATE = (
             </div>
         </section>
 
-        <section class="panel" style="margin-top: 18px; margin-bottom: 18px;">
+        <section class="panel prognostics-visual-studio" id="workspace-validation">
             <h2 class="section-title">Model Performance</h2>
             <div class="chart-gallery">
                 <figure class="chart-frame" style="margin: 0;">
@@ -306,7 +308,7 @@ RUL_CASE_STUDY_TEMPLATE = (
             </div>
         </section>
 
-        <section class="grid" style="margin-top: 18px;">
+        <section class="grid prognostics-engineering" id="workspace-engine">
             <div class="panel">
                 <h2 class="section-title">Hyperparameter Tuning</h2>
                 <table>
@@ -337,9 +339,17 @@ RUL_CASE_STUDY_TEMPLATE = (
         <section class="grid" style="margin-top: 18px;">
             <div class="panel">
                 <h2 class="section-title">Signal Importance (SHAP)</h2>
-                {% for row in feature_importance %}
-                    <span class="tag">{{ row.feature }}: {{ row.mean_abs_shap }}</span>
+                {% set importance_peak = (feature_importance[0].mean_abs_shap | float) if feature_importance else 0 %}
+                <div class="prognostics-signals" role="list" aria-label="SHAP ranked signal contributions">
+                {% for row in feature_importance[:9] %}
+                    {% set importance = row.mean_abs_shap | float %}
+                    <div class="prognostics-signal" role="listitem">
+                        <span class="prognostics-signal-name">{{ row.feature }}</span>
+                        <div class="prognostics-signal-track" aria-hidden="true"><i style="width: {{ (importance / importance_peak * 100) | round(1) if importance_peak > 0 else 0 }}%"></i></div>
+                        <strong>{{ row.mean_abs_shap }}</strong>
+                    </div>
                 {% endfor %}
+                </div>
                 <p class="footer-note">{{ feature_importance_method }}</p>
             </div>
             <div class="panel">
@@ -363,7 +373,7 @@ RUL_CASE_STUDY_TEMPLATE = (
         </section>
 
         <section class="panel" style="margin-top: 18px;">
-            <h2 class="section-title">Limitations and next step</h2>
+            <h2 class="section-title" id="workspace-limits">Limitations and next step</h2>
             <ul class="bullet-list">
                 {% for item in summary.limitations %}
                     <li>{{ item }}</li>

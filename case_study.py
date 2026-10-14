@@ -217,41 +217,69 @@ CASE_STUDY_TEMPLATE = (
         }
     </style>
     <link rel="stylesheet" href="/static/nexus-design.css">
+    <link rel="stylesheet" href="/static/nexus-analysis-workspace.css">
+    <link rel="stylesheet" href="/static/nexus-factory-studio.css">
 </head>
 <body>
     {{ sidebar_html|safe }}
-    <main class="page" id="main-content">
-        <section class="hero">
-            <div>
-                <div class="eyebrow">Support Case Study</div>
-                <h1>{{ summary.project }}</h1>
+    <main class="page nexus-workspace nexus-maintenance-studio" id="main-content">
+        <nav class="workspace-nav" aria-label="AI4I workspace chapters">
+            <a href="#workspace-overview">Overview</a>
+            <a href="#workspace-exploration">Signals</a>
+            <a href="#workspace-benchmark">Benchmark</a>
+            <a href="#workspace-validation">Validation</a>
+            <a href="#workspace-queue">Maintenance queue</a>
+            <a href="#workspace-drift">Drift</a>
+        </nav>
+        <section class="maintenance-console" id="workspace-overview" aria-label="Predictive maintenance decision workspace">
+            <div class="maintenance-console-intro">
+                <div class="studio-overline">NEXUS / OPERATIONS INTELLIGENCE <span>01 — MAINTENANCE STRATEGY</span></div>
+                <div class="studio-research-title">CASE FILE · {{ summary.project }}</div>
+                <div class="maintenance-console-index"><span class="pulse-mark" aria-hidden="true"></span> VALIDATED BENCHMARK · NOT LIVE EQUIPMENT DATA</div>
+                <h1>Maintenance, <em>before failure.</em></h1>
+                <p class="maintenance-console-lede">{{ summary.operational_takeaway }}</p>
+                <div class="maintenance-console-caption"><span>UCI AI4I 2020</span><span>Failure prevalence: {{ "%.2f"|format((summary.dataset.failure_rate | float) * 100) }}%</span><span>Offline, reproducible evaluation</span></div>
             </div>
-            <p class="lede">{{ summary.operational_takeaway }}</p>
-            <div class="metrics">
-                <div class="metric">
-                    <div class="metric-label">PR-AUC</div>
-                    <div class="metric-value">{{ summary.final_model.pr_auc }}</div>
-                    <div class="metric-note">Primary selection metric because the failure class is only {{ summary.dataset.failure_rate }} of the full dataset.</div>
-                </div>
-                <div class="metric">
-                    <div class="metric-label">ROC-AUC</div>
-                    <div class="metric-value">{{ summary.final_model.roc_auc }}</div>
-                    <div class="metric-note">Strong ranking quality on the imbalanced holdout split.</div>
-                </div>
-                <div class="metric">
-                    <div class="metric-label">F1 at 0.5</div>
-                    <div class="metric-value">{{ summary.final_model.f1 }}</div>
-                    <div class="metric-note">Balanced precision and recall for a simple deployment threshold.</div>
-                </div>
-                <div class="metric">
-                    <div class="metric-label">Queue Lift</div>
-                    <div class="metric-value">{{ summary.review_queue.yield_lift_vs_random }}x</div>
-                    <div class="metric-note">{{ summary.review_queue.selected_budget_label }} beat random review by a wide margin.</div>
-                </div>
-            </div>
+            <aside class="maintenance-command-score" aria-label="Selected review queue outcome">
+                <span class="maintenance-score-eyebrow">PRIORITIZED REVIEW / HOLDOUT</span>
+                <div class="maintenance-score-main" id="maintenance-score-main">{{ "%.1f"|format((summary.review_queue.failure_capture_rate | float) * 100) }}%</div>
+                <strong>Failures caught by the selected queue</strong>
+                <p id="maintenance-score-context">{{ summary.review_queue.reviewed_assets }} assets reviewed · {{ summary.review_queue.selected_budget_label }}</p>
+                <div class="maintenance-score-line"></div>
+                <span class="maintenance-score-foot">Measured evaluation result. Do not interpret as a live alarm or a deployed work-order system.</span>
+            </aside>
         </section>
+        <section class="maintenance-budget-lab" aria-labelledby="maintenance-budget-title">
+            <div class="maintenance-budget-intro">
+                <span>02 / REVIEW CAPACITY</span>
+                <h2 id="maintenance-budget-title">Choose the maintenance review budget.</h2>
+                <p>Compare three measured holdout queues. These are fixed benchmark scenarios; selecting a budget does not run a live prediction or schedule maintenance.</p>
+            </div>
+            <div class="maintenance-budget-options" role="group" aria-label="Review budget scenarios">
+            {% for row in review_queue.review_budgets %}
+                <button type="button" class="maintenance-budget-option{{ ' is-active' if row.review_fraction == summary.review_queue.selected_budget_fraction else '' }}"
+                    data-queue-capture="{{ row.failure_capture_rate }}"
+                    data-queue-review-count="{{ row.reviewed_assets }}"
+                    data-queue-lift="{{ row.yield_lift_vs_random }}"
+                    data-queue-budget="{{ (row.review_fraction * 100) | int }}"
+                    aria-pressed="{{ 'true' if row.review_fraction == summary.review_queue.selected_budget_fraction else 'false' }}">
+                    <span class="maintenance-budget-heading">{{ (row.review_fraction * 100) | int }}% reviewed</span>
+                    <strong>{{ "%.1f"|format(row.failure_capture_rate * 100) }}%</strong>
+                    <small>{{ row.captured_failures }} failures captured · {{ row.reviewed_assets }} assets</small>
+                </button>
+            {% endfor %}
+            </div>
+            <div class="maintenance-budget-summary" id="maintenance-budget-summary" aria-live="polite">Selected: top {{ (summary.review_queue.selected_budget_fraction * 100) | int }}% queue · {{ summary.review_queue.reviewed_assets }} assets reviewed · {{ "%.2f"|format(summary.review_queue.yield_lift_vs_random | float) }}× yield versus random.</div>
+        </section>
+        <section class="maintenance-metrics" aria-label="Predictive maintenance model evidence">
+            <div class="maintenance-metric primary"><span>QUEUE YIELD VS RANDOM</span><strong>{{ summary.review_queue.yield_lift_vs_random }}×</strong><small>Observed triage leverage</small></div>
+            <div class="maintenance-metric"><span>PRECISION–RECALL AUC</span><strong>{{ summary.final_model.pr_auc }}</strong><small>Imbalanced failure classification</small></div>
+            <div class="maintenance-metric"><span>ROC–AUC</span><strong>{{ summary.final_model.roc_auc }}</strong><small>Holdout ranking performance</small></div>
+            <div class="maintenance-metric"><span>F1 AT 0.5</span><strong>{{ summary.final_model.f1 }}</strong><small>Fixed operating threshold</small></div>
+        </section>
+        <div class="maintenance-chapter-title"><span>01 / TRIAGE WORKSPACE</span><h2>Put the right assets first.</h2><p>Review budget and maintenance economics are the main operational decisions; exploratory plots are supporting evidence.</p></div>
 
-        <section class="panel" style="margin-bottom: 18px;">
+        <section class="panel maintenance-evidence-lab" id="workspace-exploration">
             <h2 class="section-title">Exploratory Data Analysis</h2>
             <div class="chart-gallery">
                 <figure class="chart-frame" style="margin: 0;">
@@ -270,7 +298,7 @@ CASE_STUDY_TEMPLATE = (
             <p class="footer-note">96.6% of the 10,000 rows are normal operation — 3.39% failure rate drives the PR-AUC-first evaluation strategy used throughout this case study.</p>
         </section>
 
-        <section class="grid">
+        <section class="grid maintenance-benchmark-studio" id="workspace-benchmark">
             <div class="panel">
                 <h2 class="section-title">What this proves</h2>
                 <ul class="bullet-list">
@@ -306,7 +334,7 @@ CASE_STUDY_TEMPLATE = (
             </div>
         </section>
 
-        <section class="panel" style="margin-top: 18px; margin-bottom: 18px;">
+        <section class="panel maintenance-validation-studio" id="workspace-validation">
             <h2 class="section-title">Model Performance</h2>
             <div class="chart-gallery">
                 <figure class="chart-frame" style="margin: 0;">
@@ -320,9 +348,9 @@ CASE_STUDY_TEMPLATE = (
             </div>
         </section>
 
-        <section class="grid" style="margin-top: 18px;">
+        <section class="grid maintenance-priority-board" id="workspace-queue">
             <div class="panel">
-                <h2 class="section-title">Maintenance Queue</h2>
+                <h2 class="section-title">Review Capacity / Failure Capture</h2>
                 <table>
                     <thead>
                         <tr>
@@ -347,7 +375,7 @@ CASE_STUDY_TEMPLATE = (
                     <img src="/assets/review-queue-curve.png" alt="Failure capture rate vs. review budget curve">
                     <figcaption class="chart-caption">Capture rate vs. review budget</figcaption>
                 </figure>
-                <p class="footer-note">At the selected `10%` queue, the model captures {{ summary.review_queue.failure_capture_rate }} of holdout failures while reviewing only {{ summary.review_queue.reviewed_assets }} assets.</p>
+                <p class="footer-note">At the selected `10%` queue, the model captures {{ "%.1f"|format((summary.review_queue.failure_capture_rate | float) * 100) }}% of holdout failures while reviewing only {{ summary.review_queue.reviewed_assets }} assets.</p>
             </div>
             <div class="panel">
                 <h2 class="section-title">Illustrative Cost Model</h2>
@@ -393,10 +421,24 @@ CASE_STUDY_TEMPLATE = (
             </div>
             <div class="panel">
                 <h2 class="section-title">Signal Importance</h2>
-                {% for row in feature_importance %}
-                    <span class="tag">{{ row.feature }}: {{ row.importance }}</span>
-                {% endfor %}
-                <p class="footer-note">Permutation importance uses average precision as the scoring function to stay aligned with the imbalanced maintenance target.</p>
+                {% set signal_rows = feature_importance.features if feature_importance is mapping else feature_importance %}
+                {% set scale_max = (signal_rows[0].importance | float) if signal_rows else 0 %}
+                {% if signal_rows %}
+                <div class="signal-list" role="list" aria-label="Top permutation importance scores">
+                    {% for row in signal_rows[:7] %}
+                    {% set score = row.importance | float %}
+                    {% set width_pct = (score / scale_max * 100) if scale_max > 0 and score > 0 else 0 %}
+                    <div class="signal-row" role="listitem">
+                        <span class="signal-name">{{ row.feature }}</span>
+                        <span class="signal-track" aria-hidden="true"><span class="signal-fill" style="width: {{ width_pct | round(1) }}%"></span></span>
+                        <strong class="signal-value">{{ "%.4f"|format(score) }}</strong>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% else %}
+                <p class="footer-note">Feature attribution scores were not included in this analysis build.</p>
+                {% endif %}
+                <p class="footer-note">Permutation importance uses average precision as the scoring function to stay aligned with the imbalanced maintenance target. Positive scores show the measured loss of ranking quality when a feature is shuffled.</p>
             </div>
         </section>
 
@@ -409,7 +451,7 @@ CASE_STUDY_TEMPLATE = (
 
         {% if drift_report %}
         <section class="panel" style="margin-top: 18px;">
-            <h2 class="section-title">Drift Check (Demonstrated)</h2>
+            <h2 class="section-title" id="workspace-drift">Drift Check (Demonstrated)</h2>
             <p class="section-copy">{{ drift_report.scenario }}</p>
             <table>
                 <thead>
@@ -443,6 +485,25 @@ CASE_STUDY_TEMPLATE = (
             <p class="footer-note"><span style="color: var(--warning);">Next step:</span> {{ model_selection.next_step }}</p>
         </section>
     </main>
+<script>
+document.querySelectorAll('.maintenance-budget-option').forEach(function(button) {
+  button.addEventListener('click', function () {
+    var group = document.querySelectorAll('.maintenance-budget-option');
+    group.forEach(function(item) {
+      var active = item === button;
+      item.classList.toggle('is-active', active);
+      item.setAttribute('aria-pressed', String(active));
+    });
+    var fraction = Number(button.dataset.queueCapture);
+    var budget = Number(button.dataset.queueBudget);
+    var count = Number(button.dataset.queueReviewCount);
+    var lift = Number(button.dataset.queueLift);
+    document.getElementById('maintenance-score-main').textContent = (fraction * 100).toFixed(1) + '%';
+    document.getElementById('maintenance-score-context').textContent = count.toLocaleString('en-US') + ' assets reviewed · top ' + budget + '% queue';
+    document.getElementById('maintenance-budget-summary').textContent = 'Selected: top ' + budget + '% queue · ' + count.toLocaleString('en-US') + ' assets reviewed · ' + lift.toFixed(2) + '× yield versus random.';
+  });
+});
+</script>
 </body>
 </html>
 """

@@ -111,7 +111,7 @@ class E2ESmokeTests(unittest.TestCase):
         try:
             page.set_viewport_size({"width": 1440, "height": 900})
             page.wait_for_function(
-                "() => document.querySelector('#nexus-stream-badge')" ".dataset.state === 'active'",
+                "() => document.querySelector('#nexus-stream-badge').dataset.state === 'active'",
                 timeout=15000,
             )
             self.assertTrue(page.is_visible(".nexus-eyebrow"))
@@ -174,8 +174,7 @@ class E2ESmokeTests(unittest.TestCase):
         page.route("**/api/data", lambda route: route.abort("failed"))
         page.goto(BASE_URL + "/", wait_until="load")
         page.wait_for_function(
-            "() => document.getElementById('nexus-stream-badge')"
-            ".dataset.state === 'unavailable'",
+            "() => document.getElementById('nexus-stream-badge').dataset.state === 'unavailable'",
             timeout=15000,
         )
         self.assertTrue(page.evaluate("document.body.classList.contains('sf-telemetry-stale')"))
@@ -215,6 +214,54 @@ class E2ESmokeTests(unittest.TestCase):
             self.assertEqual(console_errors, [])
         finally:
             page.close()
+
+    def test_analysis_studios_dark_chart_surfaces_at_desktop_tablet_mobile(self):
+        """Committed dark PNGs must not sit on pale card backgrounds."""
+        for route in ("/case-study", "/rul-case-study"):
+            for width in (1440, 1024, 375):
+                with self.subTest(route=route, width=width):
+                    page = self.browser.new_page(viewport={"width": width, "height": 900})
+                    try:
+                        errors = []
+                        page.on("pageerror", lambda error: errors.append(str(error)))
+                        response = page.goto(BASE_URL + route, wait_until="networkidle")
+                        self.assertEqual(response.status, 200)
+                        if width == 1024:
+                            grid_selectors = (
+                                (
+                                    ".maintenance-priority-board",
+                                    ".maintenance-validation-studio .chart-gallery",
+                                    ".maintenance-evidence-lab .chart-gallery",
+                                )
+                                if route == "/case-study"
+                                else (".prognostics-visual-studio .chart-gallery",)
+                            )
+                            for selector in grid_selectors:
+                                self.assertEqual(
+                                    page.locator(selector).evaluate(
+                                        "el => getComputedStyle(el).gridTemplateColumns.split(' ').length"
+                                    ),
+                                    1,
+                                )
+                        surfaces = page.locator("figure.chart-frame")
+                        self.assertGreater(surfaces.count(), 0)
+                        for surface in surfaces.all():
+                            self.assertEqual(
+                                surface.evaluate("el => getComputedStyle(el).backgroundColor"),
+                                "rgb(15, 25, 41)",
+                            )
+                            self.assertTrue(
+                                surface.locator("img").evaluate_all(
+                                    "imgs => imgs.every(i => i.complete && i.naturalWidth > 0)"
+                                )
+                            )
+                        self.assertLessEqual(
+                            page.evaluate("document.documentElement.scrollWidth"),
+                            page.evaluate("document.documentElement.clientWidth") + 1,
+                        )
+                        self.assertEqual(errors, [])
+                    finally:
+                        page.close()
 
     def test_settings_loads_with_working_controls(self):
         page, console_errors = self._open("/settings")

@@ -1,0 +1,74 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#0a1829">
+<title>NEXUS | Decision Studio</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/static/decision-studio.css">
+<script src="/static/decision-studio.js" defer></script>
+</head>
+<body>
+<div class="shell">
+  <aside class="rail" aria-label="Decision studio navigation">
+    <a class="brand" href="/" title="Smart Factory live dashboard">
+      <span class="brand-mark">N</span><span><strong>NEXUS / INDUSTRIAL</strong><small>DECISION INTELLIGENCE</small></span>
+    </a>
+    <nav aria-label="Workspaces">
+      <span class="rail-caption">Workspaces</span>
+      <div class="rail-nav">
+        <a href="/" id="nav-live"><em>01</em>Factory monitor</a>
+        <a href="/studio/maintenance" id="nav-maintenance"><em>02</em>Maintenance intelligence</a>
+        <a href="/studio/rul" id="nav-rul"><em>03</em>Asset life forecasting</a>
+        <a href="/settings"><em>04</em>Model settings</a>
+      </div>
+    </nav>
+    <div class="rail-footer">
+      <strong>ANALYTICAL EVIDENCE / V1</strong>
+      <span>Offline benchmark results. This studio does not represent real-time plant or flight telemetry.</span>
+      <span>Preview only · original production pages unchanged</span>
+    </div>
+  </aside>
+  <main class="workspace" id="main-content">
+    <div class="topline"><div class="crumb"><span>NEXUS</span><b>/</b><span>INDUSTRIAL DECISION STUDIO</span><b>/</b><span id="crumb-page">Loading</span></div><span class="pill">BENCHMARK / VERIFIED ARTIFACT</span></div>
+    <section class="hero" aria-label="Page introduction">
+      <div class="hero-copy">
+        <div class="eyebrow" id="hero-eyebrow">Performance research</div>
+        <h1 id="hero-title">Loading analysis</h1>
+        <p id="hero-description">Reading committed evaluation artifacts.</p>
+      </div>
+      <div class="hero-aside">
+        <div><div class="aside-label" id="aside-label">Primary result</div><div class="aside-number" id="aside-number">—</div><p class="aside-caption" id="aside-caption">Evaluation evidence</p></div>
+        <div class="source-line"><strong id="source-title">Source verification</strong><span id="source-context">Loading source attribution.</span></div>
+      </div>
+    </section>
+    <section class="metric-grid" id="metric-grid" aria-label="Evaluation key performance indicators"></section>
+    <div class="tabs" role="tablist" aria-label="Analytical workspace views">
+      <button type="button" role="tab" id="tab-brief" data-tab="brief" aria-controls="panel-brief" aria-selected="true">01 / Decision brief</button>
+      <button type="button" role="tab" id="tab-performance" data-tab="performance" aria-controls="panel-performance" aria-selected="false">02 / Model evidence</button>
+      <button type="button" role="tab" id="tab-governance" data-tab="governance" aria-controls="panel-governance" aria-selected="false">03 / Limitations</button>
+    </div>
+    <div id="status" role="status" aria-live="polite"></div>
+    <section class="workspace-section" id="panel-brief" role="tabpanel" aria-labelledby="tab-brief">
+      <div class="feature-grid">
+        <article class="studio-card"><div class="card-top"><div><h2 id="brief-chart-heading">Comparative model evidence</h2><p id="brief-chart-desc">Measured results on the declared evaluation population.</p></div><span class="card-index">FIG / 01</span></div><div class="chart-rows" id="brief-chart"></div></article>
+        <article class="studio-card"><div class="card-top"><div><h2>Decision context</h2><p>What these results can and cannot support.</p></div><span class="card-index">NOTE / 01</span></div><h3 class="big-statement" id="takeaway">—</h3><div class="note-rule"></div><span class="signature">EVIDENCE BOUNDARY</span><p class="evidence-note" id="scope-note"></p></article>
+      </div>
+    </section>
+    <section class="workspace-section" id="panel-performance" role="tabpanel" aria-labelledby="tab-performance" hidden>
+      <div class="feature-grid">
+        <article class="studio-card"><div class="card-top"><div><h2 id="detail-title">Validation benchmark</h2><p id="detail-note">Measured model performance.</p></div><span class="card-index">FIG / 02</span></div><div id="detail-chart" class="chart-rows"></div></article>
+        <article class="studio-card"><div class="card-top"><div><h2>Evaluation protocol</h2><p>Data lineage and testing assumptions.</p></div><span class="card-index">PROTOCOL</span></div><div class="compare-stack" id="protocol"></div></article>
+      </div>
+      <article class="studio-card"><div class="card-top"><div><h2 id="table-title">Benchmark registry</h2><p>Traceable evidence from the committed JSON artifacts.</p></div><span class="card-index">DATA / 01</span></div><div id="benchmark-table" class="table-wrap"></div></article>
+    </section>
+    <section class="workspace-section" id="panel-governance" role="tabpanel" aria-labelledby="tab-governance" hidden>
+      <article class="studio-card"><div class="card-top"><div><h2>Limitations and next decisions</h2><p>Analytical boundaries are part of the product, not hidden in footnotes.</p></div><span class="card-index">CONTROL / 01</span></div><ul class="fact-list" id="limitations"></ul></article>
+    </section>
+    <footer class="footer-strip"><span>© NEXUS · INDUSTRIAL DECISION STUDIO</span><span>Operational monitoring and offline model validation are intentionally separated.</span></footer>
+  </main>
+</div>
+</body>
+</html>

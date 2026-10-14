@@ -25,6 +25,7 @@ from analysis.run_ai4i_case_study import (
     add_derived_features,
 )
 from case_study import case_study_bp
+from decision_studio import decision_studio_bp
 from demo_state import advance_production_counts, synchronized_demo_view
 from layout import SIDEBAR_CSS, render_sidebar
 from rul_case_study import rul_case_study_bp
@@ -46,6 +47,7 @@ app = Flask(__name__)
 app.register_blueprint(case_study_bp)
 app.register_blueprint(rul_case_study_bp)
 app.register_blueprint(settings_bp)
+app.register_blueprint(decision_studio_bp)
 
 if not MODEL_PATH.exists():
     raise FileNotFoundError(

@@ -1,0 +1,339 @@
+/* NEXUS Analysis Workspaces — evidence-led product surfaces, not fabricated live telemetry.
+   Shared by AI4I, C-MAPSS, and model settings. */
+.nexus-workspace {
+  --workspace-ink: #edf5ff;
+  --workspace-blue: #4ea8ff;
+  --workspace-violet: #9a9cf8;
+  --workspace-line: rgba(132, 174, 218, .19);
+  max-width: 1800px;
+  margin-right: auto;
+  margin-left: 250px;
+  color: var(--workspace-ink);
+}
+.nexus-workspace .workspace-nav {
+  position: sticky;
+  top: 10px;
+  z-index: 6;
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  flex-wrap: nowrap;
+  overflow-x: auto;
+  overscroll-behavior-x: contain;
+  padding: 9px;
+  margin: 0 0 19px;
+  border: 1px solid rgba(116, 167, 220, .26);
+  background: rgba(7, 23, 41, .94);
+  backdrop-filter: blur(18px);
+  border-radius: 13px;
+  box-shadow: 0 13px 34px rgba(0, 7, 22, .24);
+  scrollbar-width: thin;
+}
+.nexus-workspace .workspace-nav a {
+  display: inline-flex;
+  flex: 0 0 auto;
+  align-items: center;
+  min-height: 37px;
+  padding: 8px 13px;
+  border: 1px solid transparent;
+  border-radius: 8px;
+  background: rgba(60, 117, 186, .09);
+  color: #b9cde8;
+  font-size: 12px;
+  font-weight: 720;
+  letter-spacing: .015em;
+  text-decoration: none;
+  transition: background .18s ease, color .18s ease, border-color .18s ease;
+}
+.nexus-workspace .workspace-nav a:hover,
+.nexus-workspace .workspace-nav a:focus-visible {
+  color: #f5faff;
+  background: rgba(78, 168, 255, .20);
+  border-color: rgba(120, 194, 255, .37);
+}
+.nexus-workspace .workspace-nav a:first-child {
+  background: #164773;
+  border-color: #356e9f;
+  color: #f0f8ff;
+}
+.nexus-workspace [id^="workspace-"] { scroll-margin-top: 95px; }
+.nexus-workspace .workspace-hero,
+.nexus-workspace .hero {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 15px;
+  padding: clamp(23px, 3.3vw, 40px);
+  margin-bottom: 21px;
+  background:
+    radial-gradient(ellipse at 85% 2%, rgba(78, 168, 255, .18), transparent 38%),
+    linear-gradient(130deg, #102e4b 0%, #091e34 63%, #0a172b 100%);
+  border: 1px solid rgba(101, 160, 218, .38);
+  border-radius: 19px;
+  box-shadow: 0 24px 50px rgba(1, 8, 23, .25), inset 0 1px rgba(207, 230, 255, .09);
+}
+.nexus-workspace .hero .eyebrow,
+.nexus-workspace > .eyebrow {
+  color: #9ccaff;
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: .18em;
+  font-weight: 850;
+}
+.nexus-workspace .hero h1,
+.nexus-workspace > h1 {
+  max-width: 900px;
+  margin: 0;
+  color: #f5faff;
+  font-size: clamp(29px, 3vw, 48px);
+  line-height: 1.09;
+  letter-spacing: -.045em;
+  font-weight: 790;
+}
+.nexus-workspace .hero .lede {
+  max-width: 880px;
+  margin: 0;
+  color: #bad0e9;
+  font-size: 14px;
+  line-height: 1.65;
+}
+.nexus-workspace .workspace-decision {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  column-gap: 14px;
+  row-gap: 5px;
+  padding: 13px 16px;
+  border: 1px solid rgba(139, 158, 241, .34);
+  border-left: 3px solid #9a9cf8;
+  border-radius: 10px;
+  background: rgba(112, 127, 208, .09);
+  color: #c7d5e9;
+  font-size: 12px;
+  line-height: 1.5;
+}
+.nexus-workspace .workspace-decision strong {
+  flex: 0 0 auto;
+  color: #dedcff;
+  text-transform: uppercase;
+  font-size: 10px;
+  letter-spacing: .12em;
+}
+.nexus-workspace .metrics {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 11px;
+  margin-top: 8px;
+}
+.nexus-workspace .metric {
+  position: relative;
+  display: grid;
+  align-content: start;
+  gap: 9px;
+  min-width: 0;
+  min-height: 152px;
+  padding: 19px 17px 17px;
+  border: 1px solid rgba(112, 163, 208, .34);
+  border-radius: 13px;
+  background: linear-gradient(160deg, rgba(27, 68, 107, .65), rgba(12, 34, 60, .75));
+  box-shadow: inset 0 1px rgba(216, 234, 252, .06);
+}
+.nexus-workspace .metric:before {
+  position: absolute;
+  content: "";
+  width: 36px;
+  height: 2px;
+  top: 0;
+  left: 17px;
+  background: #68b5fa;
+}
+.nexus-workspace .metric:nth-child(2):before { background: #9a9cf8; }
+.nexus-workspace .metric:nth-child(3):before { background: #6bd5bc; }
+.nexus-workspace .metric:nth-child(4):before { background: #efbb7b; }
+.nexus-workspace .metric-label {
+  color: #b0c5df;
+  font-size: 11px;
+  font-weight: 780;
+  text-transform: uppercase;
+  letter-spacing: .09em;
+}
+.nexus-workspace .metric-value {
+  color: #f7fbff;
+  font-size: clamp(23px, 2.25vw, 38px);
+  font-variant-numeric: tabular-nums;
+  font-weight: 800;
+  letter-spacing: -.045em;
+  line-height: 1.06;
+  overflow-wrap: anywhere;
+}
+.nexus-workspace .metric-note {
+  color: #a9c1db;
+  font-size: 11px;
+  line-height: 1.5;
+}
+.nexus-workspace .grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 18px;
+}
+.nexus-workspace .panel {
+  min-width: 0;
+  padding: clamp(20px, 2vw, 29px);
+  background: linear-gradient(150deg, rgba(17, 45, 73, .95), rgba(10, 30, 51, .96));
+  border: 1px solid rgba(117, 167, 214, .25);
+  border-radius: 16px;
+  box-shadow: 0 18px 40px rgba(0, 9, 25, .17), inset 0 1px rgba(216, 234, 252, .045);
+}
+.nexus-workspace .panel .section-title {
+  position: relative;
+  margin: 0 0 18px;
+  padding: 0 0 13px 16px;
+  border-bottom: 1px solid rgba(116, 166, 209, .20);
+  color: #e9f4ff;
+  line-height: 1.25;
+  font-size: clamp(16px, 1.25vw, 21px);
+  font-weight: 790;
+  letter-spacing: -.02em;
+}
+.nexus-workspace .panel .section-title::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 3px;
+  bottom: 15px;
+  width: 3px;
+  border-radius: 2px;
+  background: #64adf2;
+}
+.nexus-workspace .panel .chart-gallery {
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 310px), 1fr));
+  gap: 14px;
+}
+.nexus-workspace .chart-frame {
+  min-width: 0;
+  overflow: hidden;
+  margin-top: 8px;
+  background: #0f1929; /* Exact source-chart canvas; no light frame around dark plots. */
+  border: 1px solid rgba(117, 167, 214, .25);
+  border-radius: 12px;
+  padding: 10px;
+}
+.nexus-workspace .chart-frame img {
+  max-width: 100%;
+  height: auto;
+  object-fit: contain;
+  border-radius: 5px;
+}
+.nexus-workspace .chart-caption {
+  margin-top: 9px;
+  color: #aec8e5;
+  font-size: 11px;
+  font-weight: 740;
+  text-transform: uppercase;
+  letter-spacing: .04em;
+}
+.nexus-workspace table { display: table; width: 100%; font-variant-numeric: tabular-nums; }
+.nexus-workspace .panel:has(table) { overflow-x: auto; }
+.nexus-workspace th {
+  background: rgba(63, 105, 149, .23);
+  color: #c6ddf5;
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: .07em;
+}
+.nexus-workspace tbody tr:hover { background: rgba(78, 168, 255, .09); }
+.nexus-workspace .tag {
+  border: 1px solid rgba(114, 177, 242, .35);
+  background: rgba(57, 129, 213, .12);
+  color: #b3ddff;
+}
+.nexus-workspace .footer-note,
+.nexus-workspace .section-copy,
+.nexus-workspace .bullet-list { color: #b2c5db; line-height: 1.65; }
+.nexus-workspace a { color: #90cbff; }
+.nexus-workspace a:hover { color: #d4ecff; }
+.nexus-workspace .setting-row {
+  border-color: rgba(135, 167, 203, .19);
+  padding: 15px 0;
+}
+.nexus-workspace .setting-control {
+  min-height: 43px;
+  border-color: #426d91;
+  background: #0d2b47;
+  color: #edf6ff;
+  border-radius: 9px;
+}
+.nexus-workspace .model-grid { gap: 18px; }
+.nexus-workspace .links-list a {
+  display: inline-flex;
+  padding: 12px 15px;
+  border: 1px solid rgba(117, 175, 231, .28);
+  border-radius: 10px;
+  background: rgba(45, 107, 175, .1);
+}
+@media (max-width: 1200px) {
+  .nexus-workspace .metrics { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+@media (max-width: 920px) {
+  .nexus-workspace { margin-left: 0; }
+  .nexus-workspace .workspace-nav { top: 66px; }
+  .nexus-workspace .grid { grid-template-columns: 1fr; }
+  .nexus-workspace [id^="workspace-"] { scroll-margin-top: 145px; }
+}
+@media (max-width: 575px) {
+  .nexus-workspace .workspace-nav { margin-top: 0; }
+  .nexus-workspace .workspace-nav a { min-height: 42px; }
+  .nexus-workspace .hero { padding: 22px 17px; }
+  .nexus-workspace .metrics { grid-template-columns: 1fr 1fr; }
+  .nexus-workspace .metric { min-height: 135px; padding: 14px; }
+  .nexus-workspace .metric-value { font-size: clamp(20px, 5vw, 28px); }
+  .nexus-workspace .panel { padding: 17px 14px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .nexus-workspace .workspace-nav a { transition: none; }
+}
+
+/* AI4I model signal ranking from the committed feature-importance artifact. */
+.nexus-workspace .signal-list {
+  display: grid;
+  gap: 4px;
+  padding: 4px 0;
+}
+.nexus-workspace .signal-row {
+  display: grid;
+  grid-template-columns: minmax(110px, 1.45fr) minmax(90px, 1fr) minmax(48px, auto);
+  gap: 10px;
+  align-items: center;
+  min-height: 38px;
+  padding: 6px 8px;
+  border-radius: 7px;
+}
+.nexus-workspace .signal-row:hover { background: rgba(78,168,255,.08); }
+.nexus-workspace .signal-name {
+  color: #c8daef;
+  font-size: 11px;
+  font-weight: 680;
+  overflow-wrap: anywhere;
+}
+.nexus-workspace .signal-track {
+  height: 10px;
+  border-radius: 4px;
+  background: rgba(113,161,214,.16);
+  overflow: hidden;
+}
+.nexus-workspace .signal-fill {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background: linear-gradient(90deg,#4588d6,#84bfff);
+}
+.nexus-workspace .signal-value {
+  color: #e3f1ff;
+  font-size: 11px;
+  font-weight: 740;
+  font-variant-numeric: tabular-nums;
+  text-align: right;
+}
+@media (max-width: 575px) {
+  .nexus-workspace .signal-row { grid-template-columns: minmax(85px, 1.3fr) minmax(55px,1fr) minmax(40px,auto); gap: 6px; }
+  .nexus-workspace .signal-name { font-size: 10px; }
+}
