@@ -215,10 +215,10 @@ class E2ESmokeTests(unittest.TestCase):
         finally:
             page.close()
 
-    def test_analysis_studios_dark_chart_surfaces_at_desktop_and_mobile(self):
+    def test_analysis_studios_dark_chart_surfaces_at_desktop_tablet_mobile(self):
         """Committed dark PNGs must not sit on pale card backgrounds."""
         for route in ("/case-study", "/rul-case-study"):
-            for width in (1440, 375):
+            for width in (1440, 1024, 375):
                 with self.subTest(route=route, width=width):
                     page = self.browser.new_page(viewport={"width": width, "height": 900})
                     try:
