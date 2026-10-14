@@ -112,14 +112,17 @@
  .nexus-maintenance-studio .maintenance-console,.nexus-prognostics-studio .prognostics-console{grid-template-columns:1fr}
  .maintenance-command-score,.prognostics-hero-metric{max-width:750px}
  .maintenance-metrics{grid-template-columns:repeat(2,minmax(0,1fr))}
- .nexus-maintenance-studio .maintenance-priority-board{grid-template-columns:1fr 1fr}
+ .nexus-maintenance-studio .maintenance-priority-board{grid-template-columns:1fr}
+ /* Keep complete chart evidence readable in tablet-width content columns. */
+ .nexus-maintenance-studio .maintenance-validation-studio .chart-gallery,.nexus-maintenance-studio .maintenance-evidence-lab .chart-gallery,.nexus-prognostics-studio .prognostics-visual-studio .chart-gallery{grid-template-columns:1fr}
+ .nexus-prognostics-studio .prognostics-visual-studio .chart-gallery figure:first-child{grid-row:auto}
 }
 @media(max-width:860px){
  .nexus-maintenance-studio .maintenance-chapter-title,.nexus-prognostics-studio .prognostics-chapter-title{grid-template-columns:1fr}
  .nexus-maintenance-studio .maintenance-priority-board,.nexus-maintenance-studio .maintenance-benchmark-studio,.nexus-prognostics-studio .prognostics-benchmark,.nexus-prognostics-studio .prognostics-engineering{grid-template-columns:1fr}
  .nexus-prognostics-studio .prognostics-visual-studio .chart-gallery{grid-template-columns:1fr}
  .nexus-prognostics-studio .prognostics-visual-studio .chart-gallery figure:first-child{grid-row:auto}
- .nexus-maintenance-studio .maintenance-evidence-lab .chart-gallery{grid-template-columns:repeat(2,minmax(0,1fr))}
+ .nexus-maintenance-studio .maintenance-evidence-lab .chart-gallery{grid-template-columns:1fr}
 }
 @media(max-width:560px){
  .nexus-maintenance-studio,.nexus-prognostics-studio{gap:15px}

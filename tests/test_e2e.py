@@ -226,6 +226,23 @@ class E2ESmokeTests(unittest.TestCase):
                         page.on("pageerror", lambda error: errors.append(str(error)))
                         response = page.goto(BASE_URL + route, wait_until="networkidle")
                         self.assertEqual(response.status, 200)
+                        if width == 1024:
+                            grid_selectors = (
+                                (
+                                    ".maintenance-priority-board",
+                                    ".maintenance-validation-studio .chart-gallery",
+                                    ".maintenance-evidence-lab .chart-gallery",
+                                )
+                                if route == "/case-study"
+                                else (".prognostics-visual-studio .chart-gallery",)
+                            )
+                            for selector in grid_selectors:
+                                self.assertEqual(
+                                    page.locator(selector).evaluate(
+                                        "el => getComputedStyle(el).gridTemplateColumns.split(' ').length"
+                                    ),
+                                    1,
+                                )
                         surfaces = page.locator("figure.chart-frame")
                         self.assertGreater(surfaces.count(), 0)
                         for surface in surfaces.all():

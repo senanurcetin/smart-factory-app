@@ -813,7 +813,7 @@ def main() -> None:
         "limitations": [
             "The UCI AI4I dataset is simulated, so it is better for benchmarking than for plant-specific deployment claims.",
             "The cost model is illustrative and meant to show how review logic can be translated into business tradeoffs.",
-            "The app still serves a lightweight demo UI rather than a production monitoring stack.",
+            "This workspace presents reproducible offline benchmarks, not a deployed plant-monitoring system.",
             "Local feature attributions use SHAP TreeExplainer (interventional, probability-space, 200-row "
             "background sample) rather than exact Shapley values over the full training set, so they are a "
             "close but not perfect approximation.",
