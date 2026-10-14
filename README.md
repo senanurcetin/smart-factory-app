@@ -14,11 +14,19 @@ Demo: **[smart-factory-app.onrender.com](https://smart-factory-app.onrender.com)
 
 The application includes **three synchronized, functioning time-series panels** for process temperature, tool wear and the trained classifier's risk score, plus an **OEE decomposition** showing Availability × Performance × Quality. The CSV export contains the Flask worker's **latest 240 shared simulated sensor readings scored by the trained model** (a rolling buffer), including an explicitly labelled *heuristic* RUL proxy. The export does **not** invent plant readings, company data or calibrated survival estimates. Data is created as visitors poll the shared demo endpoint. The CSV is **not isolated per visitor**; different worker processes can show different rolling buffers. A worker with no readings returns a header-only export.
 
-> **Screenshot provenance:** The PNG and video below are existing *historical* application captures. They have **not** been re-rendered from this design update and do not show the new risk-trend/OEE interface. The current real UI must be captured from the running application after deployment is verified; do not replace these assets with AI-generated dashboards or portfolio illustration.
+> **Current production screenshots (14 October 2026):** the PNGs below were taken directly from the live Render release using real Chromium. Sensor/OEE/line data shown on the dashboard is **simulated**, while AI4I and C-MAPSS case-study metrics are offline evaluations, not real-time plant signals. The linked WebM remains a historical video. [Capture provenance](docs/assets/production_screenshot_provenance_20261014.json).
 
 Short historical video: [`docs/assets/smart-factory-dashboard.webm`](docs/assets/smart-factory-dashboard.webm)
 
-![Historical Smart Factory application screenshot, predating the new risk and OEE panels](docs/assets/smart-factory-dashboard.png)
+![Current NEXUS Smart Factory production dashboard with simulated risk trend, OEE and KPIs](docs/assets/smart-factory-dashboard.png)
+
+### Current NEXUS analysis workspaces (real production screenshots)
+
+![Predictive Maintenance intelligence workspace captured from live Render production](docs/assets/smart-factory-maintenance.png)
+
+![RUL Prognostics engineering workspace captured from live Render production](docs/assets/smart-factory-rul.png)
+
+[View real 375px mobile screenshot](docs/assets/smart-factory-mobile-375.png)
 
 ---
 
@@ -48,7 +56,7 @@ When executed with `E2E_SCREENSHOT_DIR=artifacts/gallery`, the suite produces:
 - `smart-factory-mobile-375.png` — 375px dashboard after checking keyboard navigation and overflow.
 - `smart-factory-telemetry-outage.png` — optional failure-state capture if the outage scenario is reached.
 
-These are renderings of **simulated telemetry**, not readings from real factory hardware. Artifacts remain in the CircleCI job and are **not** automatically copied into the README or portfolio. A successful browser job does not verify that a public Render deployment runs the same commit; screenshots still require human review before publication.
+These are renderings of **simulated telemetry**, not readings from real factory hardware. CircleCI captures remain separate from the README. The README images above were independently taken from **Render production** on 14 October 2026, after verifying the deployed Docker commit and routes. The screenshot data is simulated where explicitly labeled, not a real plant data feed.
 
 ---
 

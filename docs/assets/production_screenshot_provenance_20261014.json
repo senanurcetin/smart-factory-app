@@ -1,0 +1,55 @@
+{
+  "date": "2026-10-14",
+  "origin": "public production applications, captured using Chromium Playwright",
+  "original_capture_dir": "C:\\Users\\MONSTER\\Downloads\\NEXUS_REAL_SCREENSHOTS_20261014",
+  "files": [
+    {
+      "asset": "docs/assets/smart-factory-dashboard.png",
+      "source_url": "https://smart-factory-app.onrender.com/",
+      "pixel_size": [
+        1440,
+        980
+      ],
+      "sha256": "a486686cea998008ad7592dd0a70f7145ce32cdbf5aa80af143e8a0a4579b2c2",
+      "capture_method": "Playwright Chromium production capture; no editing or overlays",
+      "date": "2026-10-14",
+      "dataset_note": "Simulated industrial inputs plus offline benchmark evidence"
+    },
+    {
+      "asset": "docs/assets/smart-factory-maintenance.png",
+      "source_url": "https://smart-factory-app.onrender.com/case-study",
+      "pixel_size": [
+        1440,
+        1000
+      ],
+      "sha256": "9b4fe16ec9b53860ebcb8d0ce6fdd5cafbc83ecf21ce4f4f1210364de8236b45",
+      "capture_method": "Playwright Chromium production capture; no editing or overlays",
+      "date": "2026-10-14",
+      "dataset_note": "Simulated industrial inputs plus offline benchmark evidence"
+    },
+    {
+      "asset": "docs/assets/smart-factory-rul.png",
+      "source_url": "https://smart-factory-app.onrender.com/rul-case-study",
+      "pixel_size": [
+        1440,
+        1000
+      ],
+      "sha256": "13638eb5a768b8b4d05bcdd1bfcccb2ae1506f978f953ac2b5600fb22cbd2905",
+      "capture_method": "Playwright Chromium production capture; no editing or overlays",
+      "date": "2026-10-14",
+      "dataset_note": "Simulated industrial inputs plus offline benchmark evidence"
+    },
+    {
+      "asset": "docs/assets/smart-factory-mobile-375.png",
+      "source_url": "https://smart-factory-app.onrender.com/",
+      "pixel_size": [
+        375,
+        900
+      ],
+      "sha256": "2a4c6409cb4388d4fe012c269707a2cb9dee986e736b1b9d3d0d00e906c629d8",
+      "capture_method": "Playwright Chromium production capture; no editing or overlays",
+      "date": "2026-10-14",
+      "dataset_note": "Simulated industrial inputs plus offline benchmark evidence"
+    }
+  ]
+}
