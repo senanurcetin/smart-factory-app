@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="1200" height="440" viewBox="0 0 1200 440" role="img"><defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="15%"><stop offset="0%" stop-color="#061324"/><stop offset="55%" stop-color="#0A1B32"/><stop offset="100%" stop-color="#171831"/></linearGradient>
+    <linearGradient id="spectrum" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#00E0FF"/><stop offset="31%" stop-color="#4EA8FF"/><stop offset="70%" stop-color="#8F9BFF"/><stop offset="100%" stop-color="#6E55C6"/></linearGradient>
+    <linearGradient id="line" x1="0" y1="0" x2="1" y2="0"><stop offset="0%" stop-color="#00E0FF" stop-opacity="0"/><stop offset="50%" stop-color="#4EA8FF" stop-opacity=".7"/><stop offset="100%" stop-color="#8F9BFF" stop-opacity="0"/></linearGradient>
+    <radialGradient id="haloC"><stop offset="0%" stop-color="#00E0FF" stop-opacity=".21"/><stop offset="45%" stop-color="#4EA8FF" stop-opacity=".07"/><stop offset="100%" stop-color="#061524" stop-opacity="0"/></radialGradient>
+    <radialGradient id="haloV"><stop offset="0%" stop-color="#6E55C6" stop-opacity=".24"/><stop offset="46%" stop-color="#8F9BFF" stop-opacity=".08"/><stop offset="100%" stop-color="#061524" stop-opacity="0"/></radialGradient>
+    <pattern id="grid" width="64" height="64" patternUnits="userSpaceOnUse"><path d="M64 0H0V64" fill="none" stroke="#4EA8FF" stroke-opacity=".065" stroke-width="1"/></pattern>
+    <clipPath id="canvas"><rect x="0" y="0" width="1200" height="440"/></clipPath>
+    </defs><rect width="1200" height="440" fill="#061524"/><g aria-label="NEXUS" transform="translate(150,78) scale(1.43)">
+      <text x="0" y="143" fill="#B9C5CE" font-family="'Space Grotesk','Inter Display','Inter',sans-serif" font-size="136" font-weight="500" letter-spacing="2">NE</text>
+      <path d="M20 22H64L97 69L131 22H175L116 92L175 162H131L97 115L63 162H19L78 92Z M97 82L107 92L97 102L87 92Z M134 22L158 22L147 36L123 36Z M36 148L60 148L49 162L25 162Z" transform="translate(195,-10)" fill="url(#spectrum)" fill-rule="evenodd"/>
+      <text x="413" y="143" fill="#B9C5CE" font-family="'Space Grotesk','Inter Display','Inter',sans-serif" font-size="136" font-weight="500" letter-spacing="2">US</text>
+    </g></svg>
