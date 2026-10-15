@@ -121,7 +121,7 @@ jobs:
               sleep 2
             done
             test "$ready" -eq 1
-            docker exec -i smart-smoke python - <<'PY'
+            docker exec -i smart-smoke python - \<<'PY'
             import urllib.request
 
             checks = {
