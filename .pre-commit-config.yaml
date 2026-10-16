@@ -1,0 +1,9 @@
+repos:
+  - repo: local
+    hooks:
+      - id: circleci-heredoc-safety
+        name: Guard CircleCI v2.1 against unescaped heredocs
+        entry: python scripts/check_circleci_heredocs.py
+        language: system
+        pass_filenames: false
+        files: ^\.circleci/config\.yml$
