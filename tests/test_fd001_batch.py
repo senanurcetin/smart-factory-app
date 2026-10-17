@@ -149,11 +149,11 @@ class Fd001BatchTests(unittest.TestCase):
         with self.assertRaisesRegex(Fd001BatchError, "exactly 26"):
             parse_cycles("1 1 0.1\n", "train")
         with self.assertRaisesRegex(Fd001BatchError, "Non-numeric"):
-            parse_cycles(raw_cycle(1, 1).replace("0.3", "oops"), "train")
+            parse_cycles(raw_cycle(1, 1).replace("0.2", "oops", 1), "train")
 
     def test_nan_or_infinite_sensor_rejected(self):
         for value in ("nan", "inf", "-inf"):
-            source = raw_cycle(1, 1).replace("0.3", value)
+            source = raw_cycle(1, 1).replace("0.2", value, 1)
             with self.subTest(value=value):
                 with self.assertRaisesRegex(Fd001BatchError, "Nonfinite"):
                     parse_cycles(source, "test")
