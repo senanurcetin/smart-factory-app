@@ -19,6 +19,7 @@ import joblib
 import pandas as pd
 from flask import Flask, Response, jsonify, render_template_string, send_from_directory
 
+from analysis.benchmark_snapshot import SnapshotError, build_benchmark_snapshot
 from analysis.run_ai4i_case_study import (
     MODEL_FEATURES_ENHANCED,
     MODEL_PATH,
@@ -629,6 +630,28 @@ def index():
 @app.route("/assets/<path:filename>")
 def serve_asset(filename):
     return send_from_directory(ASSETS_DIR, filename)
+
+
+@app.get("/api/benchmark-snapshot")
+def get_benchmark_snapshot():
+    """Read-only historic benchmark evidence. Not connected BigQuery or live plant data."""
+    try:
+        report = build_benchmark_snapshot(Path(__file__).resolve().parent)
+    except (SnapshotError, ValueError, KeyError, TypeError):
+        return (
+            jsonify(
+                {
+                    "status": "unavailable",
+                    "reason": "committed_benchmark_evidence_invalid",
+                    "bigquery_dataset_connected": False,
+                    "real_plant_telemetry": False,
+                }
+            ),
+            503,
+        )
+    response = jsonify(report)
+    response.headers["Cache-Control"] = "no-store"
+    return response
 
 
 @app.route("/api/data")
