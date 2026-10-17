@@ -25,7 +25,7 @@ CASE_STUDY_TEMPLATE = (
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Smart Factory Predictive Maintenance | AI4I Case Study</title>
-    <link rel="icon" type="image/svg+xml" href="/assets/seo/favicon.svg">
+    <link rel="icon" type="image/svg+xml" href="/static/nexus-official-x.svg">
     <meta name="description" content="Source-backed AI4I predictive maintenance model and risk-ranked holdout review queues. Offline evaluation, not deployed plant alerts.">
     <meta name="robots" content="index,follow,max-image-preview:large">
     <meta name="theme-color" content="#071829">
