@@ -5,6 +5,7 @@ from __future__ import annotations
 import csv
 import hashlib
 import json
+import re
 import tempfile
 import unittest
 from datetime import datetime, timedelta, timezone
@@ -16,6 +17,7 @@ from analysis.ai4i_batch import (
     prepare_ai4i_rows,
     write_new_jsonl,
 )
+from analysis.bigquery_plan import build_sql_plan
 
 STAMP = datetime(2026, 10, 17, 14, 0, tzinfo=timezone.utc)
 
@@ -73,6 +75,19 @@ class Ai4iBatchTests(unittest.TestCase):
         self.assertEqual(rows[0]["tool_wear_min"], 120.0)
         self.assertEqual(rows[0]["machine_failure"], 0)
         self.assertEqual(rows[0]["ingestion_run_id"], "offline_test_20261017")
+
+    def test_csv_normalization_matches_bigquery_raw_table_columns(self):
+        item = self.prepare()[0]
+        plan = build_sql_plan("workintech-working")
+        ddl = next(
+            step["sql"]
+            for step in plan["statements"]
+            if step["name"] == "ai4i_records"
+        )
+        column_names = set(
+            re.findall(r"(?m)^  ([a-z_0-9]+) (?:STRING|INT64|FLOAT64|TIMESTAMP)", ddl)
+        )
+        self.assertEqual(set(item), column_names)
 
     def test_explicit_utc_timestamp(self):
         timezone_plus_three = timezone(offset=timedelta(hours=3))
