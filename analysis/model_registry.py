@@ -69,6 +69,11 @@ def _metrics(model_id: str, metrics: Mapping[str, float]) -> dict[str, float]:
         numeric = float(value)
         if not math.isfinite(numeric):
             raise RegistryError("Metrics must be finite")
+        if key in {"pr_auc", "roc_auc", "f1", "precision", "recall"}:
+            if not 0.0 <= numeric <= 1.0:
+                raise RegistryError("Classification metrics must be in [0, 1]")
+        if key in {"rmse", "mae", "phm08_score"} and numeric < 0.0:
+            raise RegistryError("Regression error/score metrics must be nonnegative")
         validated[key] = numeric
     primary, _direction = PRIMARY_METRICS[model_id]
     if primary not in validated:
