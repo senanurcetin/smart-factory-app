@@ -3,10 +3,10 @@
 import json
 import math
 import unittest
+from pathlib import Path
 
 import joblib
 import pandas as pd
-from pathlib import Path
 
 from analysis.rul_input_contract import (
     DROPPED_FD001_SENSORS,
