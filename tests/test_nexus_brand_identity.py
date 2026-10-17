@@ -36,6 +36,12 @@ class NexusBrandIdentityTests(unittest.TestCase):
         self.assertEqual(int.from_bytes(image[20:24], "big"), 360)
         self.assertEqual(image[25], 6, "Official wordmark needs RGBA transparency")
 
+    def test_approved_midnight_cover_is_valid_png(self):
+        image = (STATIC / "nexus-official-midnight.png").read_bytes()
+        self.assertEqual(image[:8], bytes.fromhex("89504e470d0a1a0a"))
+        self.assertEqual(int.from_bytes(image[16:20], "big"), 1200)
+        self.assertEqual(int.from_bytes(image[20:24], "big"), 440)
+
     def test_brand_gradient_matches_approved_nexus_palette(self):
         for name in ("nexus-official-wordmark.svg", "nexus-official-x.svg"):
             with self.subTest(asset=name):
