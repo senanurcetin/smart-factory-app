@@ -1,9 +1,12 @@
 """Offline FD001 engine-history contract tests without model weights or network."""
 
+import json
 import math
 import unittest
+from pathlib import Path
 
 from analysis.rul_input_contract import (
+    DROPPED_FD001_SENSORS,
     INFORMATIVE_SENSORS,
     MODEL_COLUMNS,
     RAW_COLUMNS,
@@ -36,6 +39,16 @@ class RulFeatureContractTests(unittest.TestCase):
         self.assertEqual(tuple(output["model_features"]), MODEL_COLUMNS)
         self.assertFalse(output["is_live_plant_data"])
         self.assertFalse(output["automated_maintenance_action"])
+
+    def test_selected_sensors_match_committed_fd001_evidence(self):
+        root = Path(__file__).resolve().parents[1]
+        summary_path = root / "docs/data/cmapss-rul-case-study/summary.json"
+        summary = json.loads(summary_path.read_text(encoding="utf-8"))
+        self.assertEqual(
+            set(summary["sensors"]["dropped_near_constant"]),
+            DROPPED_FD001_SENSORS,
+        )
+        self.assertEqual(summary["sensors"]["kept_informative"], len(INFORMATIVE_SENSORS))
 
     def test_rolling_features_use_only_last_five_cycles(self):
         result = build_fd001_feature_row(history(7))
