@@ -9,6 +9,7 @@ import unittest
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
+from analysis.bigquery_load_guard import validate_batch_upload
 from analysis.bigquery_plan import build_sql_plan
 from analysis.fd001_batch import (
     Fd001BatchError,
@@ -202,6 +203,36 @@ class Fd001BatchTests(unittest.TestCase):
         self.assertEqual(lines[0]["true_rul_cycles"], 11)
         with self.assertRaisesRegex(Fd001BatchError, "already exists"):
             write_fd001_jsonl(result, self.dir)
+
+    def test_fd001_cycle_batch_passes_cloud_offline_schema_preflight(self):
+        batch = self.prepare()
+        write_fd001_jsonl(batch, self.dir)
+        path = self.dir / "fd001_cycles.jsonl"
+        result = validate_batch_upload(
+            path,
+            expected_file_sha256=hashlib.sha256(path.read_bytes()).hexdigest(),
+            expected_source_sha256=batch["evidence"]["bundle_source_sha256"],
+            expected_rows=10,
+            project="workintech-working",
+            table="fd001_cycles",
+        )
+        self.assertEqual(result["status"], "offline_preflight_pass")
+        self.assertFalse(result["remote_load_job_submitted"])
+
+    def test_fd001_official_truth_passes_cloud_offline_schema_preflight(self):
+        batch = self.prepare()
+        write_fd001_jsonl(batch, self.dir)
+        path = self.dir / "fd001_official_test_truth.jsonl"
+        result = validate_batch_upload(
+            path,
+            expected_file_sha256=hashlib.sha256(path.read_bytes()).hexdigest(),
+            expected_source_sha256=batch["evidence"]["bundle_source_sha256"],
+            expected_rows=2,
+            project="workintech-working",
+            table="fd001_official_test_truth",
+        )
+        self.assertEqual(result["rows"], 2)
+        self.assertFalse(result["cloud_upload_performed"])
 
     def test_no_live_plant_or_model_prediction_claim(self):
         evidence = self.prepare()["evidence"]
