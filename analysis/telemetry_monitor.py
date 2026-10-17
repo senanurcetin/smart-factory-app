@@ -72,7 +72,9 @@ def evaluate_telemetry_window(
 
     if len(samples) < min_records:
         return _result(
-            "insufficient_data", ["window_insufficient_records"], observed_records=len(samples)
+            "insufficient_data",
+            ["window_insufficient_records"],
+            observed_records=len(samples),
         )
 
     sources = set()
