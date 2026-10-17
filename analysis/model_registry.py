@@ -7,6 +7,7 @@ or automatic promotion. Only explicit stage_candidate calls write files.
 from __future__ import annotations
 
 import hashlib
+import json
 import math
 import os
 import re
@@ -25,6 +26,7 @@ PRIMARY_METRICS = {
 }
 SHA256_RE = re.compile(r"^[0-9a-f]{64}$")
 MAX_ARTIFACT_BYTES = 64 * 1024 * 1024
+MAX_MANIFEST_BYTES = 16 * 1024
 MANIFEST_FIELDS = frozenset(
     (
         "schema_version",
@@ -147,6 +149,27 @@ def stage_candidate(
         "metrics": checked_metrics,
         "status": "candidate",
     }
+    manifest_path = folder / (model_sha256 + ".json")
+    if manifest_path.is_symlink():
+        raise RegistryError("Manifest cannot be a symlink")
+    if manifest_path.exists():
+        try:
+            existing = json.loads(manifest_path.read_text(encoding="utf-8"))
+        except (OSError, ValueError) as exc:
+            raise RegistryError("Existing manifest is unreadable") from exc
+        if existing != manifest:
+            raise RegistryError("Existing immutable manifest metadata differs")
+    else:
+        with tempfile.NamedTemporaryFile(
+            mode="w", encoding="utf-8", dir=folder, prefix=".manifest-", delete=False
+        ) as temporary:
+            manifest_temp = Path(temporary.name)
+            json.dump(manifest, temporary, indent=2, sort_keys=True)
+            temporary.write("\n")
+        try:
+            os.replace(manifest_temp, manifest_path)
+        finally:
+            manifest_temp.unlink(missing_ok=True)
     verify_candidate(root, manifest)
     return manifest
 
@@ -184,6 +207,17 @@ def verify_candidate(repo_root: Path, manifest: Mapping[str, object]) -> dict:
         raise RegistryError("Registry directory cannot be a symlink")
     if _sha256(root / expected) != sha:
         raise RegistryError("Model bytes do not match manifest SHA-256")
+    manifest_path = folder / (sha + ".json")
+    if not manifest_path.is_file() or manifest_path.is_symlink():
+        raise RegistryError("Candidate manifest must be a regular file")
+    if not 0 < manifest_path.stat().st_size <= MAX_MANIFEST_BYTES:
+        raise RegistryError("Candidate manifest exceeds size policy")
+    try:
+        stored = json.loads(manifest_path.read_text(encoding="utf-8"))
+    except (OSError, ValueError) as exc:
+        raise RegistryError("Candidate manifest cannot be decoded") from exc
+    if stored != dict(manifest):
+        raise RegistryError("Candidate manifest does not match stored metadata")
     return dict(manifest)
 
 
