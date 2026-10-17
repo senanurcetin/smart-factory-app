@@ -83,7 +83,7 @@ HTML_TEMPLATE = (
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>NEXUS Smart Factory | Industrial Analytics Dashboard</title>
-    <link rel="icon" type="image/svg+xml" href="/assets/seo/favicon.svg">
+    <link rel="icon" type="image/svg+xml" href="/static/nexus-official-x.svg">
     <meta name="description" content="Simulated AI4I industrial telemetry scored by a trained failure-risk model. Live demo, not actual plant equipment readings.">
     <meta name="robots" content="index,follow,max-image-preview:large">
     <meta name="theme-color" content="#071829">
