@@ -118,6 +118,18 @@ class SourceRegistryTests(unittest.TestCase):
                 with self.assertRaises(SourceRegistryError):
                     validate_manifest(manifest)
 
+    def test_unapproved_https_source_host_is_rejected(self):
+        self.manifest["datasets"][0]["official_url"] = (
+            "https://untrusted.example.com/ai4i.zip"
+        )
+        with self.assertRaisesRegex(SourceRegistryError, "pinned HTTPS host"):
+            validate_manifest(self.manifest)
+
+    def test_malformed_https_source_url_is_rejected(self):
+        self.manifest["datasets"][0]["official_url"] = "https://[invalid"
+        with self.assertRaisesRegex(SourceRegistryError, "Malformed"):
+            validate_manifest(self.manifest)
+
     def test_rejects_unversioned_or_invalid_kaggle_mirror(self):
         self.manifest["datasets"][0]["kaggle_version"] = 3
         with self.assertRaisesRegex(SourceRegistryError, "requires"):
