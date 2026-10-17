@@ -138,7 +138,7 @@ def parse_record(
     if not isinstance(asset_id, str) or not ASSET_ID_PATTERN.fullmatch(asset_id):
         raise TelemetryValidationError("Invalid asset_id")
     machine_type = record["Type"]
-    if machine_type not in {"L", "M", "H"}:
+    if not isinstance(machine_type, str) or machine_type not in {"L", "M", "H"}:
         raise TelemetryValidationError("Type must be L, M or H")
     values = {field: _bounded_number(field, record[field]) for field in SENSOR_BOUNDS}
     return TelemetrySample(
@@ -173,6 +173,8 @@ def parse_opcua_snapshot(
     """Normalize an already-read snapshot; no OPC UA session or node writes."""
     if not isinstance(readings, Mapping):
         raise TelemetryValidationError("OPC UA readings must be a mapping")
+    if "asset_id" in readings or "recorded_at" in readings:
+        raise TelemetryValidationError("OPC UA readings cannot override source metadata")
     return parse_record(
         {"asset_id": asset_id, "recorded_at": recorded_at, **readings},
         source="opcua",
