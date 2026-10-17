@@ -50,6 +50,14 @@ class RulFeatureContractTests(unittest.TestCase):
         )
         self.assertEqual(summary["sensors"]["kept_informative"], len(INFORMATIVE_SENSORS))
 
+    def test_model_features_match_committed_shap_feature_set(self):
+        root = Path(__file__).resolve().parents[1]
+        feature_path = root / "docs/data/cmapss-rul-case-study/feature-importance.json"
+        feature_data = json.loads(feature_path.read_text(encoding="utf-8"))
+        published = [entry["feature"] for entry in feature_data["features"]]
+        self.assertEqual(len(published), len(MODEL_COLUMNS))
+        self.assertEqual(set(published), set(MODEL_COLUMNS))
+
     def test_rolling_features_use_only_last_five_cycles(self):
         result = build_fd001_feature_row(history(7))
         self.assertEqual(result["last_cycle"], 7)
