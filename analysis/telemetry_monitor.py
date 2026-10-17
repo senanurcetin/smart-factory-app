@@ -115,6 +115,14 @@ def evaluate_telemetry_window(
                     observed_records=len(samples),
                 )
         drift = build_drift_report(baseline, observed)
+        # The reusable PSI helper describes its original +80-minute synthetic
+        # benchmark, which is not necessarily true for this input window.
+        # Override only the descriptive metadata; do not change PSI results.
+        drift["scenario"] = (
+            "Advisory PSI on validated "
+            + next(iter(sources))
+            + " telemetry window; no shift, plant origin, or outcome is inferred."
+        )
     except (ValueError, TypeError, KeyError, ArithmeticError) as exc:
         return _result(
             "data_quality_error",
