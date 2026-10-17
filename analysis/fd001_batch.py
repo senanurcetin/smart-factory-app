@@ -233,8 +233,9 @@ def write_fd001_jsonl(batches: dict, destination: Path) -> dict:
                 try:
                     for record in data:
                         stream.write(json.dumps(record, sort_keys=True, allow_nan=False) + "\n")
-                finally:
-                    stream.flush()
+                except BaseException:
+                    temp_path.unlink(missing_ok=True)
+                    raise
             try:
                 os.link(temp_path, root / name)
                 written.append(root / name)
