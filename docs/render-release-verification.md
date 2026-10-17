@@ -1,8 +1,16 @@
 # Smart Factory — Render release and rollback verification
 
-> **Last verified production — 14 October 2026:** Render `smart-factory-app` in the SmartFaactory workspace deployed the current README screenshot revision `0512457` as **live**. The original app-content hotfix was `747f0ce` (PR #23); production accepted seven HTTP routes/assets and six Chromium viewport checks. The steps below remain the release and rollback checklist **for future code deployments**, not a claim that the 14 October hotfix is waiting for merge. Separate CircleCI `container-quality` job green status was not verified and remains a follow-up check.
+> **Historical production/browser QA — 14 October 2026:** Render `smart-factory-app` in the SmartFaactory workspace deployed the current README screenshot revision `0512457` as **live**. The original app-content hotfix was `747f0ce` (PR #23); production accepted seven HTTP routes/assets and six Chromium viewport checks. The steps below remain the release and rollback checklist **for future code deployments**, not a claim that the 14 October hotfix is waiting for merge. Subsequent hosted CircleCI `container-quality` success is now verified as described below.
 
 ---
+
+## Current release evidence — 17 October 2026 check
+
+- Repository: `senanurcetin/smart-factory-app`, `main` SHA `61dd76cb944bdedaf7951e59f73c003817655ee3` (merge PR #31, 16 October 2026).
+- Hosted CircleCI results attached to **that exact SHA**: [Python quality #88](https://circleci.com/gh/senanurcetin/smart-factory-app/88) **SUCCESS**, [browser quality #89](https://circleci.com/gh/senanurcetin/smart-factory-app/89) **SUCCESS**, [container quality #90](https://circleci.com/gh/senanurcetin/smart-factory-app/90) **SUCCESS**.
+- Render workspace `SmartFaactory`, service `smart-factory-app`, deployment `dep-db911t9srm7s73a4ve0g` is marked **live**, from exactly `61dd76cb944bdedaf7951e59f73c003817655ee3` (finished 16 October 2026 11:58 UTC).
+- These are GitHub CI and **Render control-plane** observations. They do not establish an independently executed live HTTP/Chromium smoke on the 16 October SHA. The previously documented 14 October live HTTP and browser checks remain historical evidence for that earlier build. Re-run the HTTP/browser checklist below before calling a new full production acceptance.
+- AI4I metrics in [committed benchmark JSON](data/ai4i-case-study/summary.json) and README: ROC-AUC **0.9874**, PR-AUC **0.9019**, F1 **0.8293**; NASA C-MAPSS FD001 RUL RMSE **18.0535** from [the independent RUL study](data/cmapss-rul-case-study/summary.json). These are offline simulated-dataset benchmark metrics, **not live plant measurements**.
 
 ## Release artifact
 
