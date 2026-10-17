@@ -107,6 +107,7 @@ def build_sql_plan(project: str, prefix: str = "smart_factory", location: str = 
   source_sha256 STRING NOT NULL,
   udi INT64 NOT NULL,
   risk_score FLOAT64 NOT NULL,
+  evaluation_split STRING NOT NULL,
   scored_at TIMESTAMP NOT NULL""",
             mart_dataset,
         ),
@@ -166,7 +167,8 @@ scores_latest AS (
   ) = 1
 )
 SELECT s.model_sha256, s.source_sha256, r.udi, r.product_id,
-       r.type, r.machine_failure, s.risk_score, s.scored_at
+       r.type, r.machine_failure, s.risk_score,
+       s.evaluation_split, s.scored_at
 FROM scores_latest AS s
 JOIN raw_latest AS r
   ON s.source_sha256 = r.source_sha256 AND s.udi = r.udi;"""
@@ -199,6 +201,30 @@ JOIN last_cycles AS c
   ON p.source_sha256 = c.source_sha256 AND p.unit_number = c.unit_number
 JOIN truth_latest AS t
   ON p.source_sha256 = t.source_sha256 AND p.unit_number = t.unit_number;"""
+    ai4i_quality = f"""CREATE OR REPLACE VIEW {mart("ai4i_holdout_quality")} AS
+WITH holdout AS (
+  SELECT model_sha256, source_sha256, machine_failure, risk_score, udi,
+         NTILE(10) OVER (
+           PARTITION BY model_sha256, source_sha256
+           ORDER BY risk_score DESC, udi
+         ) AS risk_decile
+  FROM {mart("ai4i_review_queue")}
+  WHERE evaluation_split = 'holdout'
+)
+SELECT model_sha256, source_sha256, COUNT(*) AS holdout_rows,
+       COUNTIF(machine_failure = 1) AS failure_rows,
+       SAFE_DIVIDE(
+         COUNTIF(machine_failure = 1 AND risk_decile = 1),
+         COUNTIF(machine_failure = 1)
+       ) AS failure_capture_top_decile
+FROM holdout
+GROUP BY model_sha256, source_sha256;"""
+    fd001_quality = f"""CREATE OR REPLACE VIEW {mart("fd001_quality_summary")} AS
+SELECT model_sha256, source_sha256, COUNT(*) AS official_test_engines,
+       SQRT(AVG(POW(predicted_rul_cycles - true_rul_cycles, 2))) AS rmse_cycles,
+       AVG(ABS(predicted_rul_cycles - true_rul_cycles)) AS mae_cycles
+FROM {mart("fd001_official_evaluation")}
+GROUP BY model_sha256, source_sha256;"""
     statements.extend(
         (
             {"kind": "view_ddl", "name": "ai4i_review_queue", "sql": review_view},
@@ -207,6 +233,8 @@ JOIN truth_latest AS t
                 "name": "fd001_official_evaluation",
                 "sql": rul_view,
             },
+            {"kind": "view_ddl", "name": "ai4i_holdout_quality", "sql": ai4i_quality},
+            {"kind": "view_ddl", "name": "fd001_quality_summary", "sql": fd001_quality},
         )
     )
     return {
