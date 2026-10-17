@@ -13,6 +13,7 @@ import re
 from datetime import datetime
 from pathlib import Path
 
+from analysis.ai4i_batch import RUN_PATTERN
 from analysis.bigquery_plan import build_sql_plan
 
 MAX_NDJSON_BYTES = 64 * 1024 * 1024
@@ -146,19 +147,26 @@ def validate_batch_upload(
                 if unique in seen:
                     raise LoadPreflightError("Duplicate natural key in NDJSON batch")
                 seen.add(unique)
-                if table == "fd001_cycles" and item["split"] not in ("train", "test"):
-                    raise LoadPreflightError("Unexpected FD001 split")
-                if table == "fd001_official_test_truth" and item["true_rul_cycles"] < 0:
-                    raise LoadPreflightError("Negative official RUL truth")
-                if (
-                    table == "ai4i_records"
-                    and (
+                if table == "fd001_cycles":
+                    if (
+                        item["split"] not in ("train", "test")
+                        or item["unit_number"] <= 0
+                        or item["time_cycles"] <= 0
+                    ):
+                        raise LoadPreflightError("Invalid FD001 cycle or split")
+                if table == "fd001_official_test_truth":
+                    if item["unit_number"] <= 0 or item["true_rul_cycles"] < 0:
+                        raise LoadPreflightError("Invalid official RUL truth")
+                if table == "ai4i_records":
+                    flags = ("twf", "hdf", "pwf", "osf", "rnf")
+                    if (
                         item["udi"] <= 0
                         or item["machine_failure"] not in (0, 1)
                         or item["type"] not in ("L", "M", "H")
-                    )
-                ):
-                    raise LoadPreflightError("Invalid AI4I identifiers or target")
+                        or not item["product_id"]
+                        or any(item[field] not in (0, 1) for field in flags)
+                    ):
+                        raise LoadPreflightError("Invalid AI4I identifiers or labels")
     except (UnicodeError, OSError) as exc:
         raise LoadPreflightError("NDJSON cannot be read safely") from exc
     if digest.hexdigest() != expected_file_sha256:
@@ -167,8 +175,12 @@ def validate_batch_upload(
         raise LoadPreflightError("NDJSON row count mismatch")
     if source_set != {expected_source_sha256}:
         raise LoadPreflightError("NDJSON contains unexpected source identity")
-    if len(run_set) != 1 or not next(iter(run_set)):
-        raise LoadPreflightError("Mixed or missing ingestion run IDs")
+    if (
+        len(run_set) != 1
+        or not isinstance(next(iter(run_set)), str)
+        or not RUN_PATTERN.fullmatch(next(iter(run_set)))
+    ):
+        raise LoadPreflightError("Mixed, missing or invalid ingestion run IDs")
     return {
         "status": "offline_preflight_pass",
         "table": table,
