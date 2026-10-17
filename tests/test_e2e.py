@@ -115,13 +115,9 @@ class E2ESmokeTests(unittest.TestCase):
             link = page.locator(".nexus-brand-link")
             self.assertTrue(link.is_visible())
             self.assertEqual(link.get_attribute("href"), "/")
-            self.assertEqual(
-                link.get_attribute("aria-label"), "NEXUS Smart Factory home"
-            )
+            self.assertEqual(link.get_attribute("aria-label"), "NEXUS Smart Factory home")
             link.focus()
-            self.assertTrue(
-                link.evaluate("el => document.activeElement === el")
-            )
+            self.assertTrue(link.evaluate("el => document.activeElement === el"))
             self.assertEqual(page.locator(".nexus-brand-wordmark").get_attribute("alt"), "NEXUS")
             self.assertEqual(console_errors, [])
         finally:
