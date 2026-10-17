@@ -39,6 +39,10 @@ EXPECTED_DATASETS = {
     "uci_ai4i_2020": "failure_classification",
     "nasa_cmapss_fd001": "rul_regression",
 }
+OFFICIAL_SOURCE_HOSTS = {
+    "uci_ai4i_2020": "cdn.uci-ics-mlr-prod.aws.uci.edu",
+    "nasa_cmapss_fd001": "phm-datasets.s3.amazonaws.com",
+}
 DEFAULT_MANIFEST = (
     Path(__file__).resolve().parents[1]
     / "docs"
@@ -96,15 +100,18 @@ def validate_manifest(manifest: object) -> dict:
         url = record["official_url"]
         if not isinstance(url, str):
             raise SourceRegistryError("Missing official source URL")
-        parsed = urlsplit(url)
+        try:
+            parsed = urlsplit(url)
+        except ValueError as exc:
+            raise SourceRegistryError("Malformed official source URL") from exc
         if (
             parsed.scheme != "https"
-            or not parsed.hostname
+            or parsed.hostname != OFFICIAL_SOURCE_HOSTS[dataset_id]
             or parsed.username is not None
             or parsed.password is not None
             or parsed.fragment
         ):
-            raise SourceRegistryError("Official source URL must be plain HTTPS")
+            raise SourceRegistryError("Official source URL must use the pinned HTTPS host")
         count = record["expected_training_rows"]
         if type(count) is not int or count < 1:
             raise SourceRegistryError("Training row count must be positive")
