@@ -84,7 +84,33 @@ file-to-field normalization, official FD001 train/test/truth alignment,
 schema drift controls, row counts and validation remain to be implemented
 before cloud execution.
 
-## 4. Cloud release and cost controls
+## 4. AI4I CSV → local BigQuery JSONL staging
+
+`analysis.ai4i_batch.prepare_ai4i_rows` accepts an **existing local**
+AI4I CSV whose own file-byte SHA-256 was independently pinned. The CSV
+hash is distinct from both the outer ZIP's hash and the stored pandas
+DataFrame fingerprint. It validates the official 14-column schema,
+unique positive UDI keys, finite numerical features, L/M/H types,
+binary failure labels, exact expected row count and explicit UTC
+ingestion timestamps. The expected row count defaults to **10,000**;
+unit tests use only two synthetic records.
+
+`write_new_jsonl(rows, path)` exports canonical, BigQuery-loadable
+newline-delimited JSON into a local create-only file. It does not overwrite
+an existing export or send data to any account. The exporter returns
+`cloud_upload_performed=false` and a distinct SHA-256 digest of the
+export bytes; labels are preserved and never guessed.
+
+```bash
+python -m unittest discover -s tests -p test_ai4i_batch.py -v
+```
+
+**Not implemented yet:** official AI4I ZIP extraction with a verified outer
+archive, FD001 cycle/truth NDJSON export, dataset-scoped cloud loading
+and provider-side byte-budget enforcement. Never treat a Kaggle mirror
+as an identical scientific source without row, feature and split parity.
+
+## 5. Cloud release and cost controls
 
 The ChatGPT session's BigQuery provider plugin is unavailable
 (`DISABLED_BY_ADMIN` at discovery) and a direct Kaggle tool is not
