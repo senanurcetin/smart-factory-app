@@ -26,10 +26,11 @@ jobs:
           paths:
             - ~/.cache/pip
       - run:
-          name: Lint and formatting
-          command: |
-            ruff check .
-            black --check .
+          name: Ruff static lint
+          command: ruff check .
+      - run:
+          name: Black formatting
+          command: black --check .
       - run:
           name: Compile Python
           command: python -m compileall -q main.py case_study.py rul_case_study.py layout.py settings.py analysis tests
