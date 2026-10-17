@@ -41,9 +41,7 @@ def verify_ai4i_mirror(
     expected_rows: int = 10000,
 ) -> dict:
     """Compare *all* normalized fields and failure labels on strict UDI keys."""
-    if not isinstance(kaggle_handle, str) or not KAGGLE_HANDLE_PATTERN.fullmatch(
-        kaggle_handle
-    ):
+    if not isinstance(kaggle_handle, str) or not KAGGLE_HANDLE_PATTERN.fullmatch(kaggle_handle):
         raise KaggleParityError("Kaggle owner/dataset handle is required")
     if type(kaggle_version) is not int or kaggle_version < 1:
         raise KaggleParityError("Explicit positive Kaggle version is required")
