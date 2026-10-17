@@ -25,7 +25,7 @@ RUL_CASE_STUDY_TEMPLATE = (
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Smart Factory RUL Prognostics | NASA C-MAPSS Study</title>
-    <link rel="icon" type="image/svg+xml" href="/assets/seo/favicon.svg">
+    <link rel="icon" type="image/svg+xml" href="/static/nexus-official-x.svg">
     <meta name="description" content="NASA C-MAPSS remaining useful life regression study, with held-out engine evaluation, documented model limits and baseline comparisons.">
     <meta name="robots" content="index,follow,max-image-preview:large">
     <meta name="theme-color" content="#071829">
