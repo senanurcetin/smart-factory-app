@@ -3,6 +3,9 @@
 import json
 import math
 import unittest
+
+import joblib
+import pandas as pd
 from pathlib import Path
 
 from analysis.rul_input_contract import (
@@ -57,6 +60,18 @@ class RulFeatureContractTests(unittest.TestCase):
         published = [entry["feature"] for entry in feature_data["features"]]
         self.assertEqual(len(published), len(MODEL_COLUMNS))
         self.assertEqual(set(published), set(MODEL_COLUMNS))
+
+    def test_serialized_fd001_model_matches_exact_feature_order(self):
+        from analysis.run_cmapss_rul_case_study import MODEL_PATH
+
+        pipeline = joblib.load(MODEL_PATH)
+        model_columns = getattr(pipeline, "feature_names_in_", None)
+        self.assertIsNotNone(model_columns, "Serialized RUL model lacks a feature schema")
+        self.assertEqual(tuple(model_columns), MODEL_COLUMNS)
+        row = build_fd001_feature_row(history())["model_features"]
+        prediction = pipeline.predict(pd.DataFrame([row], columns=list(MODEL_COLUMNS)))
+        self.assertEqual(len(prediction), 1)
+        self.assertTrue(math.isfinite(float(prediction[0])))
 
     def test_rolling_features_use_only_last_five_cycles(self):
         result = build_fd001_feature_row(history(7))
