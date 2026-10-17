@@ -52,14 +52,16 @@ jobs:
             for test_file in \
               test_artifacts \
               test_container_contract \
-              test_nexus_brand_identity \
+              test_model_registry \
               test_ci_heredoc_safety \
               test_batch_quality \
               test_telemetry_ingestion \
+              test_telemetry_monitor \
               test_case_study \
               test_dashboard_model \
               test_dashboard_reporting \
               test_drift_check \
+              test_rul_input_contract \
               test_rul_artifacts \
               test_rul_case_study \
               test_settings \
@@ -139,8 +141,6 @@ jobs:
                 "/studio/rul": "decision-studio.css",
                 "/static/nexus-factory-studio.css": "nexus-maintenance-studio",
                 "/static/decision-studio.js": "NEXUS Decision Studio",
-                "/static/nexus-official-wordmark.svg": 'aria-label="NEXUS"',
-                "/static/nexus-official-x.svg": 'id="spectrum"',
             }
             for path, marker in checks.items():
                 with urllib.request.urlopen("http://127.0.0.1:8080" + path, timeout=12) as response:
