@@ -52,6 +52,7 @@ jobs:
             for test_file in \
               test_artifacts \
               test_container_contract \
+              test_model_registry \
               test_ci_heredoc_safety \
               test_batch_quality \
               test_telemetry_ingestion \
