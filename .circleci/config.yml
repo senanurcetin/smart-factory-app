@@ -55,6 +55,7 @@ jobs:
               test_batch_quality \
               test_source_registry \
               test_bigquery_plan \
+              test_ai4i_batch \
               test_telemetry_ingestion \
               test_case_study \
               test_dashboard_model \
