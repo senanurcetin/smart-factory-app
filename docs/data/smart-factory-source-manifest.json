@@ -1,0 +1,32 @@
+{
+  "schema_version": 1,
+  "description": "Source identity inventory only. SHA-256 values under benchmark_dataframe_sha256 are pandas DataFrame hashes, not downloadable archive bytes. No Kaggle mirror or raw file version is verified yet.",
+  "datasets": [
+    {
+      "id": "uci_ai4i_2020",
+      "official_source": "UCI Machine Learning Repository",
+      "official_url": "https://cdn.uci-ics-mlr-prod.aws.uci.edu/601/ai4i%2B2020%2Bpredictive%2Bmaintenance%2Bdataset.zip",
+      "citation": "10.24432/C5HS5C",
+      "data_role": "failure_classification",
+      "expected_training_rows": 10000,
+      "benchmark_dataframe_sha256": "37a525b28d47dc3b5745e851b6ef2582ee5ff6d1a3112b8d2d56ca2f38b134c5",
+      "archive_sha256": null,
+      "kaggle_dataset": null,
+      "kaggle_version": null,
+      "license_reviewed": false
+    },
+    {
+      "id": "nasa_cmapss_fd001",
+      "official_source": "NASA Prognostics Center of Excellence",
+      "official_url": "https://phm-datasets.s3.amazonaws.com/NASA/6.+Turbofan+Engine+Degradation+Simulation+Data+Set.zip",
+      "citation": "Saxena et al., Damage Propagation Modeling for Aircraft Engine Run-to-Failure Simulation, PHM08",
+      "data_role": "rul_regression",
+      "expected_training_rows": 20631,
+      "benchmark_dataframe_sha256": "35ec8c0ecc5d8497f18b6c11836cda7dc68471e322c7ac345677232199516d59",
+      "archive_sha256": null,
+      "kaggle_dataset": null,
+      "kaggle_version": null,
+      "license_reviewed": false
+    }
+  ]
+}

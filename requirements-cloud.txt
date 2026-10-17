@@ -1,0 +1,5 @@
+# Optional, manual-only BigQuery provider dry-run integration.
+# Not imported by the main Flask app or normal CI; no GCP credentials included.
+# The pinned library matches the provider's Python 3.x API used by the
+# read-only quality report adapter. Install only in an approved environment.
+google-cloud-bigquery==3.46.1
