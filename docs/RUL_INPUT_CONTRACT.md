@@ -51,9 +51,10 @@ a claimed RUL prediction.
 python -m unittest discover -s tests -p test_rul_input_contract.py -v
 ```
 
-The nine no-network tests check correct feature order/window statistics,
+The ten no-network tests check correct feature order/window statistics,
 valid field counts, engine grouping, duplicate or skipped cycles, nonfinite
-readings, false identities and absence of invented predictions.
+readings, false identities, source artifact sensor parity and the absence of
+invented predictions.
 
 **Before actual inference integration:** independently verify the feature
 order against the serialized FD001 pipeline's `feature_names_in_`, test
