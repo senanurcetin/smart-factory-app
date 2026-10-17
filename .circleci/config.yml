@@ -58,6 +58,7 @@ jobs:
               test_dashboard_model \
               test_dashboard_reporting \
               test_drift_check \
+              test_rul_input_contract \
               test_rul_artifacts \
               test_rul_case_study \
               test_settings \
