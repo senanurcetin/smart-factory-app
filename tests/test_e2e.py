@@ -107,6 +107,26 @@ class E2ESmokeTests(unittest.TestCase):
                 finally:
                     page.close()
 
+    def test_mobile_nexus_logo_is_keyboard_focusable(self):
+        page, console_errors = self._open("/")
+        try:
+            page.set_viewport_size({"width": 375, "height": 812})
+            page.locator("#sidebar-toggle").click()
+            link = page.locator(".nexus-brand-link")
+            self.assertTrue(link.is_visible())
+            self.assertEqual(link.get_attribute("href"), "/")
+            self.assertEqual(
+                link.get_attribute("aria-label"), "NEXUS Smart Factory home"
+            )
+            link.focus()
+            self.assertTrue(
+                link.evaluate("el => document.activeElement === el")
+            )
+            self.assertEqual(page.locator(".nexus-brand-wordmark").get_attribute("alt"), "NEXUS")
+            self.assertEqual(console_errors, [])
+        finally:
+            page.close()
+
     def test_official_nexus_x_is_visible_in_decision_studio(self):
         for route in ("/studio/maintenance", "/studio/rul"):
             with self.subTest(route=route):
