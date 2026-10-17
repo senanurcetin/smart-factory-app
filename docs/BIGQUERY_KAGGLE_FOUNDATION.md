@@ -232,7 +232,46 @@ unless the earlier artifacts are intentionally preserved. Neither local
 staging nor a generated project-qualified BigQuery table name establishes
 actual GCP IAM/billing permissions or dataset existence.
 
-## 9. Cloud release and cost controls
+## 9. Optional authenticated BigQuery read-only dry runs
+
+`analysis.bigquery_cloud_read.inspect_quality_views` supports an
+**explicitly supplied**, authorized BigQuery client to verify both dataset
+locations and the existence/type of the historical quality views. It sends
+two provider-side **read-only dry runs**, one for AI4I holdout capture and
+one for FD001 official last-cycle error. Source SHA values use bound
+`STRING` query parameters; there is no arbitrary user SQL. A dry run is
+rejected if it lacks a byte estimate or exceeds the maximum billable bytes
+(default at most 1 GiB, never a higher user override).
+
+A dry run uses the BigQuery API and IAM permissions but does not submit
+the actual SELECT for result rows. Real SELECT execution requires BOTH
+`execute=True` and the exact environment variable
+`NEXUS_ALLOW_BQ_READONLY_EXECUTION=YES`; each executed query still uses
+`QueryJobConfig.maximum_bytes_billed` and returns at most one result row.
+Cloud writes, schema mutation and model training are not implemented here.
+
+The cloud SDK is **optional**, isolated in `requirements-cloud.txt`.
+The normal app, Docker build, tests and development requirements do not
+import it or need access to credentials. When authorization exists:
+
+```bash
+python -m pip install -r requirements-cloud.txt
+python -m unittest discover -s tests -p test_bigquery_cloud_read.py -v
+```
+
+An operator with explicitly approved Application Default Credentials can
+then call `manual_cloud_preflight(project="...", source_sha256="...")`
+from an authorized Python session. This makes actual **provider-side**
+read-only dry-run calls; it has **not been executed in ChatGPT**, because
+the BigQuery provider connector is disabled and actual target IAM/region
+are unverified.
+
+The source SHA must identify an uploaded and properly versioned source.
+Dry-running a query against arbitrary existing tables is not evidence of
+successful, authorized Smart Factory ingestion, official Kaggle provenance,
+or license clearance.
+
+## 10. Cloud release and cost controls
 
 The ChatGPT session's BigQuery provider plugin is unavailable
 (`DISABLED_BY_ADMIN` at discovery) and a direct Kaggle tool is not
