@@ -7,7 +7,7 @@ import hashlib
 import json
 import tempfile
 import unittest
-from datetime import datetime, timezone
+from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
 from analysis.ai4i_batch import (
@@ -75,7 +75,7 @@ class Ai4iBatchTests(unittest.TestCase):
         self.assertEqual(rows[0]["ingestion_run_id"], "offline_test_20261017")
 
     def test_explicit_utc_timestamp(self):
-        timezone_plus_three = timezone(offset=__import__("datetime").timedelta(hours=3))
+        timezone_plus_three = timezone(offset=timedelta(hours=3))
         stamped = datetime(2026, 10, 17, 17, 0, tzinfo=timezone_plus_three)
         rows = self.prepare(ingested_at=stamped)
         self.assertEqual(rows[0]["ingested_at"], "2026-10-17T14:00:00+00:00")
