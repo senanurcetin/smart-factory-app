@@ -29,6 +29,13 @@ class NexusBrandIdentityTests(unittest.TestCase):
                 self.assertNotIn("script", tags)
                 self.assertNotIn("foreignObject", tags)
 
+    def test_approved_wordmark_png_is_full_size_rgba(self):
+        image = (STATIC / "nexus-official-wordmark.png").read_bytes()
+        self.assertTrue(image.startswith(b"\\x89PNG\\r\\n\\x1a\\n"))
+        self.assertEqual(int.from_bytes(image[16:20], "big"), 1200)
+        self.assertEqual(int.from_bytes(image[20:24], "big"), 360)
+        self.assertEqual(image[25], 6, "Official wordmark needs RGBA transparency")
+
     def test_brand_gradient_matches_approved_nexus_palette(self):
         for name in ("nexus-official-wordmark.svg", "nexus-official-x.svg"):
             with self.subTest(asset=name):
@@ -40,7 +47,7 @@ class NexusBrandIdentityTests(unittest.TestCase):
         for page in ("dashboard", "case-study", "rul-case-study", "settings"):
             with self.subTest(page=page):
                 html = render_sidebar(page)
-                self.assertIn('src="/static/nexus-official-wordmark.svg"', html)
+                self.assertIn('src="/static/nexus-official-wordmark.png"', html)
                 self.assertIn('alt="NEXUS"', html)
                 self.assertIn('class="nexus-brand-link" href="/"', html)
                 self.assertIn("Skip to content", html)
