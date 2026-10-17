@@ -114,6 +114,7 @@ body {
   object-fit: contain;
   box-shadow: 0 8px 24px #0005;
 }
+.brand strong,.hero h1 { font-family: "Space Grotesk", Inter, sans-serif; }
 .brand:hover strong,.brand:focus-visible strong { color: var(--nx-cyan); }
 .brand small,.rail-footer,.rail-caption { color: #afc0d6; }
 .rail-nav a { color: #c1d4eb; }
