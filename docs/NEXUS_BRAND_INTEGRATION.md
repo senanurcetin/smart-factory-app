@@ -6,13 +6,14 @@ Source: connected Google Drive folder
 `Logo/NEXUS_Identity_2_0` (folder ID `1rU3QCrdwCdHB0tYVLIq0W6aPqpj3iOsY`).
 
 The approved design is the **third Figma variant: signature spectrum X**.
-All three files are unmodified exports of the owner's approved assets.
+All four files are unmodified exports of the owner's approved assets.
 
 | Repository asset | Source file | Use |
 | --- | --- | --- |
 | `static/nexus-official-wordmark.png` | `NEXUS_Official_Transparent_Logo.png` | Shared sidebar; approved 1200 × 360 RGBA rasterization for cross-platform stable lettering |
 | `static/nexus-official-wordmark.svg` | `NEXUS_Official_Transparent_Logo.svg` | Preserved editable/vector original |
 | `static/nexus-official-x.svg` | `NEXUS_Official_X_Transparent.svg` | Favicon, Decision Studio rail and unobtrusive hero watermark |
+| `static/nexus-official-midnight.png` | `NEXUS_Official_Midnight_Logo.png` | Official 1200 × 440 dark-cover logo for GitHub README |
 
 The approved palette is midnight `#0B0F19`, deep blue `#061524`,
 cyan `#00E0FF`, medium blue `#4EA8FF`, lavender `#8F9BFF`,
@@ -46,7 +47,7 @@ changes do not connect to actual industrial equipment.
 python -m unittest discover -s tests -p test_nexus_brand_identity.py -v
 ```
 
-Eight focused offline checks cover the SVG parser, RGBA signature, palette, navigation
+Nine focused offline checks cover the SVG parser, RGBA signature, palette, navigation
 semantics, favicon consistency, Decision Studio parity, stale-state visibility
 and Docker asset packaging. Registered in CircleCI `python-quality`.
 Two additional Chromium tests assert actual image loading and theme application
