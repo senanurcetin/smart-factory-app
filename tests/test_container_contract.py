@@ -49,6 +49,10 @@ class DockerImageContractTests(unittest.TestCase):
         self.assertIn(("static/", "./static/"), directories)
         for filename in (
             "nexus-design.css",
+            "nexus-official-wordmark.svg",
+            "nexus-official-wordmark.png",
+            "nexus-official-midnight.png",
+            "nexus-official-x.svg",
             "nexus-analysis-workspace.css",
             "nexus-factory-studio.css",
             "decision-studio.html",

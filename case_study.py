@@ -25,7 +25,7 @@ CASE_STUDY_TEMPLATE = (
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Smart Factory Predictive Maintenance | AI4I Case Study</title>
-    <link rel="icon" type="image/svg+xml" href="/assets/seo/favicon.svg">
+    <link rel="icon" type="image/svg+xml" href="/static/nexus-official-x.svg">
     <meta name="description" content="Source-backed AI4I predictive maintenance model and risk-ranked holdout review queues. Offline evaluation, not deployed plant alerts.">
     <meta name="robots" content="index,follow,max-image-preview:large">
     <meta name="theme-color" content="#071829">
@@ -47,7 +47,7 @@ CASE_STUDY_TEMPLATE = (
     <meta name="twitter:image" content="https://smart-factory-app.onrender.com/assets/seo/maintenance-social.jpg">
     <link rel="canonical" href="https://smart-factory-app.onrender.com/case-study">
     <script type="application/ld+json">{"@context":"https://schema.org","@type":"WebPage","name":"Smart Factory Predictive Maintenance | AI4I Case Study","description":"Source-backed AI4I predictive maintenance model and risk-ranked holdout review queues. Offline evaluation, not deployed plant alerts.","url":"https://smart-factory-app.onrender.com/case-study","isPartOf":{"@type":"WebSite","name":"NEXUS","url":"https://smart-factory-app.onrender.com/"},"primaryImageOfPage":{"@type":"ImageObject","url":"https://smart-factory-app.onrender.com/assets/seo/maintenance-social.jpg"}}</script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap&family=Space+Grotesk:wght@500;600;700" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <style>"""
     + SIDEBAR_CSS

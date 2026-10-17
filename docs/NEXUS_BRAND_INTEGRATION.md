@@ -1,0 +1,61 @@
+# NEXUS Smart Factory — official identity integration
+
+## Authoritative visual assets
+
+Source: connected Google Drive folder
+`Logo/NEXUS_Identity_2_0` (folder ID `1rU3QCrdwCdHB0tYVLIq0W6aPqpj3iOsY`).
+
+The approved design is the **third Figma variant: signature spectrum X**.
+All four files are unmodified exports of the owner's approved assets.
+
+| Repository asset | Source file | Use |
+| --- | --- | --- |
+| `static/nexus-official-wordmark.png` | `NEXUS_Official_Transparent_Logo.png` | Shared sidebar; approved 1200 × 360 RGBA rasterization for cross-platform stable lettering |
+| `static/nexus-official-wordmark.svg` | `NEXUS_Official_Transparent_Logo.svg` | Preserved editable/vector original |
+| `static/nexus-official-x.svg` | `NEXUS_Official_X_Transparent.svg` | Favicon, Decision Studio rail and unobtrusive hero watermark |
+| `static/nexus-official-midnight.png` | `NEXUS_Official_Midnight_Logo.png` | Official 1200 × 440 dark-cover logo for GitHub README |
+
+The approved palette is midnight `#0B0F19`, deep blue `#061524`,
+cyan `#00E0FF`, medium blue `#4EA8FF`, lavender `#8F9BFF`,
+violet `#6E55C6`, and silver `#B9C5CE`.
+
+Header typography uses Space Grotesk, with Inter/system fallbacks; no font\nfiles are embedded or redistributed in the repository.\n\nNo unofficial lettering or regenerated logo shape is substituted. The SVG
+files are stored in-repository and served through Flask's own static path
+so the app can render them without loading Drive, Figma or image CDNs.
+
+## UI scope
+
+- `layout.py` renders the official wordmark on every page that uses the
+  shared sidebar, with a keyboard-focusable route back to the dashboard.
+- `main.py`, `case_study.py`, `rul_case_study.py`, and `settings.py`
+  set the same branded X favicon.
+- `static/nexus-design.css` applies consistent spectrum accents, responsive
+  logo sizing and focus-visible states. It preserves the stale-telemetry
+  treatment and safety notices.
+- `static/decision-studio.html` replaces its placeholder "N" block with
+  the official X asset; `static/decision-studio.css` now uses matching
+  midnight backgrounds, accessible light text and cyan/lavender highlights.
+
+Branding is presentation only. **Risk predictions still use simulated AI4I
+observations**, and the RUL estimate on the dashboard remains a heuristic
+proxy rather than the separate real FD001 regression benchmark. The visual
+changes do not connect to actual industrial equipment.
+
+## Regression checks
+
+```bash
+python -m unittest discover -s tests -p test_nexus_brand_identity.py -v
+```
+
+Nine focused offline checks cover the SVG parser, RGBA signature, palette, navigation
+semantics, favicon consistency, Decision Studio parity, stale-state visibility
+and Docker asset packaging. Registered in CircleCI `python-quality`.
+Two additional Chromium tests assert actual image loading and theme application
+across all six public HTML routes. Container quality checks now fetch both SVG
+assets over HTTP from the built Docker image.
+
+Before merging: check that both logos actually render on desktop and mobile,
+that focus states remain visible, validate contrast after Google Font fallback,
+and require Python, browser and Docker CircleCI quality jobs on one exact
+PR head. Render deployment commit and key endpoint responses must then
+be verified independently.

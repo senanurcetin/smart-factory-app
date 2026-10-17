@@ -5,6 +5,7 @@ __pycache__/
 .vscode/
 .claude/
 analysis/.cache/
+analysis/artifacts/registry/
 
 # Local credentials and configuration: never commit real secrets.
 .env

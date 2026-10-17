@@ -26,10 +26,11 @@ jobs:
           paths:
             - ~/.cache/pip
       - run:
-          name: Lint and formatting
-          command: |
-            ruff check .
-            black --check .
+          name: Ruff static lint
+          command: ruff check .
+      - run:
+          name: Black formatting
+          command: black --check .
       - run:
           name: Compile Python
           command: python -m compileall -q main.py case_study.py rul_case_study.py layout.py settings.py analysis tests
@@ -51,6 +52,7 @@ jobs:
             for test_file in \
               test_artifacts \
               test_container_contract \
+              test_model_registry \
               test_ci_heredoc_safety \
               test_batch_quality \
               test_source_registry \
@@ -64,10 +66,12 @@ jobs:
               test_bigquery_cloud_read \
               test_kaggle_parity \
               test_telemetry_ingestion \
+              test_telemetry_monitor \
               test_case_study \
               test_dashboard_model \
               test_dashboard_reporting \
               test_drift_check \
+              test_rul_input_contract \
               test_rul_artifacts \
               test_rul_case_study \
               test_settings \
