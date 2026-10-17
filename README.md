@@ -8,7 +8,7 @@
 
 **Technical reviewer brief:** [Methods, evidence and responsible-use boundaries](docs/hiring-summary.md).
 
-[CircleCI Python quality — passed](https://circleci.com/gh/senanurcetin/smart-factory-app/38) · [CircleCI Chromium browser — passed](https://circleci.com/gh/senanurcetin/smart-factory-app/39) · [Render production](https://smart-factory-app.onrender.com/)
+[CircleCI Python quality — passed, main SHA `61dd76c`](https://circleci.com/gh/senanurcetin/smart-factory-app/88) · [CircleCI Chromium browser — passed](https://circleci.com/gh/senanurcetin/smart-factory-app/89) · [CircleCI Docker container — passed](https://circleci.com/gh/senanurcetin/smart-factory-app/90) · [Render deployment (live)](https://smart-factory-app.onrender.com/)
 ![Python](https://img.shields.io/badge/Python-3.11-blue)
 ![License](https://img.shields.io/badge/License-MIT-green)
 
@@ -54,7 +54,7 @@ The dashboard is delivered by the existing Flask application, not by the README 
 
 ## Genuine Chromium dashboard verification
 
-The [CircleCI browser-quality job](.circleci/config.yml) launches Flask in real Chromium, verifies charts, keyboard/mobile navigation and JavaScript/asset loading, and retains screenshots. [Python-quality #38](https://circleci.com/gh/senanurcetin/smart-factory-app/38) and [browser-quality #39](https://circleci.com/gh/senanurcetin/smart-factory-app/39) **passed** on the final UI PR (14 October 2026). The later `container-quality` job is configured to build the exact Render image, but a hosted success for that job has **not yet been confirmed**; the real Render Docker build and production browser smoke passed separately.
+The [CircleCI browser-quality job](.circleci/config.yml) launches Flask in real Chromium, verifies charts, keyboard/mobile navigation and JavaScript/asset loading, and retains screenshots. [Python-quality #38](https://circleci.com/gh/senanurcetin/smart-factory-app/38) and [browser-quality #39](https://circleci.com/gh/senanurcetin/smart-factory-app/39) **passed** on the final UI PR (14 October 2026). The subsequent release CI was independently confirmed on `main` SHA `61dd76c` (16 October 2026): [`python-quality` #88](https://circleci.com/gh/senanurcetin/smart-factory-app/88), [`browser-quality` #89](https://circleci.com/gh/senanurcetin/smart-factory-app/89), and [`container-quality` #90](https://circleci.com/gh/senanurcetin/smart-factory-app/90) all passed. Render reports the exact SHA as `live`. The 14 October production browser captures document the earlier release, not a new browser run on the 16 October SHA.
 
 When executed with `E2E_SCREENSHOT_DIR=artifacts/gallery`, the suite produces:
 
@@ -78,7 +78,7 @@ These are renderings of **simulated telemetry**, not readings from real factory 
 
 The dashboard, settings, AI4I Maintenance, C-MAPSS RUL, and both Decision Studio routes share NEXUS navigation and accessibility rules, while the analytical workspaces deliberately use distinct layouts and evidence-driven visuals. The sidebar collapses below 900px.
 
-Free-tier services spin down after ~15 minutes idle; the first request after that takes ~30-60 seconds to wake up — a known free-tier tradeoff, not a bug.
+Render's free-tier services may spin down when idle; the first request can take longer to respond. This is a platform tradeoff, not a model or dataset issue.
 
 **Why not Vercel for the interactive app**: Vercel's serverless Python functions have a size limit (~250MB unzipped) that this repo's dependency stack is very likely to exceed. Render (and similarly Fly.io/Cloud Run) run the app as a real container instead of a size-constrained function — a better fit here, and it reuses the Dockerfile already built and CI-verified in this repo rather than needing a separate, trimmed-down deployment path.
 
@@ -392,7 +392,7 @@ docker build -t smart-factory-app .
 docker run -p 8080:8080 smart-factory-app
 ```
 
-Multi-stage build, served by `gunicorn` (2 workers) instead of the Flask development server. The committed `analysis/artifacts/model.pkl` and `rul_model.pkl` are both baked into the image, so no dataset download or retraining is needed to run the container. The actual Docker image built and deployed successfully to Render on 14 October 2026 after the packaging hotfix; container import and route smoke passed in production. A separate CircleCI `container-quality` job now exists, but its hosted run is still an open verification item (see [release checklist](docs/render-release-verification.md)).
+Multi-stage build, served by `gunicorn` (2 workers) instead of the Flask development server. The committed `analysis/artifacts/model.pkl` and `rul_model.pkl` are both baked into the image, so no dataset download or retraining is needed to run the container. The actual Docker image built and deployed successfully to Render on 14 October 2026 after the packaging hotfix; container import and route smoke passed in production. The separate CircleCI `container-quality` job passed on 16 October 2026 for GitHub `main` SHA `61dd76c` ([run #90](https://circleci.com/gh/senanurcetin/smart-factory-app/90)); Render deployed the same SHA as `live`. See [release checklist](docs/render-release-verification.md) for further production HTTP/browser checks.
 
 ---
 
@@ -510,7 +510,7 @@ Most "production considerations" lists (including the one below) are just docume
 
 ### Real-Browser Testing (Not Just Backend Mocks)
 
-Backend/contract tests use Flask's `test_client()` and real offline model artifacts; they cannot catch browser JavaScript failures, CSS regressions or missing deployed assets by themselves. [`tests/test_e2e.py`](tests/test_e2e.py) uses headless Chromium to verify desktop, 1024px tablet and 375px mobile layouts and real DOM/CSS state. The dedicated CircleCI jobs are `python-quality`, `browser-quality`, and `container-quality` (the last job's hosted result is pending). The 14 October local pinned-dependency suite passed **139 tests, 4 opt-in skips, 248 subtests**; four additional real-AI4I drift integrations were run separately and passed from checksum-matched cached public CSV copies. [Release evidence](docs/qa_release_acceptance_20261014.md).
+Backend/contract tests use Flask's `test_client()` and real offline model artifacts; they cannot catch browser JavaScript failures, CSS regressions or missing deployed assets by themselves. [`tests/test_e2e.py`](tests/test_e2e.py) uses headless Chromium to verify desktop, 1024px tablet and 375px mobile layouts and real DOM/CSS state. The dedicated CircleCI jobs `python-quality`, `browser-quality`, and `container-quality` all passed on `main` SHA `61dd76c` (16 October 2026). The 14 October local pinned-dependency suite passed **139 tests, 4 opt-in skips, 248 subtests**; four additional real-AI4I drift integrations were run separately and passed from checksum-matched cached public CSV copies. [Release evidence](docs/qa_release_acceptance_20261014.md).
 
 ### Production Considerations
 
