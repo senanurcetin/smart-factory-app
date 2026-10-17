@@ -268,7 +268,12 @@ body.sf-telemetry-stale .main-content #telemetry-clock {
   object-position: left center;
   margin: -3px 0 1px -10px;
 }
-.sidebar-logo .nexus-product { font-size: 1.18rem; letter-spacing: -.024em; }
+.sidebar-logo .nexus-product {
+  font-family: 'Space Grotesk', Inter, sans-serif;
+  font-size: 1.18rem;
+  letter-spacing: -.024em;
+}
+.main-content .page-title { font-family: 'Space Grotesk', Inter, sans-serif; }
 .sidebar-logo .nexus-caption { color: var(--nexus-silver); font-size: .67rem; }
 .sidebar-logo .nexus-brand-link:hover .nexus-product { color: var(--nexus-cyan); }
 .main-content .page-header::before {
