@@ -112,6 +112,34 @@ class OfflineModelRegistryTests(unittest.TestCase):
         with self.assertRaises(RegistryError):
             verify_candidate(self.root, forged)
 
+    def test_candidate_manifest_is_persisted_and_matches(self):
+        manifest = self.stage()
+        manifest_path = self.root / (
+            "analysis/artifacts/registry/ai4i_failure/" + manifest["model_sha256"] + ".json"
+        )
+        self.assertTrue(manifest_path.is_file())
+        self.assertEqual(json.loads(manifest_path.read_text(encoding="utf-8")), manifest)
+
+    def test_forged_benchmark_metrics_cannot_be_verified(self):
+        manifest = self.stage()
+        forged = dict(manifest, metrics={"pr_auc": 0.999, "roc_auc": 0.999})
+        with self.assertRaisesRegex(RegistryError, "does not match stored metadata"):
+            verify_candidate(self.root, forged)
+
+    def test_restage_same_model_with_changed_metadata_fails(self):
+        self.stage(0.90)
+        with self.assertRaisesRegex(RegistryError, "metadata differs"):
+            self.stage(0.93)
+
+    def test_corrupted_manifest_fails_closed(self):
+        manifest = self.stage()
+        path = self.root / (
+            "analysis/artifacts/registry/ai4i_failure/" + manifest["model_sha256"] + ".json"
+        )
+        path.write_text("{corrupt json", encoding="utf-8")
+        with self.assertRaises(RegistryError):
+            verify_candidate(self.root, manifest)
+
     def test_refuses_nonnumeric_nan_or_missing_primary_metric(self):
         for metrics in ({"pr_auc": float("nan")}, {"pr_auc": True}, {"roc_auc": 0.9}):
             with self.subTest(metrics=repr(metrics)):
