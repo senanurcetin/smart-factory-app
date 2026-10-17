@@ -47,7 +47,7 @@ RUL_CASE_STUDY_TEMPLATE = (
     <meta name="twitter:image" content="https://smart-factory-app.onrender.com/assets/seo/rul-social.jpg">
     <link rel="canonical" href="https://smart-factory-app.onrender.com/rul-case-study">
     <script type="application/ld+json">{"@context":"https://schema.org","@type":"WebPage","name":"Smart Factory RUL Prognostics | NASA C-MAPSS Study","description":"NASA C-MAPSS remaining useful life regression study, with held-out engine evaluation, documented model limits and baseline comparisons.","url":"https://smart-factory-app.onrender.com/rul-case-study","isPartOf":{"@type":"WebSite","name":"NEXUS","url":"https://smart-factory-app.onrender.com/"},"primaryImageOfPage":{"@type":"ImageObject","url":"https://smart-factory-app.onrender.com/assets/seo/rul-social.jpg"}}</script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap&family=Space+Grotesk:wght@500;600;700" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <style>"""
     + SIDEBAR_CSS
