@@ -69,7 +69,8 @@ class NexusBrandIdentityTests(unittest.TestCase):
     def test_docker_image_contains_brand_assets(self):
         dockerfile = (ROOT / "Dockerfile").read_text(encoding="utf-8")
         self.assertIn("COPY static/ ./static/", dockerfile)
-        self.assertNotIn("static/", (ROOT / ".dockerignore").read_text(encoding="utf-8"))
+        dockerignore = (ROOT / ".dockerignore").read_text(encoding="utf-8")
+        self.assertNotIn("static/", dockerignore)
 
 
 if __name__ == "__main__":
