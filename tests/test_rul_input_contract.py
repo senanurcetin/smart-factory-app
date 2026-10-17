@@ -51,9 +51,7 @@ class RulFeatureContractTests(unittest.TestCase):
             set(summary["sensors"]["dropped_near_constant"]),
             DROPPED_FD001_SENSORS,
         )
-        self.assertEqual(
-            summary["sensors"]["kept_informative"], len(INFORMATIVE_SENSORS)
-        )
+        self.assertEqual(summary["sensors"]["kept_informative"], len(INFORMATIVE_SENSORS))
 
     def test_model_features_match_committed_shap_feature_set(self):
         root = Path(__file__).resolve().parents[1]
@@ -68,9 +66,7 @@ class RulFeatureContractTests(unittest.TestCase):
 
         pipeline = joblib.load(MODEL_PATH)
         model_columns = getattr(pipeline, "feature_names_in_", None)
-        self.assertIsNotNone(
-            model_columns, "Serialized RUL model lacks a feature schema"
-        )
+        self.assertIsNotNone(model_columns, "Serialized RUL model lacks a feature schema")
         self.assertEqual(tuple(model_columns), MODEL_COLUMNS)
         row = build_fd001_feature_row(history())["model_features"]
         prediction = pipeline.predict(pd.DataFrame([row], columns=list(MODEL_COLUMNS)))
