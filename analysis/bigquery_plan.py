@@ -47,6 +47,7 @@ def build_sql_plan(project: str, prefix: str = "smart_factory", location: str = 
 
     def mart(name: str) -> str:
         return table(mart_dataset, name)
+
     source_fields = """
   source_sha256 STRING NOT NULL,
   ingestion_run_id STRING NOT NULL"""
