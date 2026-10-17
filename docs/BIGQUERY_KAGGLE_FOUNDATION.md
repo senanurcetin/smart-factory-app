@@ -70,7 +70,8 @@ Proposed two-dataset naming layout:
   and ingestion-run IDs.
 - `smart_factory_mart`: `ai4i_model_scores`,
   `fd001_model_predictions`, read-only analytical views
-  `ai4i_review_queue` and `fd001_official_evaluation`.
+  `ai4i_review_queue`, `fd001_official_evaluation`,
+  `ai4i_holdout_quality` and `fd001_quality_summary`.
 
 The AI4I review view attaches latest model scores only to matching
 `source_sha256` and `udi`, and removes duplicate ingestion rows.
@@ -78,6 +79,15 @@ FD001 evaluation explicitly uses each held-out engine's **last** test
 cycle, joins its separate official ground-truth RUL and a labelled
 prediction with the same source hash and engine ID. No AI4I heuristic RUL
 is substituted for NASA regression.
+
+
+The candidate `ai4i_model_scores` schema adds an explicit
+`evaluation_split` field. The `ai4i_holdout_quality` view uses **only**
+`evaluation_split = 'holdout'` to report held-out failure capture in the
+top scored risk decile, not a training-set metric. It does not claim
+calibrated probabilities or PR-AUC. `fd001_quality_summary` computes
+RMSE/MAE from rows joined to the **official** last-cycle test truth only,
+rather than inventing per-cycle labels.
 
 This initial SQL schema is a **proposal, not a migration**. The loader,
 file-to-field normalization, official FD001 train/test/truth alignment,
