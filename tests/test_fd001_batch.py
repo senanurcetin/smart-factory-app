@@ -160,7 +160,7 @@ class Fd001BatchTests(unittest.TestCase):
                     parse_cycles(source, "test")
 
     def test_cycle_gap_and_duplicate_rejected(self):
-        for cycle in (2, 4):
+        for cycle in (1, 4):
             source = raw_cycle(1, 1) + raw_cycle(1, cycle)
             with self.subTest(cycle=cycle):
                 with self.assertRaisesRegex(Fd001BatchError, "consecutive"):
