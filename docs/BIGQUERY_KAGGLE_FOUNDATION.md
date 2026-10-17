@@ -110,7 +110,54 @@ archive, FD001 cycle/truth NDJSON export, dataset-scoped cloud loading
 and provider-side byte-budget enforcement. Never treat a Kaggle mirror
 as an identical scientific source without row, feature and split parity.
 
-## 5. Cloud release and cost controls
+## 5. NASA FD001 official train/test/truth staging
+
+`analysis.fd001_batch.prepare_fd001_batches` reads **three already
+downloaded** official files: `train_FD001.txt`, `test_FD001.txt`, and
+`RUL_FD001.txt`. Each file requires its own exact raw-byte SHA-256
+supplied by the caller. This module neither downloads, extracts nested ZIPs
+nor compares a raw-file hash to the model-card pandas fingerprint.
+
+The parser accepts exactly 26 FD001 values per cycle (unit ID, cycle,
+three operating settings, 21 sensors), rejects invalid/nonfinite readings,
+duplicate/omitted cycles, gaps in sequential engine IDs and incorrect
+dataset row/engine counts. Defaults enforce 20,631 training cycles and
+100 training/100 test engines; the fixture tests override those counts.
+
+The RUL truth file is a separate **one-label-per-test-engine** table
+ordered by NASA's unit numbering. It is joined to each test engine's **last
+recorded cycle only** in the BigQuery evaluation view. There is no
+fabricated intermediate-cycle ground truth and no AI4I RUL inference here.
+The local exporter writes two create-only NDJSON files with one common
+**bundle fingerprint** derived from the three separately verified source
+checksums; they retain the original per-file digests in the evidence
+metadata. This is an offline data identity, not a validated model release.
+
+```bash
+python -m unittest discover -s tests -p test_fd001_batch.py -v
+```
+
+## 6. Offline BigQuery load preflight
+
+`analysis.bigquery_load_guard.validate_batch_upload` validates an
+already created **local** AI4I or FD001 NDJSON file against the exact
+generated staging DDL, matching pinned file/source SHA-256 identities,
+bounded row count and file size, uniqueness of natural keys, UTC offset
+timestamps and a single `ingestion_run_id`. Only these three raw staging
+tables are allowed: `ai4i_records`, `fd001_cycles`,
+`fd001_official_test_truth`. An unsupported table, extra column, wrong
+type, duplicate JSON field/key or conflicting provenance is rejected.
+
+```bash
+python -m unittest discover -s tests -p test_bigquery_load_guard.py -v
+```
+
+Returning `offline_preflight_pass` means **only** that local bytes and
+schema were checked, not a BigQuery provider-side dry run or authorization
+to load them. No Google Cloud SDK is imported or API called. It must
+**never** be described as actual BigQuery ingestion or a billing guard.
+
+## 7. Cloud release and cost controls
 
 The ChatGPT session's BigQuery provider plugin is unavailable
 (`DISABLED_BY_ADMIN` at discovery) and a direct Kaggle tool is not
