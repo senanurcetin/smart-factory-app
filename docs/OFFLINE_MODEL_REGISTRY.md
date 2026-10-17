@@ -11,11 +11,14 @@ The existing AI4I `analysis/artifacts/model.pkl` and C-MAPSS
 `analysis/artifacts/rul_model.pkl` are the active checked-in deployment
 artifacts. Changing either silently would invalidate the published evidence.
 The registry creates a separate, immutable **local candidate copy** named
-by a SHA-256 digest, with a separate manifest that identifies the dataset
-digest, evaluated UTC timestamp and held-out metrics.
+by a SHA-256 digest, with a persisted `<sha256>.json` manifest identifying
+the dataset digest, evaluated UTC timestamp and held-out metrics. Re-staging
+the same model bytes with different benchmark metadata fails rather than
+silently rewriting evidence; validation compares the supplied manifest with
+the file stored on disk.
 
 The local candidate store under `analysis/artifacts/registry/` is ignored
-by Git. The tests use only temporary directories with synthetic byte strings;
+by Git. The 17 tests use only temporary directories with synthetic byte strings;
 they **never unpickle** a model or download any dataset.
 
 ## Explicit offline staging example
