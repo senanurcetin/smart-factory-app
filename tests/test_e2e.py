@@ -106,18 +106,24 @@ class E2ESmokeTests(unittest.TestCase):
                     page.close()
 
     def test_official_nexus_x_is_visible_in_decision_studio(self):
-        page, console_errors = self._open("/studio/maintenance")
-        try:
-            icon = page.locator(".rail img.nexus-studio-x")
-            self.assertEqual(icon.count(), 1)
-            self.assertTrue(icon.evaluate("image => image.complete && image.naturalWidth > 0"))
-            self.assertEqual(
-                page.locator("body").evaluate("el => getComputedStyle(el).colorScheme"),
-                "dark",
-            )
-            self.assertEqual(console_errors, [])
-        finally:
-            page.close()
+        for route in ("/studio/maintenance", "/studio/rul"):
+            with self.subTest(route=route):
+                page, console_errors = self._open(route)
+                try:
+                    icon = page.locator(".rail img.nexus-studio-x")
+                    self.assertEqual(icon.count(), 1)
+                    self.assertTrue(
+                        icon.evaluate("image => image.complete && image.naturalWidth > 0")
+                    )
+                    self.assertEqual(
+                        page.locator("body").evaluate(
+                            "el => getComputedStyle(el).colorScheme"
+                        ),
+                        "dark",
+                    )
+                    self.assertEqual(console_errors, [])
+                finally:
+                    page.close()
 
     def test_dashboard_loads(self):
         page, console_errors = self._open("/")
