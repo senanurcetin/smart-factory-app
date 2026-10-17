@@ -138,6 +138,7 @@ jobs:
 
             checks = {
                 "/api/data": "RiskScore",
+                "/api/benchmark-snapshot": "committed_offline_case_studies",
                 "/case-study": "nexus-factory-studio.css",
                 "/rul-case-study": "nexus-factory-studio.css",
                 "/studio/maintenance": "decision-studio.css",
