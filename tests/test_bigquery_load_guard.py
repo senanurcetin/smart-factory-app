@@ -75,7 +75,9 @@ class BigQueryLoadGuardTests(unittest.TestCase):
         result = self.validate()
         self.assertEqual(result["status"], "offline_preflight_pass")
         self.assertEqual(result["rows"], 1)
-        self.assertEqual(result["planned_target"], "workintech-working.smart_factory_raw.ai4i_records")
+        self.assertEqual(
+            result["planned_target"], "workintech-working.smart_factory_raw.ai4i_records"
+        )
         self.assertFalse(result["cloud_upload_performed"])
         self.assertFalse(result["provider_dry_run_completed"])
         self.assertFalse(result["cloud_cost_authorized"])
