@@ -189,7 +189,50 @@ python -m unittest discover -s tests -p test_benchmark_snapshot.py -v
 python -m unittest discover -s tests -p test_benchmark_snapshot_route.py -v
 ```
 
-## 8. Cloud release and cost controls
+## 8. Local one-shot batch staging CLI
+
+The stdlib-only `analysis.stage_benchmarks` module composes the strict
+AI4I/FD001 readers, create-only NDJSON outputs and BigQuery staging-schema
+preflights. It exits nonzero on an invalid source and does not overwrite
+existing exports. It never connects to Kaggle or GCP.
+
+The **general options must precede the dataset subcommand**. The output
+directory must already exist. Provide the **actual downloaded local file
+SHA-256 hashes** that you have verified externally; the example below uses
+shell placeholders, **not** valid or approved fingerprints.
+
+```bash
+python -m analysis.stage_benchmarks \
+  --project YOUR_VERIFIED_GCP_PROJECT \
+  --location EU --run-id batch_20261017 \
+  --output-dir /local/private/staging \
+  ai4i --csv /local/official/ai4i2020.csv \
+  --csv-sha256 YOUR_REAL_RAW_CSV_SHA256
+```
+
+```bash
+python -m analysis.stage_benchmarks \
+  --project YOUR_VERIFIED_GCP_PROJECT \
+  --location EU --run-id batch_20261017 \
+  --output-dir /local/private/staging \
+  fd001 --train /local/official/train_FD001.txt \
+  --test /local/official/test_FD001.txt \
+  --truth /local/official/RUL_FD001.txt \
+  --train-sha256 SHA256_OF_TRAIN_FILE \
+  --test-sha256 SHA256_OF_TEST_FILE \
+  --truth-sha256 SHA256_OF_TRUTH_FILE
+```
+
+```bash
+python -m unittest discover -s tests -p test_stage_benchmarks.py -v
+```
+
+Do **not** use the same output directory for repeated dataset exports
+unless the earlier artifacts are intentionally preserved. Neither local
+staging nor a generated project-qualified BigQuery table name establishes
+actual GCP IAM/billing permissions or dataset existence.
+
+## 9. Cloud release and cost controls
 
 The ChatGPT session's BigQuery provider plugin is unavailable
 (`DISABLED_BY_ADMIN` at discovery) and a direct Kaggle tool is not
