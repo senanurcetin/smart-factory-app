@@ -131,7 +131,9 @@ def stage_candidate(
             raise RegistryError("Existing immutable candidate is corrupted")
     else:
         # Write complete bytes in the same directory, then atomically publish.
-        with tempfile.NamedTemporaryFile(dir=folder, prefix=".candidate-", delete=False) as temp:
+        with tempfile.NamedTemporaryFile(
+            dir=folder, prefix=".candidate-", delete=False
+        ) as temp:
             temp_path = Path(temp.name)
             try:
                 with source.open("rb") as stream:
@@ -147,7 +149,9 @@ def stage_candidate(
             os.link(temp_path, destination)
         except FileExistsError:
             if _sha256(destination) != model_sha256:
-                raise RegistryError("Existing immutable candidate is corrupted") from None
+                raise RegistryError(
+                    "Existing immutable candidate is corrupted"
+                ) from None
         finally:
             temp_path.unlink(missing_ok=True)
     manifest = {
@@ -187,7 +191,9 @@ def stage_candidate(
             except (OSError, ValueError) as exc:
                 raise RegistryError("Existing manifest is unreadable") from exc
             if existing != manifest:
-                raise RegistryError("Existing immutable manifest metadata differs") from None
+                raise RegistryError(
+                    "Existing immutable manifest metadata differs"
+                ) from None
         finally:
             manifest_temp.unlink(missing_ok=True)
     verify_candidate(root, manifest)
