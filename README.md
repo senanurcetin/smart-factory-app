@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="docs/assets/nexus-official-midnight.svg" alt="NEXUS — personal brand identity" width="660">
+  <img src="static/nexus-official-midnight.png" alt="NEXUS — approved midnight spectrum X identity" width="660">
 </p>
 
 # Smart Factory App
