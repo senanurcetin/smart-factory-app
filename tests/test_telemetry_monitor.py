@@ -43,9 +43,7 @@ class TelemetryMonitorTests(unittest.TestCase):
         self.samples = synthetic_window(self.reference)
 
     def test_identical_offline_distributions_are_ok(self):
-        result = evaluate_telemetry_window(
-            self.reference, self.samples, evaluated_at=NOW
-        )
+        result = evaluate_telemetry_window(self.reference, self.samples, evaluated_at=NOW)
         self.assertEqual(result["status"], "ok")
         self.assertEqual(result["alert_features"], [])
         self.assertEqual(result["source"], "simulated")
@@ -68,9 +66,7 @@ class TelemetryMonitorTests(unittest.TestCase):
         self.assertIn("Tool wear [min]", alerted)
 
     def test_too_few_observations_are_not_healthy(self):
-        result = evaluate_telemetry_window(
-            self.reference, self.samples[:2], evaluated_at=NOW
-        )
+        result = evaluate_telemetry_window(self.reference, self.samples[:2], evaluated_at=NOW)
         self.assertEqual(result["status"], "insufficient_data")
         self.assertEqual(result["errors"], ["window_insufficient_records"])
         self.assertNotIn("report", result)
