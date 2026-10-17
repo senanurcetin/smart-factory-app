@@ -60,6 +60,7 @@ jobs:
               test_bigquery_load_guard \
               test_benchmark_snapshot \
               test_benchmark_snapshot_route \
+              test_stage_benchmarks \
               test_telemetry_ingestion \
               test_case_study \
               test_dashboard_model \
