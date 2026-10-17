@@ -108,6 +108,21 @@ class BigQueryLoadGuardTests(unittest.TestCase):
         with self.assertRaisesRegex(LoadPreflightError, "INT64"):
             self.validate()
 
+    def test_invalid_failure_mode_flag_rejected(self):
+        self.rewrite({"twf": 2})
+        with self.assertRaisesRegex(LoadPreflightError, "labels"):
+            self.validate()
+
+    def test_malicious_ingestion_run_id_rejected(self):
+        self.rewrite({"ingestion_run_id": "bad;DROP"})
+        with self.assertRaisesRegex(LoadPreflightError, "invalid ingestion"):
+            self.validate()
+
+    def test_blank_product_id_rejected(self):
+        self.rewrite({"product_id": ""})
+        with self.assertRaisesRegex(LoadPreflightError, "identifiers"):
+            self.validate()
+
     def test_duplicate_key_and_extra_newline_rejected(self):
         self.export.write_text(
             '{"source_sha256":"x","source_sha256":"y"}\n',
