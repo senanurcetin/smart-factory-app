@@ -131,7 +131,14 @@ def render_sidebar(active: str) -> str:
     </button>
     <div class="sidebar-backdrop" id="sidebar-backdrop"></div>
     <div class="sidebar" id="sidebar">
-        <div class="sidebar-logo"><span class="nexus-mark">NEXUS</span><span class="nexus-product">Smart Factory</span><span class="nexus-caption">INDUSTRIAL INTELLIGENCE</span></div>
+        <div class="sidebar-logo">
+            <a class="nexus-brand-link" href="/" aria-label="NEXUS Smart Factory home">
+                <img class="nexus-brand-wordmark" src="/static/nexus-official-wordmark.png"
+                     alt="NEXUS" width="196" height="59" decoding="async">
+                <span class="nexus-product">Smart Factory</span>
+                <span class="nexus-caption">INDUSTRIAL INTELLIGENCE</span>
+            </a>
+        </div>
         <nav class="sidebar-nav" aria-label="Primary">
             {links_html}
         </nav>

@@ -232,3 +232,76 @@ body.sf-telemetry-stale .main-content #telemetry-clock {
 @media(prefers-reduced-motion:reduce) {
   body.sf-telemetry-stale .main-content .kpi-card { transition:none!important; }
 }
+
+/* Official NEXUS Identity 2.0 — source: Google Drive Logo/NEXUS_Identity_2_0.
+   Keep application state legible; the gradient X is decorative only. */
+:root {
+  --nexus-night: #0b0f19;
+  --nexus-midnight: #061524;
+  --nexus-cyan: #00e0ff;
+  --nexus-blue: #4ea8ff;
+  --nexus-lavender: #8f9bff;
+  --nexus-violet: #6e55c6;
+  --nexus-silver: #b9c5ce;
+  --nexus-surface: #10283e;
+}
+.sidebar-logo .nexus-brand-link {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  max-width: 100%;
+  gap: 3px;
+  text-decoration: none;
+  color: var(--nexus-ink);
+  border-radius: 10px;
+}
+.sidebar-logo .nexus-brand-link:focus-visible {
+  outline: 2px solid var(--nexus-cyan);
+  outline-offset: 4px;
+}
+.sidebar-logo .nexus-brand-wordmark {
+  display: block;
+  width: min(196px, 100%);
+  height: auto;
+  aspect-ratio: 10 / 3;
+  object-fit: contain;
+  object-position: left center;
+  margin: -3px 0 1px -10px;
+}
+.sidebar-logo .nexus-product {
+  font-family: 'Space Grotesk', Inter, sans-serif;
+  font-size: 1.18rem;
+  letter-spacing: -.024em;
+}
+.main-content .page-title { font-family: 'Space Grotesk', Inter, sans-serif; }
+.sidebar-logo .nexus-caption { color: var(--nexus-silver); font-size: .67rem; }
+.sidebar-logo .nexus-brand-link:hover .nexus-product { color: var(--nexus-cyan); }
+.main-content .page-header::before {
+  content: "";
+  pointer-events: none;
+  position: absolute;
+  width: clamp(110px, 13vw, 210px);
+  aspect-ratio: 1;
+  top: 2px;
+  right: 20px;
+  opacity: .14;
+  background: url("/static/nexus-official-x.svg") center / contain no-repeat;
+}
+.main-content .page-header > * { position: relative; z-index: 1; }
+.nexus-eyebrow::before {
+  background: linear-gradient(90deg,var(--nexus-cyan),var(--nexus-lavender));
+}
+.sidebar-nav a.active {
+  box-shadow: inset 3px 0 0 var(--nexus-cyan) !important;
+}
+.sidebar-nav a:focus-visible, .sidebar-toggle:focus-visible,
+a:focus-visible, button:focus-visible, select:focus-visible {
+  outline-color: var(--nexus-cyan);
+}
+@media (max-width: 575px) {
+  .main-content .page-header::before { width: 110px; right: -26px; opacity: .09; }
+}
+@media (forced-colors: active) {
+  .sidebar-logo .nexus-brand-link { border: 1px solid LinkText; }
+  .main-content .page-header::before { display: none; }
+}

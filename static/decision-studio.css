@@ -79,3 +79,109 @@ button{cursor:pointer}a{text-decoration:none;color:inherit}
 @media(max-width:800px){.shell{display:block}.rail{position:relative;height:auto;padding:14px 16px;gap:12px}.brand{justify-content:space-between}.rail-caption,.rail-footer{display:none}.rail-nav{grid-template-columns:repeat(2,minmax(0,1fr));gap:6px}.rail-nav a{padding:11px;min-height:44px}.workspace{padding:20px 14px 55px}.hero{grid-template-columns:1fr}.hero-copy{min-height:260px}.hero-aside{min-height:170px}.metric-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media(max-width:500px){.metric{padding:15px 12px}.metric-value{font-size:24px}.chart-row{grid-template-columns:minmax(85px,1fr) minmax(45px,1.5fr) minmax(57px,auto);gap:7px}.chart-value{font-size:10px}.hero h1{font-size:38px}.hero-copy{padding:27px 22px}.card-top{gap:8px}.rail-nav a{font-size:11px}}
 @media(prefers-reduced-motion:reduce){*{scroll-behavior:auto!important}}
+
+
+/* NEXUS Identity 2.0 — consistent with official Midnight / Spectrum X.
+   UI copy and benchmark values are unchanged; this is a visual treatment. */
+:root {
+  color-scheme: dark;
+  color: #f2f7ff;
+  background: #0b0f19;
+  --nx-surface: #101f34;
+  --nx-panel: #132841;
+  --nx-elevated: #172e4c;
+  --nx-line: #31516d;
+  --nx-ink: #e9f1ff;
+  --nx-muted: #b9c5ce;
+  --nx-cyan: #00e0ff;
+  --nx-blue: #4ea8ff;
+  --nx-lavender: #8f9bff;
+  --nx-violet: #6e55c6;
+}
+body {
+  color: var(--nx-ink);
+  background: radial-gradient(ellipse at 90% -8%, #21456755, transparent 48%),
+              radial-gradient(ellipse at 8% 100%, #6e55c622, transparent 40%),
+              #0b0f19;
+}
+:focus-visible { outline-color: var(--nx-cyan); }
+.rail { background: #061524; border-right-color: #244763; }
+.nexus-studio-x {
+  padding: 4px;
+  background: #0d263d;
+  border: 1px solid #345b82;
+  border-radius: 10px;
+  object-fit: contain;
+  box-shadow: 0 8px 24px #0005;
+}
+.brand strong,.hero h1 { font-family: "Space Grotesk", Inter, sans-serif; }
+.brand:hover strong,.brand:focus-visible strong { color: var(--nx-cyan); }
+.brand small,.rail-footer,.rail-caption { color: #afc0d6; }
+.rail-nav a { color: #c1d4eb; }
+.rail-nav a.active {
+  background: #1a3653;
+  border-color: #47789c;
+  box-shadow: inset 3px 0 var(--nx-cyan);
+}
+.rail-nav a em { color: #acbfd6; }
+.rail-footer { border-top-color: #31516d; }
+.rail-footer strong { color: #e1eeff; }
+.topline,.topline .crumb { color: #b9cae0; }
+.topline .crumb b { color: var(--nx-lavender); }
+.pill {
+  color: #bef3ff;
+  background: #103247;
+  border-color: #336c88;
+}
+.hero-copy {
+  background: linear-gradient(125deg, #0a2844 0%, #122542 58%, #251b48 100%);
+  border: 1px solid #38597c;
+}
+.hero-copy::after {
+  content: "";
+  position: absolute;
+  right: 2%;
+  top: 5%;
+  width: min(26%, 170px);
+  aspect-ratio: 1;
+  background: url("/static/nexus-official-x.svg") center / contain no-repeat;
+  opacity: .16;
+  pointer-events: none;
+}
+.eyebrow { color: #91e9ff; }
+.eyebrow:before { background: var(--nx-cyan); }
+.hero p { color: #c7d9ed; }
+.hero-aside,.metric,.studio-card {
+  background: linear-gradient(155deg, #172e4a, #101f34);
+  border-color: #31516d;
+  box-shadow: 0 12px 34px #0003;
+}
+.aside-label,.metric-label,.card-index,.signature { color: #b4c7e3; }
+.aside-number,.metric-value { color: #f1f8ff; }
+.aside-caption,.metric-note,.source-line,.evidence-note,.card-top p,
+.compare-band small,.footer-strip { color: #b3c4d9; }
+.source-line,.card-top,.note-rule { border-color: #31516d; }
+.source-line strong,.card-top h2,.big-statement { color: #eef6ff; }
+.tabs { border-color: #31516d; }
+.tabs button { color: #b8cee7; }
+.tabs button[aria-selected="true"] {
+  background: #214462;
+  border-color: #5687ad;
+  color: #f5fbff;
+}
+.tabs button:hover { color: var(--nx-cyan); }
+.chart-label,.chart-value,.fact-list,.data-table { color: #cfdef2; }
+.chart-track { background: #26425b; }
+.chart-track>span { background: linear-gradient(90deg, #00b9d6, #4ea8ff); }
+.chart-track>span.best { background: linear-gradient(90deg, #4ea8ff, #8f9bff); }
+.compare-band { background: #182f47; border-color: #34536d; }
+.compare-band strong { color: #e1edff; }
+.compare-band span { color: #a9e4ff; }
+.data-table th { background: #243e5a; color: #d5e7fb; }
+.data-table td { border-color: #34536d; }
+.data-table tbody tr:hover { background: #25415b; }
+.error { background: #452933; color: #ffd7db; border-color: #94606a; }
+@media (forced-colors: active) {
+  .hero-copy::after { display: none; }
+  .nexus-studio-x { border: 1px solid LinkText; }
+}

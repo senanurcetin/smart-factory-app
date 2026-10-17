@@ -87,6 +87,64 @@ class E2ESmokeTests(unittest.TestCase):
         page.goto(f"{BASE_URL}{path}", wait_until="networkidle")
         return page, console_errors
 
+    def test_official_nexus_brand_assets_render_on_all_pages(self):
+        for route in ("/", "/case-study", "/rul-case-study", "/settings"):
+            with self.subTest(route=route):
+                page, console_errors = self._open(route)
+                try:
+                    logo = page.locator(".sidebar-logo img.nexus-brand-wordmark")
+                    self.assertEqual(logo.count(), 1)
+                    self.assertTrue(
+                        logo.evaluate(
+                            "image => image.complete && image.naturalWidth > 0"
+                        )
+                    )
+                    self.assertEqual(
+                        page.locator('link[rel="icon"]').get_attribute("href"),
+                        "/static/nexus-official-x.svg",
+                    )
+                    self.assertEqual(console_errors, [])
+                finally:
+                    page.close()
+
+    def test_mobile_nexus_logo_is_keyboard_focusable(self):
+        page, console_errors = self._open("/")
+        try:
+            page.set_viewport_size({"width": 375, "height": 812})
+            page.locator("#sidebar-toggle").click()
+            link = page.locator(".nexus-brand-link")
+            self.assertTrue(link.is_visible())
+            self.assertEqual(link.get_attribute("href"), "/")
+            self.assertEqual(link.get_attribute("aria-label"), "NEXUS Smart Factory home")
+            link.focus()
+            self.assertTrue(link.evaluate("el => document.activeElement === el"))
+            self.assertEqual(page.locator(".nexus-brand-wordmark").get_attribute("alt"), "NEXUS")
+            self.assertEqual(console_errors, [])
+        finally:
+            page.close()
+
+    def test_official_nexus_x_is_visible_in_decision_studio(self):
+        for route in ("/studio/maintenance", "/studio/rul"):
+            with self.subTest(route=route):
+                page, console_errors = self._open(route)
+                try:
+                    icon = page.locator(".rail img.nexus-studio-x")
+                    self.assertEqual(icon.count(), 1)
+                    self.assertTrue(
+                        icon.evaluate(
+                            "image => image.complete && image.naturalWidth > 0"
+                        )
+                    )
+                    self.assertEqual(
+                        page.locator("body").evaluate(
+                            "el => getComputedStyle(el).colorScheme"
+                        ),
+                        "dark",
+                    )
+                    self.assertEqual(console_errors, [])
+                finally:
+                    page.close()
+
     def test_dashboard_loads(self):
         page, console_errors = self._open("/")
         try:

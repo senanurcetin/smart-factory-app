@@ -1,14 +1,16 @@
 <p align="center">
-  <img src="docs/assets/nexus-official-midnight.svg" alt="NEXUS — personal brand identity" width="660">
+  <img src="static/nexus-official-midnight.png" alt="NEXUS — approved midnight spectrum X identity" width="660">
 </p>
 
 # Smart Factory App
+
+**NEXUS visual identity:** [Official approved logo assets, palette, integration and QA](docs/NEXUS_BRAND_INTEGRATION.md). The branded UI changes are in draft PR #40 and are **not yet deployed**; production screenshots below belong to the older verified release.
 
 **SEO and social cards:** [Documented canonical URLs, screenshot sources and preview assets](docs/SEO_AND_SOCIAL_PREVIEW_GUIDE.md).
 
 **Technical reviewer brief:** [Methods, evidence and responsible-use boundaries](docs/hiring-summary.md).
 
-[CircleCI Python quality — passed, main SHA `61dd76c`](https://circleci.com/gh/senanurcetin/smart-factory-app/88) · [CircleCI Chromium browser — passed](https://circleci.com/gh/senanurcetin/smart-factory-app/89) · [CircleCI Docker container — passed](https://circleci.com/gh/senanurcetin/smart-factory-app/90) · [Render deployment (live)](https://smart-factory-app.onrender.com/)
+[CircleCI Python quality — passed, production SHA `b76e64b`](https://circleci.com/gh/senanurcetin/smart-factory-app/155) · [CircleCI Chromium browser — passed](https://circleci.com/gh/senanurcetin/smart-factory-app/156) · [CircleCI Docker container — passed](https://circleci.com/gh/senanurcetin/smart-factory-app/154) · [Render deployment (live)](https://smart-factory-app.onrender.com/)
 ![Python](https://img.shields.io/badge/Python-3.11-blue)
 ![License](https://img.shields.io/badge/License-MIT-green)
 
