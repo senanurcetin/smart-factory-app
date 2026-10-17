@@ -83,9 +83,7 @@ def prepare_ai4i_rows(
     expected_rows: int = 10000,
 ) -> list[dict]:
     """Read one checksum-pinned AI4I CSV with strict row and schema rules."""
-    if not isinstance(expected_csv_sha256, str) or not SHA_PATTERN.fullmatch(
-        expected_csv_sha256
-    ):
+    if not isinstance(expected_csv_sha256, str) or not SHA_PATTERN.fullmatch(expected_csv_sha256):
         raise Ai4iBatchError("A verified raw CSV SHA-256 is required")
     if not isinstance(run_id, str) or not RUN_PATTERN.fullmatch(run_id):
         raise Ai4iBatchError("Invalid ingestion run ID")
