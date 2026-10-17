@@ -138,6 +138,8 @@ jobs:
                 "/studio/rul": "decision-studio.css",
                 "/static/nexus-factory-studio.css": "nexus-maintenance-studio",
                 "/static/decision-studio.js": "NEXUS Decision Studio",
+                "/static/nexus-official-wordmark.svg": 'aria-label="NEXUS"',
+                "/static/nexus-official-x.svg": 'id="spectrum"',
             }
             for path, marker in checks.items():
                 with urllib.request.urlopen("http://127.0.0.1:8080" + path, timeout=12) as response:
