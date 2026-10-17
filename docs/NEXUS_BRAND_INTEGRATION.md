@@ -17,7 +17,7 @@ The approved palette is midnight `#0B0F19`, deep blue `#061524`,
 cyan `#00E0FF`, medium blue `#4EA8FF`, lavender `#8F9BFF`,
 violet `#6E55C6`, and silver `#B9C5CE`.
 
-No unofficial lettering or regenerated logo shape is substituted. The SVG
+Header typography uses Space Grotesk, with Inter/system fallbacks; no font\nfiles are embedded or redistributed in the repository.\n\nNo unofficial lettering or regenerated logo shape is substituted. The SVG
 files are stored in-repository and served through Flask's own static path
 so the app can render them without loading Drive, Figma or image CDNs.
 
@@ -48,6 +48,9 @@ python -m unittest discover -s tests -p test_nexus_brand_identity.py -v
 Seven focused offline checks cover the SVG parser, palette, navigation
 semantics, favicon consistency, Decision Studio parity, stale-state visibility
 and Docker asset packaging. Registered in CircleCI `python-quality`.
+Two additional Chromium tests assert actual image loading and theme application
+across all six public HTML routes. Container quality checks now fetch both SVG
+assets over HTTP from the built Docker image.
 
 Before merging: check that both logos actually render on desktop and mobile,
 that focus states remain visible, validate contrast after Google Font fallback,
