@@ -46,6 +46,12 @@ It also fails closed on insufficient or nonfinite reference data, duplicate
 asset/time pairs, mixed simulated and external sources, timestamp staleness
 and future timestamps. No missing values are fabricated.
 
+The original generic PSI helper has fixed descriptive metadata for its
+historical +80-minute synthetic benchmark. This adapter explicitly replaces
+that `scenario` description with a truthful source-tagged observation-window
+description while retaining the calculated PSI values. A decoded MQTT/OPC UA
+record is **not evidence that a PLC was accessed or that the factory is live**.
+
 ## Offline verification
 
 ```bash
