@@ -86,7 +86,9 @@ class OfflineModelRegistryTests(unittest.TestCase):
             metrics={"rmse": 17.5},
             evaluated_at=EVALUATED_AT,
         )
-        self.assertEqual(assess_candidate(self.root, old, new)["status"], "manual_review_required")
+        self.assertEqual(
+            assess_candidate(self.root, old, new)["status"], "manual_review_required"
+        )
 
     def test_refuses_corrupted_candidate_bytes(self):
         manifest = self.stage()
@@ -115,10 +117,14 @@ class OfflineModelRegistryTests(unittest.TestCase):
     def test_candidate_manifest_is_persisted_and_matches(self):
         manifest = self.stage()
         manifest_path = self.root / (
-            "analysis/artifacts/registry/ai4i_failure/" + manifest["model_sha256"] + ".json"
+            "analysis/artifacts/registry/ai4i_failure/"
+            + manifest["model_sha256"]
+            + ".json"
         )
         self.assertTrue(manifest_path.is_file())
-        self.assertEqual(json.loads(manifest_path.read_text(encoding="utf-8")), manifest)
+        self.assertEqual(
+            json.loads(manifest_path.read_text(encoding="utf-8")), manifest
+        )
 
     def test_forged_benchmark_metrics_cannot_be_verified(self):
         manifest = self.stage()
@@ -134,7 +140,9 @@ class OfflineModelRegistryTests(unittest.TestCase):
     def test_corrupted_manifest_fails_closed(self):
         manifest = self.stage()
         path = self.root / (
-            "analysis/artifacts/registry/ai4i_failure/" + manifest["model_sha256"] + ".json"
+            "analysis/artifacts/registry/ai4i_failure/"
+            + manifest["model_sha256"]
+            + ".json"
         )
         path.write_text("{corrupt json", encoding="utf-8")
         with self.assertRaises(RegistryError):
