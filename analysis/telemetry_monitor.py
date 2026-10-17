@@ -98,7 +98,7 @@ def evaluate_telemetry_window(
     # missing sensor measurements or invent ground-truth maintenance outcomes.
     current = pd.DataFrame([sample.model_features() for sample in samples])
     try:
-        baseline = add_derived_features(reference.loc[:, MODEL_FIELDS].copy())
+        baseline = add_derived_features(reference.loc[:, list(MODEL_FIELDS)].copy())
         observed = add_derived_features(current)
         # The base PSI helper returns zero on a constant reference column.
         # That can be misread as healthy if the current sensor changes: block it.
