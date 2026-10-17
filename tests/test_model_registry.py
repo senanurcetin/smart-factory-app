@@ -152,6 +152,34 @@ class OfflineModelRegistryTests(unittest.TestCase):
                         evaluated_at=EVALUATED_AT,
                     )
 
+    def test_rejects_impossible_classification_metrics(self):
+        for metric_values in (
+            {"pr_auc": 1.1},
+            {"pr_auc": -0.01},
+            {"pr_auc": 0.9, "roc_auc": 1.2},
+            {"pr_auc": 0.9, "f1": -0.4},
+        ):
+            with self.subTest(metrics=metric_values):
+                with self.assertRaises(RegistryError):
+                    stage_candidate(
+                        self.root,
+                        "ai4i_failure",
+                        dataset_sha256=DATASET_SHA,
+                        metrics=metric_values,
+                        evaluated_at=EVALUATED_AT,
+                    )
+
+    def test_rejects_negative_rul_error(self):
+        (self.artifacts / "rul_model.pkl").write_bytes(b"fake-regression-model")
+        with self.assertRaises(RegistryError):
+            stage_candidate(
+                self.root,
+                "cmapss_fd001_rul",
+                dataset_sha256=DATASET_SHA,
+                metrics={"rmse": -1},
+                evaluated_at=EVALUATED_AT,
+            )
+
     def test_refuses_missing_or_mismatched_dataset_digest(self):
         for invalid in ("broken", "0" * 63, "X" * 64):
             with self.subTest(invalid=invalid):
