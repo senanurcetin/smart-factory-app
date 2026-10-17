@@ -26,6 +26,7 @@ SETTINGS_TEMPLATE = (
 <!DOCTYPE html>
 <html lang="en">
 <head>
+    <link rel="icon" type="image/svg+xml" href="/static/nexus-official-x.svg">
     <meta name="robots" content="noindex,follow">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
