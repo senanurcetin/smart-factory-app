@@ -51,9 +51,7 @@ def build_sql_plan(project: str, prefix: str = "smart_factory", location: str = 
     source_fields = """
   source_sha256 STRING NOT NULL,
   ingestion_run_id STRING NOT NULL"""
-    engine_sensors = ",\n".join(
-        "  sensor_" + str(i) + " FLOAT64" for i in range(1, 22)
-    )
+    engine_sensors = ",\n".join("  sensor_" + str(i) + " FLOAT64" for i in range(1, 22))
     tables = [
         (
             "ai4i_records",
