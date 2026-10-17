@@ -271,7 +271,32 @@ Dry-running a query against arbitrary existing tables is not evidence of
 successful, authorized Smart Factory ingestion, official Kaggle provenance,
 or license clearance.
 
-## 10. Cloud release and cost controls
+## 10. Candidate Kaggle AI4I row/label parity
+
+`analysis.kaggle_parity.verify_ai4i_mirror` compares an independently
+pinned official UCI AI4I CSV against a distinct, locally available
+candidate Kaggle CSV. It requires an explicit Kaggle owner/dataset handle
+and positive version integer, verifies both files' raw-byte SHA-256,
+normalizes all 14 official source fields with the same strict pipeline,
+sorts by unique UDI and compares **every feature and failure-mode label**.
+
+Reordered but otherwise identical source rows are accepted; modified
+sensors, target labels, missing rows, invalid schemas or forged hashes
+are rejected. A matching file hash alone does not prove a Kaggle API
+dataset-version identity. The function therefore explicitly returns
+`provider_dataset_version_verified=false`, even when locally supplied
+`kaggle_version` is present, and **always** sets
+`cloud_ingestion_authorized=false`.
+
+```bash
+python -m unittest discover -s tests -p test_kaggle_parity.py -v
+```
+
+There is **no automatic Kaggle download or license approval**. Verification
+of the actual Kaggle provider version and redistribution rights remains
+a separate human/provider gate.
+
+## 11. Cloud release and cost controls
 
 The ChatGPT session's BigQuery provider plugin is unavailable
 (`DISABLED_BY_ADMIN` at discovery) and a direct Kaggle tool is not
