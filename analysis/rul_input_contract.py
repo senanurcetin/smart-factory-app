@@ -90,6 +90,8 @@ def build_fd001_feature_row(
     for sensor in INFORMATIVE_SENSORS:
         values = [row[sensor] for row in recent]
         features[f"{sensor}_roll_mean"] = mean(values)
+    for sensor in INFORMATIVE_SENSORS:
+        values = [row[sensor] for row in recent]
         features[f"{sensor}_roll_std"] = stdev(values)
     if tuple(features) != MODEL_COLUMNS:
         raise RulInputError("FD001 feature schema/order mismatch")
