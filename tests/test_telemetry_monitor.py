@@ -48,6 +48,15 @@ class TelemetryMonitorTests(unittest.TestCase):
         self.assertEqual(result["alert_features"], [])
         self.assertEqual(result["source"], "simulated")
         self.assertEqual(result["action"], "advisory_only_no_plant_control")
+        self.assertIn("simulated telemetry window", result["report"]["scenario"])
+        self.assertNotIn("+80", result["report"]["scenario"])
+
+    def test_external_source_is_not_mislabelled_as_synthetic_benchmark(self):
+        samples = synthetic_window(self.reference, source="mqtt")
+        result = evaluate_telemetry_window(self.reference, samples, evaluated_at=NOW)
+        self.assertEqual(result["status"], "ok")
+        self.assertIn("mqtt telemetry window", result["report"]["scenario"])
+        self.assertNotIn("+80", result["report"]["scenario"])
 
     def test_sensor_shift_generates_advisory_alert(self):
         samples = synthetic_window(self.reference, wear_shift=200)
