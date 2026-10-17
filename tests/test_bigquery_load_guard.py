@@ -124,8 +124,10 @@ class BigQueryLoadGuardTests(unittest.TestCase):
     def test_wrong_number_of_rows_rejected(self):
         with self.assertRaisesRegex(LoadPreflightError, "row count"):
             self.validate(expected_rows=2)
+        original = self.export.read_bytes()
+        self.export.write_bytes(original + original)
         with self.assertRaisesRegex(LoadPreflightError, "More rows"):
-            self.validate(expected_rows=0 + 1, expected_file_sha256="e" * 64)
+            self.validate(expected_rows=1)
 
     def test_duplicate_natural_key_rejected(self):
         single = self.export.read_bytes()
