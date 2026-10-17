@@ -62,6 +62,7 @@ jobs:
               test_benchmark_snapshot_route \
               test_stage_benchmarks \
               test_bigquery_cloud_read \
+              test_kaggle_parity \
               test_telemetry_ingestion \
               test_case_study \
               test_dashboard_model \
