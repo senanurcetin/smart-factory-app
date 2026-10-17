@@ -169,8 +169,12 @@ def write_new_jsonl(rows: list[dict], path: Path) -> dict:
         mode="w", encoding="utf-8", dir=output.parent, prefix=".ai4i-", delete=False
     ) as temp:
         temp_path = Path(temp.name)
-        for item in rows:
-            temp.write(json.dumps(item, allow_nan=False, sort_keys=True) + "\n")
+        try:
+            for item in rows:
+                temp.write(json.dumps(item, allow_nan=False, sort_keys=True) + "\n")
+        except BaseException:
+            temp_path.unlink(missing_ok=True)
+            raise
     try:
         os.link(temp_path, output)
     except FileExistsError as exc:
