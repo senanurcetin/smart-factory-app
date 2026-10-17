@@ -28,12 +28,12 @@ class BigQueryPlanTests(unittest.TestCase):
         self.assertEqual(self.plan["project"], "workintech-working")
         self.assertEqual(self.plan["location"], "EU")
 
-    def test_plan_contains_five_tables_and_two_views(self):
+    def test_plan_contains_five_tables_and_four_views(self):
         items = self.plan["statements"]
-        self.assertEqual(len(items), 9)
+        self.assertEqual(len(items), 11)
         self.assertEqual(sum(s["kind"] == "dataset_ddl" for s in items), 2)
         self.assertEqual(sum(s["kind"] == "table_ddl" for s in items), 5)
-        self.assertEqual(sum(s["kind"] == "view_ddl" for s in items), 2)
+        self.assertEqual(sum(s["kind"] == "view_ddl" for s in items), 4)
 
     def test_ai4i_raw_schema_separates_provenance_and_labels(self):
         schema = next(
@@ -78,6 +78,38 @@ class BigQueryPlanTests(unittest.TestCase):
         self.assertIn("PARTITION BY model_sha256, source_sha256, udi", review)
         self.assertIn("s.source_sha256 = r.source_sha256", review)
         self.assertIn("ORDER BY scored_at DESC", review)
+
+    def test_ai4i_model_scores_identify_evaluation_split(self):
+        schema = next(
+            entry["sql"]
+            for entry in self.plan["statements"]
+            if entry["name"] == "ai4i_model_scores"
+        )
+        self.assertIn("evaluation_split STRING NOT NULL", schema)
+
+    def test_ai4i_holdout_capture_excludes_train_and_demo(self):
+        query = next(
+            entry["sql"]
+            for entry in self.plan["statements"]
+            if entry["name"] == "ai4i_holdout_quality"
+        )
+        self.assertIn("WHERE evaluation_split = 'holdout'", query)
+        self.assertIn("NTILE(10)", query)
+        self.assertIn("SAFE_DIVIDE", query)
+        self.assertIn("failure_capture_top_decile", query)
+        self.assertIn("PARTITION BY model_sha256, source_sha256", query)
+
+    def test_fd001_metrics_use_official_test_truth_only(self):
+        query = next(
+            entry["sql"]
+            for entry in self.plan["statements"]
+            if entry["name"] == "fd001_quality_summary"
+        )
+        self.assertIn("FROM", query)
+        self.assertIn("fd001_official_evaluation", query)
+        self.assertIn("SQRT(AVG(POW(", query)
+        self.assertIn("rmse_cycles", query)
+        self.assertIn("mae_cycles", query)
 
     def test_query_budget_is_explicit_not_claimed_enforced(self):
         self.assertEqual(self.plan["maximum_bytes_billed_per_query"], MAXIMUM_BYTES_BILLED)
