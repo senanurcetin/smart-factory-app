@@ -167,7 +167,29 @@ schema were checked, not a BigQuery provider-side dry run or authorization
 to load them. No Google Cloud SDK is imported or API called. It must
 **never** be described as actual BigQuery ingestion or a billing guard.
 
-## 7. Cloud release and cost controls
+## 7. NEXUS analytics API (historical-only)
+
+`analysis.benchmark_snapshot.build_benchmark_snapshot` combines the
+already committed AI4I and FD001 results with **matching published
+model-card DataFrame SHA fingerprints**. It refuses invalid evidence,
+negative RUL errors or impossible classification metrics. The endpoint
+`GET /api/benchmark-snapshot` exposes this local, read-only evidence
+with `data_origin=committed_offline_case_studies`,
+`bigquery_dataset_connected=false`, `real_plant_telemetry=false`,
+`model_training_performed=false` and an explicit historical-data
+disclosure. It is **not** a BigQuery live report or a Kaggle data API.
+
+When source evidence is invalid the endpoint returns HTTP 503 instead of
+fabricating metrics or exposing local file paths. Real output from verified
+cloud jobs must be a separate versioned data pathway with source lineage
+and a release gate, not silently injected into this historical endpoint.
+
+```bash
+python -m unittest discover -s tests -p test_benchmark_snapshot.py -v
+python -m unittest discover -s tests -p test_benchmark_snapshot_route.py -v
+```
+
+## 8. Cloud release and cost controls
 
 The ChatGPT session's BigQuery provider plugin is unavailable
 (`DISABLED_BY_ADMIN` at discovery) and a direct Kaggle tool is not
