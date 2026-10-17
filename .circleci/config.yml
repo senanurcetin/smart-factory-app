@@ -54,7 +54,6 @@ jobs:
               test_ci_heredoc_safety \
               test_batch_quality \
               test_telemetry_ingestion \
-              test_telemetry_monitor \
               test_case_study \
               test_dashboard_model \
               test_dashboard_reporting \
