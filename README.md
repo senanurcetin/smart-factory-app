@@ -2,17 +2,32 @@
   <img src="static/nexus-official-midnight.png" alt="NEXUS — approved midnight spectrum X identity" width="660">
 </p>
 
-# Smart Factory App
+# NEXUS Smart Factory
 
-**NEXUS visual identity:** [Official approved logo assets, palette, integration and QA](docs/NEXUS_BRAND_INTEGRATION.md). The branded UI changes are in draft PR #40 and are **not yet deployed**; production screenshots below belong to the older verified release.
+**NEXUS visual identity:** Approved Midnight / Spectrum X branding is integrated in the application and source tree ([brand assets and QA](docs/NEXUS_BRAND_INTEGRATION.md), [merged PR #40](https://github.com/senanurcetin/smart-factory-app/pull/40)). The screenshot gallery below was captured from an **earlier** Render release and must not be treated as proof of the current deployment.
 
 **SEO and social cards:** [Documented canonical URLs, screenshot sources and preview assets](docs/SEO_AND_SOCIAL_PREVIEW_GUIDE.md).
 
 **Technical reviewer brief:** [Methods, evidence and responsible-use boundaries](docs/hiring-summary.md).
 
-[CircleCI Python quality — passed, production SHA `b76e64b`](https://circleci.com/gh/senanurcetin/smart-factory-app/155) · [CircleCI Chromium browser — passed](https://circleci.com/gh/senanurcetin/smart-factory-app/156) · [CircleCI Docker container — passed](https://circleci.com/gh/senanurcetin/smart-factory-app/154) · [Render deployment (live)](https://smart-factory-app.onrender.com/)
+[GitHub main and CI status](https://github.com/senanurcetin/smart-factory-app/commits/main/) · [CircleCI pipelines](https://app.circleci.com/pipelines/github/senanurcetin/smart-factory-app) · [Render deployment](https://smart-factory-app.onrender.com/) · [Earlier verified 3/3 quality baseline: `b76e64b`](https://github.com/senanurcetin/smart-factory-app/commit/b76e64b181b2728ffe1d60195c8e2aafaa61fa4d)
 ![Python](https://img.shields.io/badge/Python-3.11-blue)
 ![License](https://img.shields.io/badge/License-MIT-green)
+
+### October 2026 integration status
+
+The following GitHub changes were merged into `main` on **18 October 2026**:
+
+| Change | GitHub PR | Scope |
+| --- | --- | --- |
+| Offline source-tagged telemetry drift | [#34](https://github.com/senanurcetin/smart-factory-app/pull/34) | Advisory PSI comparisons, source provenance and no synthetic-shift mislabelling |
+| Immutable offline model candidates | [#38](https://github.com/senanurcetin/smart-factory-app/pull/38) | SHA-256 staging, manifest verification and manual promotion gate; no automatic deployment |
+| NASA FD001 feature contract | [#39](https://github.com/senanurcetin/smart-factory-app/pull/39) | 48 ordered inputs from engine history; separate from AI4I heuristic RUL |
+| Official NEXUS Identity | [#40](https://github.com/senanurcetin/smart-factory-app/pull/40) | Brand assets, accessible navigation and dark Decision Studio |
+| Offline Kaggle / BigQuery analytics foundation | [#43](https://github.com/senanurcetin/smart-factory-app/pull/43) | Source manifests, FD001/AI4I JSONL, 5 tables/4 views, mock cloud read, local parity verification and snapshot API |
+
+**Release verification:** The earlier `b76e64b` revision passed Python, Chromium and Docker CI (3/3) and was observed live on Render. The **new merged commits do not inherit that pass result**. At the time of this README update, the five PRs' latest changes were merged at the user's request despite unavailable exact-head CI checks (CircleCI resource limit). Source-level or mocked test definitions are not equivalent to executed test results. Re-run `ruff`, `black`, complete Python suites, Chromium and Docker jobs; verify the actual Render deployment SHA and routes before claiming a new production acceptance. The rollback reference is `backup/pre-smart-factory-integration-20261018`.
+
 
 **Predictive-maintenance analytics case study** — end-to-end ML pipeline on the UCI AI4I 2020 dataset, including EDA, feature engineering, model selection, SQL analysis, review-queue design, and cost framing. Packaged with a Flask plant dashboard, plus a [second case study](#rul-regression-nasa-c-mapss) demonstrating genuine remaining-useful-life (RUL) regression on NASA's C-MAPSS run-to-failure dataset.
 
@@ -22,13 +37,13 @@ Demo: **[smart-factory-app.onrender.com](https://smart-factory-app.onrender.com)
 
 The application includes **three synchronized, functioning time-series panels** for process temperature, tool wear and the trained classifier's risk score, plus an **OEE decomposition** showing Availability × Performance × Quality. The CSV export contains the Flask worker's **latest 240 shared simulated sensor readings scored by the trained model** (a rolling buffer), including an explicitly labelled *heuristic* RUL proxy. The export does **not** invent plant readings, company data or calibrated survival estimates. Data is created as visitors poll the shared demo endpoint. The CSV is **not isolated per visitor**; different worker processes can show different rolling buffers. A worker with no readings returns a header-only export.
 
-> **Current production screenshots (14 October 2026):** the PNGs below were taken directly from the live Render release using real Chromium. Sensor/OEE/line data shown on the dashboard is **simulated**, while AI4I and C-MAPSS case-study metrics are offline evaluations, not real-time plant signals. The linked WebM remains a historical video. [Capture provenance](docs/assets/production_screenshot_provenance_20261014.json).
+> **Historical production screenshots (14 October 2026):** the PNGs below were captured from the then-live Render release using real Chromium. They have **not yet been recaptured against the 18 October merged release**. Sensor/OEE/line data shown on the dashboard is **simulated**, while AI4I and C-MAPSS case-study metrics are offline evaluations, not real-time plant signals. The linked WebM remains a historical video. [Capture provenance](docs/assets/production_screenshot_provenance_20261014.json).
 
 Short historical video: [`docs/assets/smart-factory-dashboard.webm`](docs/assets/smart-factory-dashboard.webm)
 
-![Current NEXUS Smart Factory production dashboard with simulated risk trend, OEE and KPIs](docs/assets/smart-factory-dashboard.png)
+![Historical Render capture of the NEXUS Smart Factory dashboard with simulated risk trend, OEE and KPIs](docs/assets/smart-factory-dashboard.png)
 
-### Current NEXUS analysis workspaces (real production screenshots)
+### Historical NEXUS analysis workspaces (14 October production captures)
 
 ![Predictive Maintenance intelligence workspace captured from live Render production](docs/assets/smart-factory-maintenance.png)
 
@@ -48,6 +63,12 @@ Short historical video: [`docs/assets/smart-factory-dashboard.webm`](docs/assets
 | RUL number | Monotonic risk-derived proxy | **Heuristic only**, not the independent NASA C-MAPSS RUL regression |
 | [Downloadable CSV](https://smart-factory-app.onrender.com/api/report.csv) | `/api/report.csv` endpoint, last 240 simulated readings | A shared-worker demo window with full ISO 8601 UTC timestamps, not a private session or historical plant dataset |
 
+### Historical benchmark JSON endpoint
+
+[`GET /api/benchmark-snapshot`](https://smart-factory-app.onrender.com/api/benchmark-snapshot) uses only committed AI4I/FD001 model cards and evaluation JSON. It includes model/data lineage fingerprints and explicit `data_origin=committed_offline_case_studies` and `bigquery_dataset_connected=false` flags. Bad or incomplete evidence returns HTTP 503; it is **not** a query against a live BigQuery dataset, a Kaggle connection, a PLC/OPC UA stream or a factory prediction feed.
+
+The dashboard's simulated AI4I trend, its *heuristic* RUL indicator and NASA's official held-out FD001 RUL regression remain separate signals and should never be conflated.
+
 **Time semantics:** the on-screen risk and sensor trends use a short server-local time-of-day label. The newest scored reading also displays a full UTC timestamp; the CSV exports that timezone-aware timestamp for reliable downstream sorting and cross-day analysis. An explicit provenance header identifies the process-local shared buffer. No real plant timestamps are inferred.
 
 The dashboard is delivered by the existing Flask application, not by the README cover image. [Source-level dashboard/report tests](tests/test_dashboard_reporting.py) check that the CSV rows reflect API-scored values. [Browser smoke tests](tests/test_e2e.py) exercise the actual DOM. CircleCI is the automatic quality provider; GitHub Actions workflows are manual-only while hosted runner minutes are constrained.
@@ -56,7 +77,7 @@ The dashboard is delivered by the existing Flask application, not by the README 
 
 ## Genuine Chromium dashboard verification
 
-The [CircleCI browser-quality job](.circleci/config.yml) launches Flask in real Chromium, verifies charts, keyboard/mobile navigation and JavaScript/asset loading, and retains screenshots. [Python-quality #38](https://circleci.com/gh/senanurcetin/smart-factory-app/38) and [browser-quality #39](https://circleci.com/gh/senanurcetin/smart-factory-app/39) **passed** on the final UI PR (14 October 2026). The subsequent release CI was independently confirmed on `main` SHA `61dd76c` (16 October 2026): [`python-quality` #88](https://circleci.com/gh/senanurcetin/smart-factory-app/88), [`browser-quality` #89](https://circleci.com/gh/senanurcetin/smart-factory-app/89), and [`container-quality` #90](https://circleci.com/gh/senanurcetin/smart-factory-app/90) all passed. Render reports the exact SHA as `live`. The 14 October production browser captures document the earlier release, not a new browser run on the 16 October SHA.
+The [CircleCI browser-quality job](.circleci/config.yml) launches Flask in real Chromium, verifies charts, keyboard/mobile navigation and JavaScript/asset loading, and retains screenshots. Earlier release evidence: [Python-quality #38](https://circleci.com/gh/senanurcetin/smart-factory-app/38) and [browser-quality #39](https://circleci.com/gh/senanurcetin/smart-factory-app/39) **passed** on the historical UI PR (14 October 2026). A later historical release had a separately verified CI baseline on SHA `61dd76c` (16 October 2026): [`python-quality` #88](https://circleci.com/gh/senanurcetin/smart-factory-app/88), [`browser-quality` #89](https://circleci.com/gh/senanurcetin/smart-factory-app/89), and [`container-quality` #90](https://circleci.com/gh/senanurcetin/smart-factory-app/90) all passed **for that earlier revision**. The 14 October screenshots do not verify the current release. On 18 October, five feature PRs were merged, but their final merged-head Python/Chromium/Docker test status still requires independent verification.
 
 When executed with `E2E_SCREENSHOT_DIR=artifacts/gallery`, the suite produces:
 
@@ -304,6 +325,20 @@ Full methodology, feature engineering, evaluation protocol, and limitations: [`d
 
 ## Architecture
 
+Additional modules included in the 18 October release:
+
+| Component | Responsibility |
+| --- | --- |
+| `analysis/source_registry.py` | Verified-source manifest; separate archive and model-card DataFrame SHA-256 semantics |
+| `analysis/ai4i_batch.py`, `analysis/fd001_batch.py` | Deterministic, checksum-pinned AI4I/FD001 input validation and local JSONL |
+| `analysis/kaggle_parity.py` | Offline row/label parity of a candidate Kaggle AI4I mirror with official UCI data |
+| `analysis/bigquery_plan.py`, `analysis/bigquery_load_guard.py` | Offline-only BigQuery 5-table/4-view SQL plan and file/schema preflight |
+| `analysis/bigquery_cloud_read.py` | Optional *read-only* provider-side BigQuery dry runs; real reads explicitly gated, no writes |
+| `analysis/stage_benchmarks.py` | One-shot verified local staging command |
+| `analysis/benchmark_snapshot.py` | Historical, source-tagged NEXUS benchmark report for the Flask API |
+| `analysis/telemetry_monitor.py`, `analysis/model_registry.py`, `analysis/rul_input_contract.py` | Offline advisory monitoring, immutable model evidence and FD001 feature contract |
+| `docs/BIGQUERY_KAGGLE_FOUNDATION.md` | Implementation guide, credentials/billing boundaries and unverified source status |
+
 ```
 smart-factory-app/
 ├── analysis/
@@ -387,6 +422,22 @@ App: `http://127.0.0.1:8080` | Case-study route: `http://127.0.0.1:8080/case-stu
 
 ---
 
+### Offline BigQuery / Kaggle / NASA preparation
+
+Cloud connectors are **not required** to generate an offline SQL plan or to validate existing data files:
+
+```bash
+python -m analysis.source_registry
+python -m analysis.bigquery_plan --project YOUR_GCP_PROJECT --location EU
+python -m unittest discover -s tests -p 'test_source_registry.py' -v
+python -m unittest discover -s tests -p 'test_fd001_batch.py' -v
+python -m unittest discover -s tests -p 'test_bigquery_plan.py' -v
+```
+
+Before staging, provide the **actual SHA-256 values of local raw data files**, authoritative Kaggle handle/version/licensing evidence, and a verified BigQuery project, location, IAM scope and budget. The prepared CSV/FD001 JSONL files remain on your local disk. The full instructions and guarded commands are in [BigQuery & Kaggle Foundation](docs/BIGQUERY_KAGGLE_FOUNDATION.md).
+
+The optional BigQuery client is isolated in `requirements-cloud.txt`; installing it does not grant access. The provider-side read-only dry-run adapter is a separate authorized operation and does **not** create datasets, load rows or execute cloud SQL by default.
+
 ## Docker
 
 ```bash
@@ -399,6 +450,10 @@ Multi-stage build, served by `gunicorn` (2 workers) instead of the Flask develop
 ---
 
 ## Tests
+
+The merged integration adds **125 authored test methods** in ten suites covering source integrity, SQL planning, AI4I and NASA FD001 preparation, JSONL preflight, lineage checks, Flask API, local staging, mocked BigQuery dry-run gates and offline Kaggle row parity. Existing drift, registry, FD001 feature and NEXUS Chromium tests also remain registered in `.circleci/config.yml`.
+
+**These tests must be executed after the merge; their existence does not establish CI success.** The standard CI does not download datasets, access Kaggle or run paid BigQuery jobs. Browser checks require a real Chromium installation; some local environments may skip them.
 
 ```bash
 # Backend/unit coverage: routes, artifacts, metric thresholds, chart file
@@ -454,7 +509,7 @@ python -m py_compile main.py case_study.py rul_case_study.py layout.py settings.
 - **SQL**: DuckDB analytical queries on JSON artifacts — failure mode ranking, model comparison, queue ROI
 - **Business framing**: ranked review queue, cost model, operational maintenance economics
 - **Engineering practice**: pinned dependencies, lint/format CI gate, structured logging, a minimal model card, model persisted via joblib and served (not retrained ad hoc) by the live app
-- **Deployment**: multi-stage Dockerfile served by `gunicorn`; both the training pipeline and the image build are exercised in CI on every push
+- **Deployment**: multi-stage Dockerfile served by `gunicorn`; regular CI validates committed offline model artifacts and builds the production image without retraining or downloading UCI/NASA datasets on every push
 - **Genuine RUL regression**: a second case study on NASA C-MAPSS (a real run-to-failure dataset), including `GroupKFold` cross-validation grouped by engine — the grouped/time-aware split technique AI4I's dataset structure cannot support
 - **Knowing which rigor technique applies where**: same repo, two datasets, two different (correct) validation strategies — repeated holdouts for AI4I, grouped CV for C-MAPSS — chosen for what each dataset's structure actually supports, not applied uniformly by habit
 - **Data drift detection**: a real, CI-executed PSI (Population Stability Index) check against a deliberately shifted synthetic batch — demonstrated, not just listed as a "production consideration"
@@ -526,6 +581,12 @@ Still out of scope to build for a benchmark case study, but worth being explicit
 ---
 
 ## Limitations
+
+- BigQuery and Kaggle integration currently consists of offline code, a SQL plan, strict data contracts, simulated/mock provider tests and a historical benchmark API. **Actual Kaggle source versions, official raw-file checksums, BigQuery IAM/billing and a successful real upload are not verified**.
+- The optional BigQuery adapter supports read-only provider-side dry-run and explicitly opt-in bounded SELECT. It does not perform BigQuery writes or enforce a global cloud spending cap.
+- Existing source-level and local tests are not a substitute for new exact-commit quality and production acceptance after the 18 October merges.
+- Real PLC and factory telemetry ingest are **not enabled**; MQTT/OPC UA modules are offline validation boundaries only.
+- The NEXUS screenshots in this README are historical images, not proof of the just-merged production UI.
 
 - The UCI AI4I dataset is simulated — metrics are benchmark evidence, not plant-specific deployment claims
 - The live dashboard simulates plausible AI4I-schema telemetry rather than reading a deployed production sensor stream (the risk model itself is real, not a toy)
