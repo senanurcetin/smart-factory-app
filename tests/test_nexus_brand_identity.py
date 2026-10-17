@@ -31,7 +31,7 @@ class NexusBrandIdentityTests(unittest.TestCase):
 
     def test_approved_wordmark_png_is_full_size_rgba(self):
         image = (STATIC / "nexus-official-wordmark.png").read_bytes()
-        self.assertTrue(image.startswith(b"\\x89PNG\\r\\n\\x1a\\n"))
+        self.assertEqual(image[:8], bytes.fromhex("89504e470d0a1a0a"))
         self.assertEqual(int.from_bytes(image[16:20], "big"), 1200)
         self.assertEqual(int.from_bytes(image[20:24], "big"), 360)
         self.assertEqual(image[25], 6, "Official wordmark needs RGBA transparency")
