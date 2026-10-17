@@ -42,8 +42,11 @@ def build_sql_plan(project: str, prefix: str = "smart_factory", location: str = 
     def table(dataset: str, name: str) -> str:
         return "`" + project + "." + dataset + "." + name + "`"
 
-    raw = lambda name: table(raw_dataset, name)
-    mart = lambda name: table(mart_dataset, name)
+    def raw(name: str) -> str:
+        return table(raw_dataset, name)
+
+    def mart(name: str) -> str:
+        return table(mart_dataset, name)
     source_fields = """
   source_sha256 STRING NOT NULL,
   ingestion_run_id STRING NOT NULL"""
