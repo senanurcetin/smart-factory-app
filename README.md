@@ -4,6 +4,8 @@
 
 # Smart Factory App
 
+**NEXUS visual identity:** [Official approved logo assets, palette, integration and QA](docs/NEXUS_BRAND_INTEGRATION.md). The branded UI changes are in draft PR #40 and are **not yet deployed**; production screenshots below belong to the older verified release.
+
 **SEO and social cards:** [Documented canonical URLs, screenshot sources and preview assets](docs/SEO_AND_SOCIAL_PREVIEW_GUIDE.md).
 
 **Technical reviewer brief:** [Methods, evidence and responsible-use boundaries](docs/hiring-summary.md).
