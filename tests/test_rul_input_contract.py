@@ -56,7 +56,7 @@ class RulFeatureContractTests(unittest.TestCase):
             build_fd001_feature_row(rows)
 
     def test_duplicate_or_skipped_cycle_rejected(self):
-        for cycle in (5, 7):
+        for cycle in (4, 7):
             rows = history()
             rows[4]["time_cycles"] = cycle
             with self.subTest(cycle=cycle):
