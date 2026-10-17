@@ -58,6 +58,8 @@ jobs:
               test_ai4i_batch \
               test_fd001_batch \
               test_bigquery_load_guard \
+              test_benchmark_snapshot \
+              test_benchmark_snapshot_route \
               test_telemetry_ingestion \
               test_case_study \
               test_dashboard_model \
