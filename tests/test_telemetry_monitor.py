@@ -14,7 +14,7 @@ NOW = datetime(2026, 10, 17, 12, 0, tzinfo=timezone.utc)
 def synthetic_reference(rows=100):
     return pd.DataFrame(
         {
-            "Type": ["L" if i % 3 == 0 else "M" if i % 3 == 1 else "H" for i in range(rows)],
+            "Type": [("L", "M", "H")[i % 3] for i in range(rows)],
             "Air temperature [K]": [295 + (i % 10) * 0.5 for i in range(rows)],
             "Process temperature [K]": [306 + (i % 10) * 0.65 for i in range(rows)],
             "Rotational speed [rpm]": [1400 + (i % 10) * 20 for i in range(rows)],
@@ -63,14 +63,18 @@ class TelemetryMonitorTests(unittest.TestCase):
 
     def test_stale_batch_is_data_quality_error(self):
         result = evaluate_telemetry_window(
-            self.reference, self.samples, evaluated_at=NOW + timedelta(hours=2)
+            self.reference,
+            self.samples,
+            evaluated_at=NOW + timedelta(hours=2),
         )
         self.assertEqual(result["status"], "data_quality_error")
         self.assertEqual(result["errors"], ["stale_timestamp"])
 
     def test_future_observation_is_data_quality_error(self):
         result = evaluate_telemetry_window(
-            self.reference, self.samples, evaluated_at=NOW - timedelta(hours=1)
+            self.reference,
+            self.samples,
+            evaluated_at=NOW - timedelta(hours=1),
         )
         self.assertEqual(result["status"], "data_quality_error")
         self.assertEqual(result["errors"], ["future_timestamp"])
@@ -84,7 +88,9 @@ class TelemetryMonitorTests(unittest.TestCase):
 
     def test_duplicate_asset_timestamp_rejected(self):
         result = evaluate_telemetry_window(
-            self.reference, self.samples + [self.samples[0]], evaluated_at=NOW
+            self.reference,
+            self.samples + [self.samples[0]],
+            evaluated_at=NOW,
         )
         self.assertEqual(result["status"], "data_quality_error")
         self.assertEqual(result["errors"], ["duplicate_asset_timestamp"])
@@ -112,7 +118,10 @@ class TelemetryMonitorTests(unittest.TestCase):
     def test_configuration_requires_positive_window_and_aware_time(self):
         with self.assertRaises(ValueError):
             evaluate_telemetry_window(
-                self.reference, self.samples, evaluated_at=NOW, min_records=1
+                self.reference,
+                self.samples,
+                evaluated_at=NOW,
+                min_records=1,
             )
         with self.assertRaises(ValueError):
             evaluate_telemetry_window(
