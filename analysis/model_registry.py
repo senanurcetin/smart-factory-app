@@ -136,7 +136,13 @@ def stage_candidate(
                 temp_path.unlink(missing_ok=True)
                 raise
         try:
-            os.replace(temp_path, destination)
+            # A hard-link publishes the completed temporary inode only when
+            # the SHA-addressed target does not already exist. Unlike replace,
+            # this never overwrites a candidate staged by another process.
+            os.link(temp_path, destination)
+        except FileExistsError:
+            if _sha256(destination) != model_sha256:
+                raise RegistryError("Existing immutable candidate is corrupted") from None
         finally:
             temp_path.unlink(missing_ok=True)
     manifest = {
@@ -167,7 +173,16 @@ def stage_candidate(
             json.dump(manifest, temporary, indent=2, sort_keys=True)
             temporary.write("\n")
         try:
-            os.replace(manifest_temp, manifest_path)
+            # Create-only publication also prevents a concurrent writer from
+            # replacing integrity/provenance evidence for the same model hash.
+            os.link(manifest_temp, manifest_path)
+        except FileExistsError:
+            try:
+                existing = json.loads(manifest_path.read_text(encoding="utf-8"))
+            except (OSError, ValueError) as exc:
+                raise RegistryError("Existing manifest is unreadable") from exc
+            if existing != manifest:
+                raise RegistryError("Existing immutable manifest metadata differs") from None
         finally:
             manifest_temp.unlink(missing_ok=True)
     verify_candidate(root, manifest)
