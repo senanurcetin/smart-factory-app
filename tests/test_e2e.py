@@ -87,6 +87,38 @@ class E2ESmokeTests(unittest.TestCase):
         page.goto(f"{BASE_URL}{path}", wait_until="networkidle")
         return page, console_errors
 
+    def test_official_nexus_brand_assets_render_on_all_pages(self):
+        for route in ("/", "/case-study", "/rul-case-study", "/settings"):
+            with self.subTest(route=route):
+                page, console_errors = self._open(route)
+                try:
+                    logo = page.locator(".sidebar-logo img.nexus-brand-wordmark")
+                    self.assertEqual(logo.count(), 1)
+                    self.assertTrue(
+                        logo.evaluate("image => image.complete && image.naturalWidth > 0")
+                    )
+                    self.assertEqual(
+                        page.locator('link[rel="icon"]').get_attribute("href"),
+                        "/static/nexus-official-x.svg",
+                    )
+                    self.assertEqual(console_errors, [])
+                finally:
+                    page.close()
+
+    def test_official_nexus_x_is_visible_in_decision_studio(self):
+        page, console_errors = self._open("/studio/maintenance")
+        try:
+            icon = page.locator(".rail img.nexus-studio-x")
+            self.assertEqual(icon.count(), 1)
+            self.assertTrue(icon.evaluate("image => image.complete && image.naturalWidth > 0"))
+            self.assertEqual(
+                page.locator("body").evaluate("el => getComputedStyle(el).colorScheme"),
+                "dark",
+            )
+            self.assertEqual(console_errors, [])
+        finally:
+            page.close()
+
     def test_dashboard_loads(self):
         page, console_errors = self._open("/")
         try:
