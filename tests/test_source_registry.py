@@ -53,9 +53,7 @@ class SourceRegistryTests(unittest.TestCase):
                     item["benchmark_dataframe_sha256"],
                     model_card["dataset"]["sha256"],
                 )
-                self.assertEqual(
-                    item["expected_training_rows"], model_card["dataset"]["rows"]
-                )
+                self.assertEqual(item["expected_training_rows"], model_card["dataset"]["rows"])
 
     def test_unpinned_archive_is_rejected_without_reading_bytes(self):
         file = self.dir / "dataset.zip"
@@ -119,9 +117,7 @@ class SourceRegistryTests(unittest.TestCase):
                     validate_manifest(manifest)
 
     def test_unapproved_https_source_host_is_rejected(self):
-        self.manifest["datasets"][0]["official_url"] = (
-            "https://untrusted.example.com/ai4i.zip"
-        )
+        self.manifest["datasets"][0]["official_url"] = "https://untrusted.example.com/ai4i.zip"
         with self.assertRaisesRegex(SourceRegistryError, "pinned HTTPS host"):
             validate_manifest(self.manifest)
 

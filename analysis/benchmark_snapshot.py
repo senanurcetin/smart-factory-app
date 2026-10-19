@@ -92,8 +92,7 @@ def build_benchmark_snapshot(repo_root: Path) -> dict:
                 "model_card_dataframe_sha256": source["benchmark_dataframe_sha256"],
                 "source_archive_sha256_verified": source["archive_sha256"] is not None,
                 "kaggle_mirror_version_pinned": (
-                    source["kaggle_dataset"] is not None
-                    and source["kaggle_version"] is not None
+                    source["kaggle_dataset"] is not None and source["kaggle_version"] is not None
                 ),
             }
             for source in manifest["datasets"]

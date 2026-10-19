@@ -64,14 +64,8 @@ def inspect_quality_views(
             raise CloudReadError("Cannot verify quality report view") from exc
         if getattr(view_metadata, "table_type", None) != "VIEW":
             raise CloudReadError("Expected a read-only BigQuery view")
-        query = (
-            "SELECT * FROM `"
-            + table
-            + "` WHERE source_sha256 = @source_sha256 LIMIT 1"
-        )
-        parameters = [
-            bigquery_sdk.ScalarQueryParameter("source_sha256", "STRING", source_sha256)
-        ]
+        query = "SELECT * FROM `" + table + "` WHERE source_sha256 = @source_sha256 LIMIT 1"
+        parameters = [bigquery_sdk.ScalarQueryParameter("source_sha256", "STRING", source_sha256)]
         dry_config = bigquery_sdk.QueryJobConfig(
             dry_run=True,
             use_query_cache=False,

@@ -24,9 +24,7 @@ class BenchmarkSnapshotTests(unittest.TestCase):
             for name in ("summary.json", "model-selection.json"):
                 shutil.copyfile(ROOT / "docs/data" / stem / name, dest / name)
         source = ROOT / "docs/data/smart-factory-source-manifest.json"
-        shutil.copyfile(
-            source, self.root / "docs/data/smart-factory-source-manifest.json"
-        )
+        shutil.copyfile(source, self.root / "docs/data/smart-factory-source-manifest.json")
 
     def snapshot(self):
         return build_benchmark_snapshot(self.root)

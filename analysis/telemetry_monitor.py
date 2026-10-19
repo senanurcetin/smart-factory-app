@@ -106,9 +106,12 @@ def evaluate_telemetry_window(
         # That can be misread as healthy if the current sensor changes: block it.
         for field in NUMERIC_FEATURES + DERIVED_FEATURES:
             unique_reference = baseline[field].dropna().unique()
-            if len(unique_reference) <= 1 and not observed[field].eq(
-                unique_reference[0] if len(unique_reference) else float("nan")
-            ).all():
+            if (
+                len(unique_reference) <= 1
+                and not observed[field]
+                .eq(unique_reference[0] if len(unique_reference) else float("nan"))
+                .all()
+            ):
                 return _result(
                     "data_quality_error",
                     ["unusable_constant_reference:" + field],

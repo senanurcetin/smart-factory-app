@@ -95,9 +95,7 @@ class E2ESmokeTests(unittest.TestCase):
                     logo = page.locator(".sidebar-logo img.nexus-brand-wordmark")
                     self.assertEqual(logo.count(), 1)
                     self.assertTrue(
-                        logo.evaluate(
-                            "image => image.complete && image.naturalWidth > 0"
-                        )
+                        logo.evaluate("image => image.complete && image.naturalWidth > 0")
                     )
                     self.assertEqual(
                         page.locator('link[rel="icon"]').get_attribute("href"),
@@ -131,14 +129,10 @@ class E2ESmokeTests(unittest.TestCase):
                     icon = page.locator(".rail img.nexus-studio-x")
                     self.assertEqual(icon.count(), 1)
                     self.assertTrue(
-                        icon.evaluate(
-                            "image => image.complete && image.naturalWidth > 0"
-                        )
+                        icon.evaluate("image => image.complete && image.naturalWidth > 0")
                     )
                     self.assertEqual(
-                        page.locator("body").evaluate(
-                            "el => getComputedStyle(el).colorScheme"
-                        ),
+                        page.locator("body").evaluate("el => getComputedStyle(el).colorScheme"),
                         "dark",
                     )
                     self.assertEqual(console_errors, [])

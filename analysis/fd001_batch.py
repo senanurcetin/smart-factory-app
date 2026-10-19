@@ -140,9 +140,7 @@ def prepare_fd001_batches(
         or ingested_at.utcoffset() is None
     ):
         raise Fd001BatchError("ingested_at must have a timezone")
-    if not isinstance(expected_sha256, dict) or set(expected_sha256) != {
-        "train", "test", "truth"
-    }:
+    if not isinstance(expected_sha256, dict) or set(expected_sha256) != {"train", "test", "truth"}:
         raise Fd001BatchError("Must pin all three official source file digests")
     if (
         type(expected_train_rows) is not int
@@ -211,7 +209,9 @@ def prepare_fd001_batches(
 def write_fd001_jsonl(batches: dict, destination: Path) -> dict:
     """Atomically publish two bounded local NDJSON files, never overwriting."""
     if not isinstance(batches, dict) or set(batches) != {
-        "cycles", "official_test_truth", "evidence"
+        "cycles",
+        "official_test_truth",
+        "evidence",
     }:
         raise Fd001BatchError("Invalid prepared batch shape")
     root = Path(destination)
