@@ -44,10 +44,7 @@ OFFICIAL_SOURCE_HOSTS = {
     "nasa_cmapss_fd001": "phm-datasets.s3.amazonaws.com",
 }
 DEFAULT_MANIFEST = (
-    Path(__file__).resolve().parents[1]
-    / "docs"
-    / "data"
-    / "smart-factory-source-manifest.json"
+    Path(__file__).resolve().parents[1] / "docs" / "data" / "smart-factory-source-manifest.json"
 )
 
 

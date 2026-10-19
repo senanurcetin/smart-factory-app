@@ -115,9 +115,7 @@ class OfflineModelRegistryTests(unittest.TestCase):
     def test_candidate_manifest_is_persisted_and_matches(self):
         manifest = self.stage()
         manifest_path = self.root / (
-            "analysis/artifacts/registry/ai4i_failure/"
-            + manifest["model_sha256"]
-            + ".json"
+            "analysis/artifacts/registry/ai4i_failure/" + manifest["model_sha256"] + ".json"
         )
         self.assertTrue(manifest_path.is_file())
         self.assertEqual(json.loads(manifest_path.read_text(encoding="utf-8")), manifest)
@@ -136,9 +134,7 @@ class OfflineModelRegistryTests(unittest.TestCase):
     def test_corrupted_manifest_fails_closed(self):
         manifest = self.stage()
         path = self.root / (
-            "analysis/artifacts/registry/ai4i_failure/"
-            + manifest["model_sha256"]
-            + ".json"
+            "analysis/artifacts/registry/ai4i_failure/" + manifest["model_sha256"] + ".json"
         )
         path.write_text("{corrupt json", encoding="utf-8")
         with self.assertRaises(RegistryError):

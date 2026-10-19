@@ -22,9 +22,7 @@ class BigQueryPlanTests(unittest.TestCase):
         self.assertIn("OFFLINE PLAN ONLY", self.plan["notice"])
 
     def test_preconfigured_datasets_are_not_claimed_to_exist(self):
-        self.assertEqual(
-            self.plan["datasets"], ["smart_factory_raw", "smart_factory_mart"]
-        )
+        self.assertEqual(self.plan["datasets"], ["smart_factory_raw", "smart_factory_mart"])
         self.assertEqual(self.plan["project"], "workintech-working")
         self.assertEqual(self.plan["location"], "EU")
 
@@ -36,9 +34,7 @@ class BigQueryPlanTests(unittest.TestCase):
         self.assertEqual(sum(s["kind"] == "view_ddl" for s in items), 4)
 
     def test_ai4i_raw_schema_separates_provenance_and_labels(self):
-        schema = next(
-            x["sql"] for x in self.plan["statements"] if x["name"] == "ai4i_records"
-        )
+        schema = next(x["sql"] for x in self.plan["statements"] if x["name"] == "ai4i_records")
         for column in (
             "source_sha256 STRING NOT NULL",
             "ingestion_run_id STRING NOT NULL",
@@ -50,9 +46,7 @@ class BigQueryPlanTests(unittest.TestCase):
             self.assertIn(column, schema)
 
     def test_fd001_raw_schema_has_all_21_sensors_and_cycle_ids(self):
-        schema = next(
-            x["sql"] for x in self.plan["statements"] if x["name"] == "fd001_cycles"
-        )
+        schema = next(x["sql"] for x in self.plan["statements"] if x["name"] == "fd001_cycles")
         self.assertIn("unit_number INT64 NOT NULL", schema)
         self.assertIn("time_cycles INT64 NOT NULL", schema)
         self.assertIn("split STRING NOT NULL", schema)
@@ -61,9 +55,7 @@ class BigQueryPlanTests(unittest.TestCase):
 
     def test_fd001_truth_and_evaluation_join_cannot_invent_labels(self):
         evaluation = next(
-            x["sql"]
-            for x in self.plan["statements"]
-            if x["name"] == "fd001_official_evaluation"
+            x["sql"] for x in self.plan["statements"] if x["name"] == "fd001_official_evaluation"
         )
         self.assertIn("WHERE split = 'test'", evaluation)
         self.assertIn("true_rul_cycles", evaluation)
@@ -72,9 +64,7 @@ class BigQueryPlanTests(unittest.TestCase):
         self.assertIn("p.unit_number = t.unit_number", evaluation)
 
     def test_ai4i_review_queue_uses_model_and_source_fingerprints(self):
-        review = next(
-            x["sql"] for x in self.plan["statements"] if x["name"] == "ai4i_review_queue"
-        )
+        review = next(x["sql"] for x in self.plan["statements"] if x["name"] == "ai4i_review_queue")
         self.assertIn("PARTITION BY model_sha256, source_sha256, udi", review)
         self.assertIn("s.source_sha256 = r.source_sha256", review)
         self.assertIn("ORDER BY scored_at DESC", review)
@@ -118,9 +108,7 @@ class BigQueryPlanTests(unittest.TestCase):
 
     def test_custom_dataset_prefix_is_escaped_by_whitelist(self):
         custom = build_sql_plan("data-analiz-490513", prefix="smart_factory_v2")
-        self.assertEqual(
-            custom["datasets"], ["smart_factory_v2_raw", "smart_factory_v2_mart"]
-        )
+        self.assertEqual(custom["datasets"], ["smart_factory_v2_raw", "smart_factory_v2_mart"])
         self.assertIn(
             "`data-analiz-490513.smart_factory_v2_raw.ai4i_records`",
             custom["statements"][2]["sql"],

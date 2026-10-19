@@ -20,9 +20,7 @@ from analysis.fd001_batch import (
 )
 
 STAMP = datetime(2026, 10, 17, 14, 0, tzinfo=timezone.utc)
-RAW_LABELS = ("setting_1", "setting_2", "setting_3") + tuple(
-    f"sensor_{i}" for i in range(1, 22)
-)
+RAW_LABELS = ("setting_1", "setting_2", "setting_3") + tuple(f"sensor_{i}" for i in range(1, 22))
 
 
 def raw_cycle(unit: int, cycle: int) -> str:
@@ -44,9 +42,7 @@ class Fd001BatchTests(unittest.TestCase):
             "train",
             "".join(raw_cycle(unit, cycle) for unit in (1, 2) for cycle in (1, 2, 3)),
         )
-        self.write(
-            "test", "".join(raw_cycle(unit, cycle) for unit in (1, 2) for cycle in (1, 2))
-        )
+        self.write("test", "".join(raw_cycle(unit, cycle) for unit in (1, 2) for cycle in (1, 2)))
         self.write("truth", "11\n23\n")
 
     def write(self, key, data):
@@ -54,8 +50,7 @@ class Fd001BatchTests(unittest.TestCase):
 
     def prepare(self, **overrides):
         digests = {
-            key: hashlib.sha256(path.read_bytes()).hexdigest()
-            for key, path in self.paths.items()
+            key: hashlib.sha256(path.read_bytes()).hexdigest() for key, path in self.paths.items()
         }
         args = {
             "expected_sha256": digests,
@@ -94,9 +89,7 @@ class Fd001BatchTests(unittest.TestCase):
         result = self.prepare()
         bundle = result["evidence"]["bundle_source_sha256"]
         self.assertEqual(len(bundle), 64)
-        self.assertEqual(
-            {row["source_sha256"] for row in result["cycles"]}, {bundle}
-        )
+        self.assertEqual({row["source_sha256"] for row in result["cycles"]}, {bundle})
         self.assertEqual(
             {row["source_sha256"] for row in result["official_test_truth"]},
             {bundle},
@@ -139,8 +132,7 @@ class Fd001BatchTests(unittest.TestCase):
 
     def test_corrupted_file_sha_rejected(self):
         digests = {
-            key: hashlib.sha256(path.read_bytes()).hexdigest()
-            for key, path in self.paths.items()
+            key: hashlib.sha256(path.read_bytes()).hexdigest() for key, path in self.paths.items()
         }
         digests["test"] = "0" * 64
         with self.assertRaisesRegex(Fd001BatchError, "mismatch"):

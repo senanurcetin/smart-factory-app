@@ -22,9 +22,7 @@ SHA_PATTERN = re.compile(r"^[0-9a-f]{64}$")
 SCHEMA_PATTERN = re.compile(
     r"^  ([a-z][a-z0-9_]*) (STRING|INT64|FLOAT64|TIMESTAMP)(?: NOT NULL)?[,;]?$"
 )
-ALLOWED_STAGING_TABLES = frozenset(
-    ("ai4i_records", "fd001_cycles", "fd001_official_test_truth")
-)
+ALLOWED_STAGING_TABLES = frozenset(("ai4i_records", "fd001_cycles", "fd001_official_test_truth"))
 
 
 class LoadPreflightError(ValueError):
@@ -78,16 +76,12 @@ def _schema(project: str, prefix: str, location: str, table: str) -> dict:
     if table not in ALLOWED_STAGING_TABLES:
         raise LoadPreflightError("Table outside approved Smart Factory staging list")
     plan = build_sql_plan(project, prefix, location)
-    ddl = next(
-        step["sql"] for step in plan["statements"] if step["name"] == table
-    )
+    ddl = next(step["sql"] for step in plan["statements"] if step["name"] == table)
     matches = []
     for line in ddl.splitlines():
         match = SCHEMA_PATTERN.fullmatch(line.rstrip())
         if match:
-            matches.append(
-                (match.group(1), (match.group(2), "NOT NULL" in line))
-            )
+            matches.append((match.group(1), (match.group(2), "NOT NULL" in line)))
     fields = dict(matches)
     if not fields or len(fields) != len(matches):
         raise LoadPreflightError("Cannot parse trusted BigQuery schema")
@@ -175,27 +169,24 @@ def validate_batch_upload(
         raise LoadPreflightError("NDJSON row count mismatch")
     if source_set != {expected_source_sha256}:
         raise LoadPreflightError("NDJSON contains unexpected source identity")
-    if (
-        len(run_set) != 1
-        or not isinstance(next(iter(run_set)), str)
-        or not RUN_PATTERN.fullmatch(next(iter(run_set)))
-    ):
-        raise LoadPreflightError("Mixed, missing or invalid ingestion run IDs")
+    if len(run_set) != 1:
+        raise LoadPreflightError("Mixed ingestion run IDs")
+    run_id = next(iter(run_set))
+    if not isinstance(run_id, str) or not run_id:
+        raise LoadPreflightError("missing ingestion run ID")
+    if not RUN_PATTERN.fullmatch(run_id):
+        raise LoadPreflightError("invalid ingestion run ID")
     return {
         "status": "offline_preflight_pass",
         "table": table,
         "planned_target": (
-            schema["plan"]["project"]
-            + "."
-            + schema["plan"]["datasets"][0]
-            + "."
-            + table
+            schema["plan"]["project"] + "." + schema["plan"]["datasets"][0] + "." + table
         ),
         "verified_file_sha256": expected_file_sha256,
         "verified_source_sha256": expected_source_sha256,
         "rows": rows,
         "bytes": path.stat().st_size,
-        "ingestion_run_id": next(iter(run_set)),
+        "ingestion_run_id": run_id,
         "provider_dry_run_completed": False,
         "remote_load_job_submitted": False,
         "cloud_upload_performed": False,

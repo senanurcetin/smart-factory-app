@@ -79,11 +79,7 @@ class Ai4iBatchTests(unittest.TestCase):
     def test_csv_normalization_matches_bigquery_raw_table_columns(self):
         item = self.prepare()[0]
         plan = build_sql_plan("workintech-working")
-        ddl = next(
-            step["sql"]
-            for step in plan["statements"]
-            if step["name"] == "ai4i_records"
-        )
+        ddl = next(step["sql"] for step in plan["statements"] if step["name"] == "ai4i_records")
         column_names = set(
             re.findall(r"(?m)^  ([a-z_0-9]+) (?:STRING|INT64|FLOAT64|TIMESTAMP)", ddl)
         )

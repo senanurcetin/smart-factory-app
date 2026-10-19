@@ -55,8 +55,7 @@ def build_sql_plan(project: str, prefix: str = "smart_factory", location: str = 
     tables = [
         (
             "ai4i_records",
-            source_fields
-            + """,
+            source_fields + """,
   udi INT64 NOT NULL,
   product_id STRING,
   type STRING,
@@ -92,8 +91,7 @@ def build_sql_plan(project: str, prefix: str = "smart_factory", location: str = 
         ),
         (
             "fd001_official_test_truth",
-            source_fields
-            + """,
+            source_fields + """,
   unit_number INT64 NOT NULL,
   true_rul_cycles INT64 NOT NULL,
   ingested_at TIMESTAMP NOT NULL""",
@@ -139,11 +137,7 @@ def build_sql_plan(project: str, prefix: str = "smart_factory", location: str = 
         {
             "kind": "table_ddl",
             "name": name,
-            "sql": "CREATE TABLE IF NOT EXISTS "
-            + table(dataset, name)
-            + " ("
-            + cols
-            + "\n);",
+            "sql": "CREATE TABLE IF NOT EXISTS " + table(dataset, name) + " (" + cols + "\n);",
         }
         for name, cols, dataset in tables
     )

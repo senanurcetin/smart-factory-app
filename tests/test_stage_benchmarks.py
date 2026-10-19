@@ -59,12 +59,8 @@ class StageBenchmarksTests(unittest.TestCase):
             "test": self.root / "test_FD001.txt",
             "truth": self.root / "RUL_FD001.txt",
         }
-        self.paths["train"].write_text(
-            fd_cycle(1, 1) + fd_cycle(1, 2), encoding="utf-8"
-        )
-        self.paths["test"].write_text(
-            fd_cycle(1, 1) + fd_cycle(1, 2), encoding="utf-8"
-        )
+        self.paths["train"].write_text(fd_cycle(1, 1) + fd_cycle(1, 2), encoding="utf-8")
+        self.paths["test"].write_text(fd_cycle(1, 1) + fd_cycle(1, 2), encoding="utf-8")
         self.paths["truth"].write_text("17\n", encoding="utf-8")
 
     def sha(self, path):
@@ -78,9 +74,7 @@ class StageBenchmarksTests(unittest.TestCase):
             "expected_rows": 1,
         }
         args.update(changes)
-        return stage_ai4i(
-            self.ai4i_csv, self.sha(self.ai4i_csv), self.out, **args
-        )
+        return stage_ai4i(self.ai4i_csv, self.sha(self.ai4i_csv), self.out, **args)
 
     def fd001(self, **changes):
         args = {
@@ -115,9 +109,7 @@ class StageBenchmarksTests(unittest.TestCase):
             {entry["table"] for entry in result["preflights"]},
             {"fd001_cycles", "fd001_official_test_truth"},
         )
-        self.assertTrue(
-            all(not entry["cloud_upload_performed"] for entry in result["preflights"])
-        )
+        self.assertTrue(all(not entry["cloud_upload_performed"] for entry in result["preflights"]))
 
     def test_no_export_overwrite_on_second_run(self):
         self.ai4i()
