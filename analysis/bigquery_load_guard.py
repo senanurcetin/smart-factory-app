@@ -175,7 +175,7 @@ def validate_batch_upload(
     if not isinstance(run_id, str) or not run_id:
         raise LoadPreflightError("missing ingestion run ID")
     if not RUN_PATTERN.fullmatch(run_id):
-        raise LoadPreflightError("Invalid ingestion run ID")
+        raise LoadPreflightError("invalid ingestion run ID")
     return {
         "status": "offline_preflight_pass",
         "table": table,
