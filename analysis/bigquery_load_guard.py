@@ -169,12 +169,13 @@ def validate_batch_upload(
         raise LoadPreflightError("NDJSON row count mismatch")
     if source_set != {expected_source_sha256}:
         raise LoadPreflightError("NDJSON contains unexpected source identity")
-    if (
-        len(run_set) != 1
-        or not isinstance(next(iter(run_set)), str)
-        or not RUN_PATTERN.fullmatch(next(iter(run_set)))
-    ):
-        raise LoadPreflightError("Mixed, missing or invalid ingestion run IDs")
+    if len(run_set) != 1:
+        raise LoadPreflightError("Mixed ingestion run IDs")
+    run_id = next(iter(run_set))
+    if not isinstance(run_id, str) or not run_id:
+        raise LoadPreflightError("missing ingestion run ID")
+    if not RUN_PATTERN.fullmatch(run_id):
+        raise LoadPreflightError("Invalid ingestion run ID")
     return {
         "status": "offline_preflight_pass",
         "table": table,
@@ -185,7 +186,7 @@ def validate_batch_upload(
         "verified_source_sha256": expected_source_sha256,
         "rows": rows,
         "bytes": path.stat().st_size,
-        "ingestion_run_id": next(iter(run_set)),
+        "ingestion_run_id": run_id,
         "provider_dry_run_completed": False,
         "remote_load_job_submitted": False,
         "cloud_upload_performed": False,
