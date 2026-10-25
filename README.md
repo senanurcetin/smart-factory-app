@@ -8,7 +8,7 @@
 
 **SEO and social cards:** [Documented canonical URLs, screenshot sources and preview assets](docs/SEO_AND_SOCIAL_PREVIEW_GUIDE.md).
 
-**Technical reviewer brief:** [Methods, evidence and responsible-use boundaries](docs/hiring-summary.md).
+**Engineering evidence:** [Model performance](#final-model-performance) · [RUL case study](docs/rul-case-study.md) · [Data-quality methodology](docs/data-quality-guide.md).
 
 [GitHub main and CI status](https://github.com/senanurcetin/smart-factory-app/commits/main/) · [CircleCI pipelines](https://app.circleci.com/pipelines/github/senanurcetin/smart-factory-app) · [Render deployment](https://smart-factory-app.onrender.com/) · [Earlier verified 3/3 quality baseline: `b76e64b`](https://github.com/senanurcetin/smart-factory-app/commit/b76e64b181b2728ffe1d60195c8e2aafaa61fa4d)
 ![Python](https://img.shields.io/badge/Python-3.11-blue)
