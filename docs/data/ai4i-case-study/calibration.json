@@ -43,5 +43,5 @@
       "calibration_gap": 0.0276
     }
   ],
-  "interpretation": "ECE measures average gap between predicted probabilities and actual failure rates. Lower is better. Values below 0.05 indicate well-calibrated predictions."
+  "interpretation": "Historical compatibility field expected_calibration_error is the unweighted mean absolute gap across 8 occupied quantile bins, not sample-weighted ECE. This observed holdout value is descriptive and does not establish calibrated failure probabilities."
 }
