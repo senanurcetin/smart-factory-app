@@ -791,7 +791,9 @@ def main() -> None:
             "recall": to_float(recall),
             "f1": to_float(f1),
             "confusion_matrix": matrix,
-            "calibration_ece": calibration_data["expected_calibration_error"],  # legacy unweighted alias
+            "calibration_ece": calibration_data[
+                "expected_calibration_error"
+            ],  # legacy unweighted alias
             "calibration_sample_weighted_ece": calibration_data["sample_weighted_ece"],
         },
         "review_queue": {

@@ -22,9 +22,7 @@ class QuantileCalibrationTest(unittest.TestCase):
         labels = [0, 0, 0, 0, 0, 0, 1, 1, 0, 1, 1, 1]
         scores = [0.02, 0.02, 0.02, 0.02, 0.03, 0.04, 0.22, 0.39, 0.41, 0.7, 0.75, 0.91]
         report = quantile_calibration(labels, scores, n_bins=5)
-        fraction_pos, mean_pred = calibration_curve(
-            labels, scores, n_bins=5, strategy="quantile"
-        )
+        fraction_pos, mean_pred = calibration_curve(labels, scores, n_bins=5, strategy="quantile")
         self.assertEqual(report["occupied_bins"], len(fraction_pos))
         self.assertEqual(sum(report["bin_counts"]), len(labels))
         np.testing.assert_allclose(
@@ -40,8 +38,9 @@ class QuantileCalibrationTest(unittest.TestCase):
         self.assertAlmostEqual(report["sample_weighted_ece"], weighted)
 
     def test_saved_reassessment_has_correct_sample_weights(self):
-        from pathlib import Path
         import json
+        from pathlib import Path
+
         path = Path(__file__).resolve().parents[1] / (
             "docs/data/ai4i-case-study/calibration-reassessment-20261102.json"
         )
@@ -55,7 +54,8 @@ class QuantileCalibrationTest(unittest.TestCase):
 
     def test_rejects_invalid_input(self):
         cases = [
-            ([], [], 10), ([0, 1], [0.2], 10),
+            ([], [], 10),
+            ([0, 1], [0.2], 10),
             ([0, 2], [0.1, 0.3], 10),
             ([0, 1], [0.1, 1.1], 10),
             ([0, 1], [0.1, float("nan")], 10),
