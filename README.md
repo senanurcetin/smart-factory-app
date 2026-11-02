@@ -204,7 +204,11 @@ HistGradientBoosting with derived features and a tuned hyperparameter search (`m
 | Precision | **0.9273** |
 | Recall | **0.75** |
 | F1 | **0.8293** |
-| Historical mean absolute bin gap (not weighted ECE) | 0.007 across 8 occupied quantile bins; descriptive only |
+| Recomputed sample-weighted ECE (10 quantile cutpoints) | **0.006080** on the historical 2,000-row test split; descriptive only |
+| Legacy unweighted mean bin gap | 0.007046 (historically rounded to 0.007; not weighted ECE) |
+| Brier score (recomputed from saved model) | 0.008444 on the same selected holdout |
+
+**Independent calibration readback (2 November 2026).** The committed model was reloaded and evaluated once on the original UCI AI4I 2,000-row seed-42 holdout; ROC-AUC 0.987429, PR-AUC 0.901899 and the confusion matrix matched the archived benchmark. [Read-only SHA-256-pinned audit, occupied-bin counts and runtime limitations](docs/data/ai4i-case-study/calibration-reassessment-20261102.json) · [Replay script](analysis/audit_ai4i_calibration.py). The saved model was produced with scikit-learn 1.9.0 and reloaded under 1.8.0 with compatibility warnings; matching rankings and counts are evidence for this reproduction, not a general guarantee of pickle compatibility. **Neither weighted ECE nor low Brier proves prospective calibration on real machines.**
 
 ### Confusion matrix
 
