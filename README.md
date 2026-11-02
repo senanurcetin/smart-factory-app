@@ -4,6 +4,11 @@
 
 # NEXUS Smart Factory
 
+> **Start here — technical reviewers (documentation navigation, 2 November 2026).** This is a research and demonstration project, **not** a deployed factory control or predictive-maintenance service. For the predictive-maintenance experiment, start with [the AI4I case study](docs/case-study.md), [data-quality methodology](docs/data-quality-guide.md) and [model performance](#final-model-performance). For actual run-to-failure regression, read the **separate** [NASA C-MAPSS RUL case study](docs/rul-case-study.md) and [RUL input contract](docs/RUL_INPUT_CONTRACT.md). For telemetry, distinguish [input contracts](docs/TELEMETRY_INPUT_CONTRACT.md), synthetic live readings, and offline drift diagnostics.
+>
+> **What to verify before claiming a release:** [local reproduction](#local-setup), [release verification instructions](docs/render-release-verification.md), the deployed commit and any applicable CI results. Older screenshots and successful checks **do not establish** that the latest source is deployed. Avoid interpreting a heuristic RUL proxy as a calibrated lifetime prediction.
+
+
 **NEXUS visual identity:** Approved Midnight / Spectrum X branding is integrated in the application and source tree ([brand assets and QA](docs/NEXUS_BRAND_INTEGRATION.md), [merged PR #40](https://github.com/senanurcetin/smart-factory-app/pull/40)). The screenshot gallery below was captured from an **earlier** Render release and must not be treated as proof of the current deployment.
 
 **SEO and social cards:** [Documented canonical URLs, screenshot sources and preview assets](docs/SEO_AND_SOCIAL_PREVIEW_GUIDE.md).
