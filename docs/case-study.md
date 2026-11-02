@@ -99,7 +99,7 @@ HistGradientBoosting with enhanced (derived) features and tuned hyperparameters:
 | Historical unweighted mean gap | **0.007046** (legacy artifact rounded to 0.007; not weighted ECE) |
 | Brier score | **0.008444**; descriptive historical probability error |
 
-The [2 November read-only model audit](data/ai4i-case-study/calibration-reassessment-20261102.json) reconstructs the original seed-42 test split from the SHA-pinned UCI CSV, then scores the committed model without refitting. It matches archived ROC-AUC, PR-AUC and confusion-matrix values. ECE uses the occupied-bin sample counts, not equal weight per bin. The model was saved under scikit-learn 1.9.0 and audited under 1.8.0 (unpickle warnings): a compatibility caveat. The selected split, synthetic inputs and small positive count limit calibration inference; this is not prospective field validation. Re-run with [the read-only CLI](../../analysis/audit_ai4i_calibration.py) after obtaining the official CSV.
+The [2 November read-only model audit](data/ai4i-case-study/calibration-reassessment-20261102.json) reconstructs the original seed-42 test split from the SHA-pinned UCI CSV, then scores the committed model without refitting. It matches archived ROC-AUC, PR-AUC and confusion-matrix values. ECE uses the occupied-bin sample counts, not equal weight per bin. The model was saved under scikit-learn 1.9.0 and audited under 1.8.0 (unpickle warnings): a compatibility caveat. The selected split, synthetic inputs and small positive count limit calibration inference; this is not prospective field validation. Re-run with [the read-only CLI](../analysis/audit_ai4i_calibration.py) after obtaining the official CSV.
 
 **Confusion matrix** (holdout, n=2,000):
 
