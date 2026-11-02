@@ -372,10 +372,14 @@ def build_calibration_data(
     fraction_pos, mean_pred = calibration_curve(
         y_true, probabilities, n_bins=n_bins, strategy="quantile"
     )
-    ece = float(np.mean(np.abs(fraction_pos - mean_pred)))
+    # Legacy summary is the UNWEIGHTED average across occupied bins. It is
+    # not the conventional count-weighted Expected Calibration Error (ECE).
+    # Preserve the historical field name for saved-output compatibility; do
+    # not interpret this number as evidence of reliable probabilities.
+    legacy_unweighted_bin_gap = float(np.mean(np.abs(fraction_pos - mean_pred)))
     return {
         "n_bins": n_bins,
-        "expected_calibration_error": to_float(ece),
+        "expected_calibration_error": to_float(legacy_unweighted_bin_gap),
         "reliability_diagram": [
             {
                 "predicted_probability_bin": to_float(float(mp)),
@@ -385,8 +389,9 @@ def build_calibration_data(
             for mp, fp in zip(mean_pred, fraction_pos)
         ],
         "interpretation": (
-            "ECE measures average gap between predicted probabilities and actual failure rates. "
-            "Lower is better. Values below 0.05 indicate well-calibrated predictions."
+            "Historical compatibility field expected_calibration_error is the unweighted "
+            "mean absolute gap across occupied quantile bins, not sample-weighted ECE. "
+            "It is descriptive and cannot establish probability calibration."
         ),
     }
 
