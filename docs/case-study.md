@@ -95,7 +95,7 @@ HistGradientBoosting with enhanced (derived) features and tuned hyperparameters:
 | Recall | 0.75 |
 | F1 | 0.8293 |
 | Accuracy | 0.9895 |
-| Calibration ECE | 0.007 |
+| Historical unweighted bin-mean gap (not standard weighted ECE) | 0.007; 8 populated bins, no probability-calibration guarantee |
 
 **Confusion matrix** (holdout, n=2,000):
 
@@ -116,7 +116,7 @@ AI4I 2020 has no time axis or repeated-asset grouping — each of the 10,000 row
 
 **ROC-AUC 0.984 ± 0.004, PR-AUC 0.880 ± 0.032.** PR-AUC varies more than ROC-AUC across splits — expected, since each 20% holdout contains only ~68 failures — so the single-split PR-AUC of 0.90 reported above is on the higher end of that range rather than a guaranteed number. Full per-seed results: `docs/data/ai4i-case-study/validation-robustness.json`.
 
-**Why this also addresses holdout reuse, not just split luck**: the four-model benchmark that selected HistGradientBoosting as the architecture used the same seed=42 holdout the final tuned model is later scored against — a form of holdout reuse that could inflate the headline numbers if the model happened to fit that specific split's quirks. This robustness check is what actually rules that out: the same architecture and tuned hyperparameters were independently re-fit and re-evaluated on four *other* holdouts they were never selected or tuned against, and performance held (0.880 ± 0.032 PR-AUC, not a collapse) — so the strong seed=42 result isn't an artifact of reusing that one split.
+**The holdout-reuse limitation remains**: the four-model architecture benchmark and final tuned model were both assessed on seed=42. Four additional overlapping stratified splits help assess split sensitivity (0.880 ± 0.032 PR-AUC across five), but cannot remove the architecture-selection bias. They are not untouched external validation; confirmation requires a held-out dataset that never influenced feature, architecture, or hyperparameter choices.
 
 ---
 
