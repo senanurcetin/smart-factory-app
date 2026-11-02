@@ -204,7 +204,7 @@ HistGradientBoosting with derived features and a tuned hyperparameter search (`m
 | Precision | **0.9273** |
 | Recall | **0.75** |
 | F1 | **0.8293** |
-| Calibration ECE | 0.007 (well-calibrated) |
+| Historical mean absolute bin gap (not weighted ECE) | 0.007 across 8 occupied quantile bins; descriptive only |
 
 ### Confusion matrix
 
@@ -232,7 +232,7 @@ AI4I 2020 has no time axis or repeated-asset grouping — each of the 10,000 row
 
 **ROC-AUC 0.984 ± 0.004, PR-AUC 0.880 ± 0.032** across seeds. PR-AUC varies more than ROC-AUC across splits (expected — only ~68 failures land in each 20% holdout), so the single-split PR-AUC of 0.90 reported above sits on the higher end of that range rather than being a guaranteed number. Full per-seed results: [`docs/data/ai4i-case-study/validation-robustness.json`](docs/data/ai4i-case-study/validation-robustness.json).
 
-**This also covers holdout reuse, not just split luck**: the four-model benchmark that picked HistGradientBoosting as the architecture used the same seed=42 holdout the final tuned model is later scored against — reusing a holdout like that can inflate headline numbers if the model happens to fit that split's quirks. The robustness check above is what rules it out: the same architecture + tuned hyperparameters were independently re-fit and re-evaluated on four *other* holdouts they were never selected or tuned against, and performance held (0.880 ± 0.032 PR-AUC) rather than collapsing — so the seed=42 result isn't an artifact of reusing that split.
+**Holdout reuse still limits the headline**: the four-model architecture benchmark and later tuned score both used the seed=42 holdout. The other four 80/20 splits provide useful sensitivity checks (five-split mean 0.880 ± 0.032 PR-AUC), but they overlap the same original 10,000 examples and the architecture/hyperparameters were already chosen using those data. They do **not** erase selection bias or constitute an untouched external test. A locked pipeline evaluated once on an independent source would be required for a confirmatory claim.
 
 ---
 
