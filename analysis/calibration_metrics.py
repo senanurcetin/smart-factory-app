@@ -54,7 +54,8 @@ def quantile_calibration(y_true, probabilities, n_bins: int = 10) -> dict:
                 "observed_rate": float(observation),
                 "absolute_gap": float(gap),
             }
-            for count, prediction, observation, gap
-            in zip(bin_counts, predicted_means, observed_rates, gaps)
+            for count, prediction, observation, gap in zip(
+                bin_counts, predicted_means, observed_rates, gaps
+            )
         ],
     }
