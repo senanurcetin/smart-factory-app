@@ -40,8 +40,9 @@ class QuantileCalibrationTest(unittest.TestCase):
         self.assertAlmostEqual(report["sample_weighted_ece"], weighted)
 
     def test_saved_reassessment_has_correct_sample_weights(self):
-        from pathlib import Path
         import json
+        from pathlib import Path
+
         path = Path(__file__).resolve().parents[1] / (
             "docs/data/ai4i-case-study/calibration-reassessment-20261102.json"
         )
