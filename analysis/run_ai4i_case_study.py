@@ -43,8 +43,10 @@ from sklearn.preprocessing import OneHotEncoder, StandardScaler
 
 try:
     from analysis._common import build_model_card, to_float, write_json
+    from analysis.calibration_metrics import quantile_calibration
 except ImportError:
     from _common import build_model_card, to_float, write_json
+    from calibration_metrics import quantile_calibration
 
 logger = logging.getLogger(__name__)
 
@@ -377,9 +379,14 @@ def build_calibration_data(
     # Preserve the historical field name for saved-output compatibility; do
     # not interpret this number as evidence of reliable probabilities.
     legacy_unweighted_bin_gap = float(np.mean(np.abs(fraction_pos - mean_pred)))
+    weighted = quantile_calibration(y_true, probabilities, n_bins=n_bins)
+    if not np.isclose(weighted["legacy_unweighted_bin_gap"], legacy_unweighted_bin_gap):
+        raise ValueError("Calibration bin definitions disagree")
     return {
         "n_bins": n_bins,
         "expected_calibration_error": to_float(legacy_unweighted_bin_gap),
+        "sample_weighted_ece": to_float(weighted["sample_weighted_ece"]),
+        "occupied_bin_counts": weighted["bin_counts"],
         "reliability_diagram": [
             {
                 "predicted_probability_bin": to_float(float(mp)),
@@ -784,7 +791,8 @@ def main() -> None:
             "recall": to_float(recall),
             "f1": to_float(f1),
             "confusion_matrix": matrix,
-            "calibration_ece": calibration_data["expected_calibration_error"],
+            "calibration_ece": calibration_data["expected_calibration_error"],  # legacy unweighted alias
+            "calibration_sample_weighted_ece": calibration_data["sample_weighted_ece"],
         },
         "review_queue": {
             "selected_budget_fraction": primary_queue["review_fraction"],
@@ -955,7 +963,10 @@ def main() -> None:
     logger.info(
         f"  Binary model  — ROC-AUC: {summary['final_model']['roc_auc']}  PR-AUC: {summary['final_model']['pr_auc']}"
     )
-    logger.info(f"  Calibration   — ECE: {calibration_data['expected_calibration_error']}")
+    logger.info(
+        f"  Calibration   — weighted ECE: {calibration_data['sample_weighted_ece']}; "
+        f"legacy unweighted bin gap: {calibration_data['expected_calibration_error']}"
+    )
     logger.info(f"  Per-mode models trained: {len(multiclass_results)}")
     logger.info("  New artifacts: failure-mode-multiclass.json, calibration.json, cost-model.json")
     logger.info(f"  Model artifact: {MODEL_PATH.relative_to(ROOT)}")

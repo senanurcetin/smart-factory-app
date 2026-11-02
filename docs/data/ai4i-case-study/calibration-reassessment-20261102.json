@@ -1,0 +1,68 @@
+{
+  "schema_version": 1,
+  "study": "Read-only reproduction of saved AI4I risk-model predictions and sample-weighted quantile calibration",
+  "execution_date": "2026-11-02",
+  "dataset_source": "UCI Machine Learning Repository, DOI 10.24432/C5HS5C, AI4I 2020 synthetic dataset",
+  "dataset_url": "https://archive.ics.uci.edu/dataset/601/ai4i+2020+predictive+maintenance+dataset",
+  "source_commit": "21c080743dd8e1d8172a417bdb43221d48a32e79",
+  "holdout_policy": "train_test_split(test_size=0.20, random_state=42, stratify=Machine failure); no model refitting",
+  "inputs": {
+    "training_rows": 10000,
+    "holdout_rows": 2000,
+    "holdout_failures": 68,
+    "model": "analysis/artifacts/model.pkl",
+    "model_sha256": "41be2060a21f4c457c8e2e8e9e505f489d5e482d4ac3bf2939ef026ac452faaa",
+    "official_csv_sha256": "dc6630cd9b1f0f853922fad78a1b6436570d3f1ec863f1dd5c4340ac56bc8a8e"
+  },
+  "recomputed": {
+    "roc_auc": 0.9874292108147608,
+    "average_precision": 0.9018994321689301,
+    "brier_score": 0.008443544743839147,
+    "confusion_matrix": [
+      [
+        1928,
+        4
+      ],
+      [
+        17,
+        51
+      ]
+    ],
+    "requested_quantile_bins": 10,
+    "occupied_quantile_bins": 8,
+    "occupied_bin_counts": [
+      736,
+      87,
+      177,
+      201,
+      200,
+      199,
+      200,
+      200
+    ],
+    "weighted_quantile_ece": 0.006079623981595835,
+    "unweighted_bin_mean_gap": 0.007046374382091377,
+    "historical_rounded_unweighted_gap": 0.007
+  },
+  "runtime": {
+    "python": "3.11.9",
+    "scikit_learn": "1.8.0",
+    "numpy": "2.3.5",
+    "saved_model_scikit_learn": "1.9.0",
+    "cross_version_unpickle_warnings": 8
+  },
+  "checks": [
+    "ROC-AUC agrees with historical saved 0.9874",
+    "PR-AUC agrees with historical saved 0.9019",
+    "Confusion matrix agrees with historical saved matrix",
+    "All 8 occupied quantile bin count totals sum to 2,000",
+    "Manual quantile bins match sklearn.calibration.calibration_curve outputs",
+    "Historical 0.007 is the rounded unweighted mean gap, not a weighted ECE"
+  ],
+  "limits": [
+    "Model loaded from a version-different scikit-learn (1.9.0 saved, 1.8.0 reproduced), and raised cross-version warnings; exact selected-split ROC-AUC, PR-AUC and confusion matrix matched existing output, but cross-version compatibility is not guaranteed.",
+    "Weighted ECE is a descriptive metric on previously selected/reused in-sample historical holdout; it does not establish independent prospective calibration or improve scoring rankings.",
+    "Not a new fit, untouched external evaluation, industrial operating measurement, or production deployment claim.",
+    "Raw predictions and licensed input rows are not redistributed; artifact contains aggregate diagnostics only."
+  ]
+}
