@@ -791,7 +791,8 @@ def main() -> None:
             "recall": to_float(recall),
             "f1": to_float(f1),
             "confusion_matrix": matrix,
-            "calibration_ece": calibration_data["expected_calibration_error"],
+            "calibration_ece": calibration_data["expected_calibration_error"],  # legacy unweighted alias
+            "calibration_sample_weighted_ece": calibration_data["sample_weighted_ece"],
         },
         "review_queue": {
             "selected_budget_fraction": primary_queue["review_fraction"],
@@ -962,7 +963,10 @@ def main() -> None:
     logger.info(
         f"  Binary model  — ROC-AUC: {summary['final_model']['roc_auc']}  PR-AUC: {summary['final_model']['pr_auc']}"
     )
-    logger.info(f"  Calibration   — ECE: {calibration_data['expected_calibration_error']}")
+    logger.info(
+        f"  Calibration   — weighted ECE: {calibration_data['sample_weighted_ece']}; "
+        f"legacy unweighted bin gap: {calibration_data['expected_calibration_error']}"
+    )
     logger.info(f"  Per-mode models trained: {len(multiclass_results)}")
     logger.info("  New artifacts: failure-mode-multiclass.json, calibration.json, cost-model.json")
     logger.info(f"  Model artifact: {MODEL_PATH.relative_to(ROOT)}")
