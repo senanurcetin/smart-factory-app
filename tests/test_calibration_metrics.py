@@ -39,6 +39,20 @@ class QuantileCalibrationTest(unittest.TestCase):
         ) / len(scores)
         self.assertAlmostEqual(report["sample_weighted_ece"], weighted)
 
+    def test_saved_reassessment_has_correct_sample_weights(self):
+        from pathlib import Path
+        import json
+        path = Path(__file__).resolve().parents[1] / (
+            "docs/data/ai4i-case-study/calibration-reassessment-20261102.json"
+        )
+        report = json.loads(path.read_text(encoding="utf-8"))
+        calculated = report["recomputed"]
+        self.assertEqual(sum(calculated["occupied_bin_counts"]), 2000)
+        self.assertEqual(calculated["occupied_quantile_bins"], 8)
+        self.assertAlmostEqual(calculated["weighted_quantile_ece"], 0.006079623981595835)
+        self.assertAlmostEqual(calculated["unweighted_bin_mean_gap"], 0.007046374382091377)
+        self.assertLess(calculated["weighted_quantile_ece"], calculated["unweighted_bin_mean_gap"])
+
     def test_rejects_invalid_input(self):
         cases = [
             ([], [], 10), ([0, 1], [0.2], 10),
