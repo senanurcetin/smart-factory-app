@@ -1,8 +1,53 @@
-<p align="center">
-  <img src="static/nexus-official-midnight.png" alt="NEXUS — approved midnight spectrum X identity" width="660">
-</p>
+<img src="static/nexus-official-midnight.png" alt="NEXUS — approved midnight spectrum X identity" width="160" align="right">
 
 # NEXUS Smart Factory
+
+Predictive-maintenance analytics on the UCI AI4I 2020 dataset: a trained failure-risk model turns sensor telemetry into a **ranked maintenance work queue**, served through a Flask plant dashboard, with a separate NASA C-MAPSS remaining-useful-life (RUL) regression study. Built for maintenance and reliability teams (and the engineers reviewing this portfolio project) who need to decide which assets to inspect first.
+
+![Python](https://img.shields.io/badge/Python-3.11-blue)
+![License](https://img.shields.io/badge/License-MIT-green)
+
+## Key results
+
+- **AI4I failure classifier (HistGradientBoosting):** PR-AUC **0.9019**, ROC-AUC **0.9874** on the seed-42 80/20 holdout; five-split robustness mean PR-AUC 0.880 ± 0.032 ([details](#final-model-performance)).
+- **Review queue:** reviewing the **top 10% of assets** (200 machines) captures **94.1% of all holdout failures** ([details](#maintenance-review-queue)).
+- **NASA C-MAPSS FD001 RUL regression:** RMSE **18.05** cycles vs 49.82 for the naive median baseline (**63.8% RMSE reduction**) on NASA's official test protocol ([details](#rul-regression-nasa-c-mapss)).
+
+## Live demo
+
+**Predictive-maintenance analytics case study** — end-to-end ML pipeline on the UCI AI4I 2020 dataset, including EDA, feature engineering, model selection, SQL analysis, review-queue design, and cost framing. Packaged with a Flask plant dashboard, plus a [second case study](#rul-regression-nasa-c-mapss) demonstrating genuine remaining-useful-life (RUL) regression on NASA's C-MAPSS run-to-failure dataset.
+
+Demo: **[smart-factory-app.onrender.com](https://smart-factory-app.onrender.com)** (live app) · [Portfolio project entry](https://senanur-cetin.vercel.app/projects/smart-factory-app)
+
+First load may take ~1 minute on the free Render tier while the service wakes up.
+
+**Live report sources:** [Industrial Analytics Dashboard](https://smart-factory-app.onrender.com/) · [Scored telemetry CSV](https://smart-factory-app.onrender.com/api/report.csv) · [AI4I model evaluation](https://smart-factory-app.onrender.com/case-study) · [True RUL regression study](https://smart-factory-app.onrender.com/rul-case-study).
+
+The application includes **three synchronized, functioning time-series panels** for process temperature, tool wear and the trained classifier's risk score, plus an **OEE decomposition** showing Availability × Performance × Quality. The CSV export contains the Flask worker's **latest 240 shared simulated sensor readings scored by the trained model** (a rolling buffer), including an explicitly labelled *heuristic* RUL proxy. The export does **not** invent plant readings, company data or calibrated survival estimates. Data is created as visitors poll the shared demo endpoint. The CSV is **not isolated per visitor**; different worker processes can show different rolling buffers. A worker with no readings returns a header-only export.
+
+![Historical Render capture of the NEXUS Smart Factory dashboard with simulated risk trend, OEE and KPIs](docs/assets/smart-factory-dashboard.png)
+
+*Historical 14 October 2026 capture; dashboard sensor/OEE data is simulated. See [Limitations & review notes](#limitations--review-notes) for screenshot provenance.*
+
+## Quick start
+
+```bash
+python -m venv .venv
+# Windows:  .venv\Scripts\activate
+# macOS/Linux:  source .venv/bin/activate
+pip install -r requirements-dev.txt
+python main.py   # http://127.0.0.1:8080
+
+# or with Docker
+docker build -t smart-factory-app .
+docker run -p 8080:8080 smart-factory-app
+```
+
+Full setup (charts, SQL analysis, retraining, RUL study): [Local Setup](#local-setup) · [Docker](#docker) · [Tests](#tests).
+
+---
+
+## Limitations & review notes
 
 > **Start here — technical reviewers (documentation navigation, 2 November 2026).** This is a research and demonstration project, **not** a deployed factory control or predictive-maintenance service. For the predictive-maintenance experiment, start with [the AI4I case study](docs/case-study.md), [data-quality methodology](docs/data-quality-guide.md) and [model performance](#final-model-performance). For actual run-to-failure regression, read the **separate** [NASA C-MAPSS RUL case study](docs/rul-case-study.md) and [RUL input contract](docs/RUL_INPUT_CONTRACT.md). For telemetry, distinguish [input contracts](docs/TELEMETRY_INPUT_CONTRACT.md), synthetic live readings, and offline drift diagnostics.
 >
@@ -16,8 +61,6 @@
 **Engineering evidence:** [Model performance](#final-model-performance) · [RUL case study](docs/rul-case-study.md) · [Data-quality methodology](docs/data-quality-guide.md).
 
 [GitHub main and CI status](https://github.com/senanurcetin/smart-factory-app/commits/main/) · [CircleCI pipelines](https://app.circleci.com/pipelines/github/senanurcetin/smart-factory-app) · [Render deployment](https://smart-factory-app.onrender.com/) · [Earlier verified 3/3 quality baseline: `b76e64b`](https://github.com/senanurcetin/smart-factory-app/commit/b76e64b181b2728ffe1d60195c8e2aafaa61fa4d)
-![Python](https://img.shields.io/badge/Python-3.11-blue)
-![License](https://img.shields.io/badge/License-MIT-green)
 
 ### October 2026 integration status
 
@@ -32,15 +75,6 @@ The following GitHub changes were merged into `main` on **18 October 2026**:
 | Offline Kaggle / BigQuery analytics foundation | [#43](https://github.com/senanurcetin/smart-factory-app/pull/43) | Source manifests, FD001/AI4I JSONL, 5 tables/4 views, mock cloud read, local parity verification and snapshot API |
 
 **Release verification:** The earlier `b76e64b` revision passed Python, Chromium and Docker CI (3/3) and was observed live on Render. The **new merged commits do not inherit that pass result**. At the time of this README update, the five PRs' latest changes were merged at the user's request despite unavailable exact-head CI checks (CircleCI resource limit). Source-level or mocked test definitions are not equivalent to executed test results. Re-run `ruff`, `black`, complete Python suites, Chromium and Docker jobs; verify the actual Render deployment SHA and routes before claiming a new production acceptance. The rollback reference is `backup/pre-smart-factory-integration-20261018`.
-
-
-**Predictive-maintenance analytics case study** — end-to-end ML pipeline on the UCI AI4I 2020 dataset, including EDA, feature engineering, model selection, SQL analysis, review-queue design, and cost framing. Packaged with a Flask plant dashboard, plus a [second case study](#rul-regression-nasa-c-mapss) demonstrating genuine remaining-useful-life (RUL) regression on NASA's C-MAPSS run-to-failure dataset.
-
-Demo: **[smart-factory-app.onrender.com](https://smart-factory-app.onrender.com)** (live app) · [Portfolio project entry](https://senanur-cetin.vercel.app/projects/smart-factory-app)
-
-**Live report sources:** [Industrial Analytics Dashboard](https://smart-factory-app.onrender.com/) · [Scored telemetry CSV](https://smart-factory-app.onrender.com/api/report.csv) · [AI4I model evaluation](https://smart-factory-app.onrender.com/case-study) · [True RUL regression study](https://smart-factory-app.onrender.com/rul-case-study).
-
-The application includes **three synchronized, functioning time-series panels** for process temperature, tool wear and the trained classifier's risk score, plus an **OEE decomposition** showing Availability × Performance × Quality. The CSV export contains the Flask worker's **latest 240 shared simulated sensor readings scored by the trained model** (a rolling buffer), including an explicitly labelled *heuristic* RUL proxy. The export does **not** invent plant readings, company data or calibrated survival estimates. Data is created as visitors poll the shared demo endpoint. The CSV is **not isolated per visitor**; different worker processes can show different rolling buffers. A worker with no readings returns a header-only export.
 
 > **Historical production screenshots (14 October 2026):** the PNGs below were captured from the then-live Render release using real Chromium. They have **not yet been recaptured against the 18 October merged release**. Sensor/OEE/line data shown on the dashboard is **simulated**, while AI4I and C-MAPSS case-study metrics are offline evaluations, not real-time plant signals. The linked WebM remains a historical video. [Capture provenance](docs/assets/production_screenshot_provenance_20261014.json).
 
