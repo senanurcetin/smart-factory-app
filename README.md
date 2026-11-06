@@ -27,7 +27,7 @@ The application includes **three synchronized, functioning time-series panels** 
 
 ![Historical Render capture of the NEXUS Smart Factory dashboard with simulated risk trend, OEE and KPIs](docs/assets/smart-factory-dashboard.png)
 
-*Historical 14 October 2026 capture; dashboard sensor/OEE data is simulated. See [Limitations & review notes](#limitations--review-notes) for screenshot provenance.*
+*Historical 14 October 2026 capture; dashboard sensor/OEE data is simulated. See [Limitations](#limitations) for screenshot provenance.*
 
 ## Quick start
 
@@ -47,110 +47,39 @@ Full setup (charts, SQL analysis, retraining, RUL study): [Local Setup](#local-s
 
 ---
 
-## Limitations & review notes
+## Contents
 
-> **Start here — technical reviewers (documentation navigation, 2 November 2026).** This is a research and demonstration project, **not** a deployed factory control or predictive-maintenance service. For the predictive-maintenance experiment, start with [the AI4I case study](docs/case-study.md), [data-quality methodology](docs/data-quality-guide.md) and [model performance](#final-model-performance). For actual run-to-failure regression, read the **separate** [NASA C-MAPSS RUL case study](docs/rul-case-study.md) and [RUL input contract](docs/RUL_INPUT_CONTRACT.md). For telemetry, distinguish [input contracts](docs/TELEMETRY_INPUT_CONTRACT.md), synthetic live readings, and offline drift diagnostics.
->
-> **What to verify before claiming a release:** [local reproduction](#local-setup), [release verification instructions](docs/render-release-verification.md), the deployed commit and any applicable CI results. Older screenshots and successful checks **do not establish** that the latest source is deployed. Avoid interpreting a heuristic RUL proxy as a calibrated lifetime prediction.
+[Dashboard and API](#dashboard-and-api) · [Problem](#problem) · [Dataset](#dataset) · [EDA](#exploratory-data-analysis) · [Feature engineering](#feature-engineering) · [Model selection](#model-selection) · [Final model performance](#final-model-performance) · [Validation robustness](#validation-robustness) · [SQL analysis](#sql-analysis) · [Review queue](#maintenance-review-queue) · [Cost impact](#cost-impact) · [RUL regression](#rul-regression-nasa-c-mapss) · [Engineering decisions](#engineering-decisions) · [Architecture](#architecture) · [Local setup](#local-setup) · [Docker](#docker) · [Tests](#tests) · [Documentation](#documentation) · [Limitations](#limitations)
 
+## Dashboard and API
 
-**NEXUS visual identity:** Approved Midnight / Spectrum X branding is integrated in the application and source tree ([brand assets and QA](docs/NEXUS_BRAND_INTEGRATION.md), [merged PR #40](https://github.com/senanurcetin/smart-factory-app/pull/40)). The screenshot gallery below was captured from an **earlier** Render release and must not be treated as proof of the current deployment.
-
-**SEO and social cards:** [Documented canonical URLs, screenshot sources and preview assets](docs/SEO_AND_SOCIAL_PREVIEW_GUIDE.md).
-
-**Engineering evidence:** [Model performance](#final-model-performance) · [RUL case study](docs/rul-case-study.md) · [Data-quality methodology](docs/data-quality-guide.md).
-
-[GitHub main and CI status](https://github.com/senanurcetin/smart-factory-app/commits/main/) · [CircleCI pipelines](https://app.circleci.com/pipelines/github/senanurcetin/smart-factory-app) · [Render deployment](https://smart-factory-app.onrender.com/) · [Earlier verified 3/3 quality baseline: `b76e64b`](https://github.com/senanurcetin/smart-factory-app/commit/b76e64b181b2728ffe1d60195c8e2aafaa61fa4d)
-
-### October 2026 integration status
-
-The following GitHub changes were merged into `main` on **18 October 2026**:
-
-| Change | GitHub PR | Scope |
+| Surface | Source | Meaning |
 | --- | --- | --- |
-| Offline source-tagged telemetry drift | [#34](https://github.com/senanurcetin/smart-factory-app/pull/34) | Advisory PSI comparisons, source provenance and no synthetic-shift mislabelling |
-| Immutable offline model candidates | [#38](https://github.com/senanurcetin/smart-factory-app/pull/38) | SHA-256 staging, manifest verification and manual promotion gate; no automatic deployment |
-| NASA FD001 feature contract | [#39](https://github.com/senanurcetin/smart-factory-app/pull/39) | 48 ordered inputs from engine history; separate from AI4I heuristic RUL |
-| Official NEXUS Identity | [#40](https://github.com/senanurcetin/smart-factory-app/pull/40) | Brand assets, accessible navigation and dark Decision Studio |
-| Offline Kaggle / BigQuery analytics foundation | [#43](https://github.com/senanurcetin/smart-factory-app/pull/43) | Source manifests, FD001/AI4I JSONL, 5 tables/4 views, mock cloud read, local parity verification and snapshot API |
+| Temperature and wear charts | Latest API-generated AI4I-schema readings | Simulated telemetry |
+| Failure risk trend | Trained HistGradientBoosting `predict_proba` on current simulated inputs | Real model output, not a calibrated failure probability |
+| OEE breakdown | `availability * performance * quality` from process-global simulated downtime/production/scrap | Real formula on simulated counters |
+| RUL number | Monotonic risk-derived proxy | Heuristic; separate from the NASA C-MAPSS RUL model |
+| [Downloadable CSV](https://smart-factory-app.onrender.com/api/report.csv) | `/api/report.csv`, last 240 simulated readings | Shared-worker window with ISO 8601 UTC timestamps and a provenance header |
 
-**Release verification:** The earlier `b76e64b` revision passed Python, Chromium and Docker CI (3/3) and was observed live on Render. The **new merged commits do not inherit that pass result**. At the time of this README update, the five PRs' latest changes were merged at the user's request despite unavailable exact-head CI checks (CircleCI resource limit). Source-level or mocked test definitions are not equivalent to executed test results. Re-run `ruff`, `black`, complete Python suites, Chromium and Docker jobs; verify the actual Render deployment SHA and routes before claiming a new production acceptance. The rollback reference is `backup/pre-smart-factory-integration-20261018`.
+On-screen trends use a short server-local time-of-day label; the newest reading also shows a full UTC timestamp, which the CSV exports for sorting and cross-day analysis.
 
-> **Historical production screenshots (14 October 2026):** the PNGs below were captured from the then-live Render release using real Chromium. They have **not yet been recaptured against the 18 October merged release**. Sensor/OEE/line data shown on the dashboard is **simulated**, while AI4I and C-MAPSS case-study metrics are offline evaluations, not real-time plant signals. The linked WebM remains a historical video. [Capture provenance](docs/assets/production_screenshot_provenance_20261014.json).
+[`GET /api/benchmark-snapshot`](https://smart-factory-app.onrender.com/api/benchmark-snapshot) returns the committed AI4I/FD001 model cards and evaluation JSON with model/data lineage fingerprints and `data_origin=committed_offline_case_studies`, `bigquery_dataset_connected=false` flags. Missing or incomplete inputs return HTTP 503.
 
-Short historical video: [`docs/assets/smart-factory-dashboard.webm`](docs/assets/smart-factory-dashboard.webm)
+**Routes** (deployed from the committed `render.yaml` blueprint, Docker runtime on Render's free tier): [dashboard `/`](https://smart-factory-app.onrender.com/) · [AI4I case study `/case-study`](https://smart-factory-app.onrender.com/case-study) · [RUL case study `/rul-case-study`](https://smart-factory-app.onrender.com/rul-case-study) · [settings and model card `/settings`](https://smart-factory-app.onrender.com/settings). Hugging Face: [ONNX model card](https://huggingface.co/senanurcetin/ai4i-failure-hgb) and an [in-browser failure-risk demo](https://huggingface.co/spaces/senanurcetin/ai4i-failure-risk) (sliders, no server).
 
-![Historical Render capture of the NEXUS Smart Factory dashboard with simulated risk trend, OEE and KPIs](docs/assets/smart-factory-dashboard.png)
+All routes, including both Decision Studio pages, share the NEXUS navigation layout ([brand assets](docs/NEXUS_BRAND_INTEGRATION.md)); the sidebar collapses to an off-canvas menu below 900px. Accessibility basics: skip-to-content link, `aria-label`s and keyboard-operable controls.
 
-### Historical NEXUS analysis workspaces (14 October production captures)
+**Why Render rather than Vercel:** Vercel's serverless Python functions have a ~250 MB unzipped size limit that this dependency stack is likely to exceed. Render (like Fly.io or Cloud Run) runs the existing Dockerfile as a container, so there is one build path for CI and production.
 
-![Predictive Maintenance intelligence workspace captured from live Render production](docs/assets/smart-factory-maintenance.png)
+![Predictive Maintenance workspace](docs/assets/smart-factory-maintenance.png)
 
-![RUL Prognostics engineering workspace captured from live Render production](docs/assets/smart-factory-rul.png)
+![RUL Prognostics workspace](docs/assets/smart-factory-rul.png)
 
-[View real 375px mobile screenshot](docs/assets/smart-factory-mobile-375.png)
-
----
-
-## New functional dashboard and BI export (October 2026)
-
-| Surface | Actual source | Interpretation |
-| --- | --- | --- |
-| Temperature and wear charts | Latest API-generated AI4I-schema readings | **Simulated**, not plant equipment telemetry |
-| Failure risk trend | Trained HistGradientBoosting `predict_proba` on current simulated inputs | Real model output, **not calibrated** failure probability |
-| OEE breakdown | `availability * performance * quality` from process-global simulated downtime/production/scrap | Real formula using **simulated** counters |
-| RUL number | Monotonic risk-derived proxy | **Heuristic only**, not the independent NASA C-MAPSS RUL regression |
-| [Downloadable CSV](https://smart-factory-app.onrender.com/api/report.csv) | `/api/report.csv` endpoint, last 240 simulated readings | A shared-worker demo window with full ISO 8601 UTC timestamps, not a private session or historical plant dataset |
-
-### Historical benchmark JSON endpoint
-
-[`GET /api/benchmark-snapshot`](https://smart-factory-app.onrender.com/api/benchmark-snapshot) uses only committed AI4I/FD001 model cards and evaluation JSON. It includes model/data lineage fingerprints and explicit `data_origin=committed_offline_case_studies` and `bigquery_dataset_connected=false` flags. Bad or incomplete evidence returns HTTP 503; it is **not** a query against a live BigQuery dataset, a Kaggle connection, a PLC/OPC UA stream or a factory prediction feed.
-
-The dashboard's simulated AI4I trend, its *heuristic* RUL indicator and NASA's official held-out FD001 RUL regression remain separate signals and should never be conflated.
-
-**Time semantics:** the on-screen risk and sensor trends use a short server-local time-of-day label. The newest scored reading also displays a full UTC timestamp; the CSV exports that timezone-aware timestamp for reliable downstream sorting and cross-day analysis. An explicit provenance header identifies the process-local shared buffer. No real plant timestamps are inferred.
-
-The dashboard is delivered by the existing Flask application, not by the README cover image. [Source-level dashboard/report tests](tests/test_dashboard_reporting.py) check that the CSV rows reflect API-scored values. [Browser smoke tests](tests/test_e2e.py) exercise the actual DOM. CircleCI is the automatic quality provider; GitHub Actions workflows are manual-only while hosted runner minutes are constrained.
-
----
-
-## Genuine Chromium dashboard verification
-
-The [CircleCI browser-quality job](.circleci/config.yml) launches Flask in real Chromium, verifies charts, keyboard/mobile navigation and JavaScript/asset loading, and retains screenshots. Earlier release evidence: [Python-quality #38](https://circleci.com/gh/senanurcetin/smart-factory-app/38) and [browser-quality #39](https://circleci.com/gh/senanurcetin/smart-factory-app/39) **passed** on the historical UI PR (14 October 2026). A later historical release had a separately verified CI baseline on SHA `61dd76c` (16 October 2026): [`python-quality` #88](https://circleci.com/gh/senanurcetin/smart-factory-app/88), [`browser-quality` #89](https://circleci.com/gh/senanurcetin/smart-factory-app/89), and [`container-quality` #90](https://circleci.com/gh/senanurcetin/smart-factory-app/90) all passed **for that earlier revision**. The 14 October screenshots do not verify the current release. On 18 October, five feature PRs were merged, but their final merged-head Python/Chromium/Docker test status still requires independent verification.
-
-When executed with `E2E_SCREENSHOT_DIR=artifacts/gallery`, the suite produces:
-
-- `smart-factory-desktop-1440.png` — 1440px executive dashboard after the simulated stream becomes active.
-- `smart-factory-mobile-375.png` — 375px dashboard after checking keyboard navigation and overflow.
-- `smart-factory-telemetry-outage.png` — optional failure-state capture if the outage scenario is reached.
-
-These are renderings of **simulated telemetry**, not readings from real factory hardware. CircleCI captures remain separate from the README. The README images above were independently taken from **Render production** on 14 October 2026, after verifying the deployed Docker commit and routes. The screenshot data is simulated where explicitly labeled, not a real plant data feed.
-
----
-
-## Live Demo
-
-**[smart-factory-app.onrender.com](https://smart-factory-app.onrender.com)** — deployed via the `render.yaml` blueprint already committed in this repo (Render's free tier, Docker runtime, no manual configuration).
-
-- Dashboard: [`/`](https://smart-factory-app.onrender.com/)
-- AI4I case study: [`/case-study`](https://smart-factory-app.onrender.com/case-study)
-- RUL case study: [`/rul-case-study`](https://smart-factory-app.onrender.com/rul-case-study)
-- Settings (dashboard preferences + model card): [`/settings`](https://smart-factory-app.onrender.com/settings)
-- Hugging Face: [ONNX model card](https://huggingface.co/senanurcetin/ai4i-failure-hgb) and an [in-browser failure-risk demo](https://huggingface.co/spaces/senanurcetin/ai4i-failure-risk) (sliders, no server)
-
-The dashboard, settings, AI4I Maintenance, C-MAPSS RUL, and both Decision Studio routes share NEXUS navigation and accessibility rules, while the analytical workspaces deliberately use distinct layouts and evidence-driven visuals. The sidebar collapses below 900px.
-
-Render's free-tier services may spin down when idle; the first request can take longer to respond. This is a platform tradeoff, not a model or dataset issue.
-
-**Why not Vercel for the interactive app**: Vercel's serverless Python functions have a size limit (~250MB unzipped) that this repo's dependency stack is very likely to exceed. Render (and similarly Fly.io/Cloud Run) run the app as a real container instead of a size-constrained function — a better fit here, and it reuses the Dockerfile already built and CI-verified in this repo rather than needing a separate, trimmed-down deployment path.
-
----
+[375px mobile screenshot](docs/assets/smart-factory-mobile-375.png) · [Short dashboard video](docs/assets/smart-factory-dashboard.webm)
 
 ## Problem
 
-Maintenance teams cannot review every asset equally. The question is whether sensor telemetry can be translated into a **ranked work queue** that captures most failures within a limited review budget — and whether that logic can be expressed in terms of cost and business value.
-
----
+Maintenance teams cannot review every asset equally. The question is whether sensor telemetry can be translated into a **ranked work queue** that captures most failures within a limited review budget, and whether that logic can be expressed in terms of cost.
 
 ## Dataset
 
@@ -162,33 +91,23 @@ Maintenance teams cannot review every asset equally. The question is whether sen
 | Evaluation | Deterministic 80/20 stratified holdout (seed=42) |
 | Raw features | Product type, air temp, process temp, rotational speed, torque, tool wear |
 
----
-
 ## Exploratory Data Analysis
 
-### Class imbalance
-
-The dataset is heavily imbalanced at 3.39% failure rate. Accuracy is a misleading metric here; PR-AUC and recall are the correct evaluation signals.
+**Class imbalance.** At a 3.39% failure rate, accuracy is misleading; PR-AUC and recall are the evaluation signals used throughout.
 
 ![Class balance](docs/assets/eda-class-balance.png)
 
-### Failure mode distribution
-
-Heat dissipation (HDF) and overstrain (OSF) are the most frequent failure types. Random failures (RNF) are rare and poorly separable — an honest limitation of the benchmark.
+**Failure modes.** Heat dissipation (HDF) and overstrain (OSF) are the most frequent failure types. Random failures (RNF) are rare and poorly separable.
 
 ![Failure modes](docs/assets/eda-failure-modes.png)
 
-### Product type distribution
-
-Type L (low quality) makes up 60% of records. Type H (high quality) is the smallest slice at 10%.
+**Product type.** Type L (low quality) makes up 60% of records; Type H (high quality) is the smallest slice at 10%.
 
 ![Product type distribution](docs/assets/eda-type-distribution.png)
 
----
-
 ## Feature Engineering
 
-Three cross-sensor features were derived to capture interaction effects that individual raw sensors cannot express:
+Three cross-sensor features capture interaction effects that individual raw sensors cannot express:
 
 | Derived feature | Formula | Intuition |
 |-----------------|---------|-----------|
@@ -196,13 +115,11 @@ Three cross-sensor features were derived to capture interaction effects that ind
 | `thermal_stress` | (Process temp - Air temp) / Air temp | Relative thermal load under operating conditions |
 | `tool_wear_load_ratio` | Tool wear / Torque | Wear rate per unit of mechanical load |
 
-Isolated impact (same tuned hyperparameters, raw vs. enhanced features, so the delta is attributable to the three derived features alone): ROC-AUC **+0.018**, PR-AUC **+0.077**, F1 **+0.082**.
-
----
+Isolated impact (same tuned hyperparameters, raw vs. enhanced features, so the delta is attributable to the derived features alone): ROC-AUC **+0.018**, PR-AUC **+0.077**, F1 **+0.082**.
 
 ## Model Selection
 
-Four models benchmarked on the holdout using the **raw feature set** (before derived features):
+Four models benchmarked on the holdout using the **raw feature set** and default hyperparameters:
 
 ![Model comparison](docs/assets/model-comparison.png)
 
@@ -213,23 +130,15 @@ Four models benchmarked on the holdout using the **raw feature set** (before der
 | Random forest | 0.965 | 0.762 | 0.695 |
 | **HistGradientBoosting** (selected) | **0.975** | **0.852** | **0.810** |
 
-HistGradientBoosting selected for highest PR-AUC and F1 on the imbalanced holdout. This table uses raw features and default hyperparameters for a fair four-model comparison; the deployed model additionally adds the derived features above and a tuned hyperparameter search (see [Final Model Performance](#final-model-performance)).
+HistGradientBoosting has the highest PR-AUC and F1. The deployed model adds the derived features above and a tuned hyperparameter search.
 
----
-
-## Feature Importance
-
-Permutation importance (average precision scoring, 8 repeats) on the final enhanced model:
+**Feature importance.** Permutation importance (average-precision scoring, 8 repeats) on the final model: rotational speed and `thermal_stress` dominate, and the derived features rank in the top 5.
 
 ![Feature importance](docs/assets/feature-importance.png)
 
-Rotational speed and `thermal_stress` dominate. Derived features rank in the top 5, validating the feature engineering step.
-
----
-
 ## Final Model Performance
 
-HistGradientBoosting with derived features and a tuned hyperparameter search (`max_leaf_nodes=15`, `learning_rate=0.03`, `l2_regularization=1.0`, unrestricted `max_depth`; see [Hyperparameter Tuning](#hyperparameter-tuning)) achieves:
+HistGradientBoosting with derived features and tuned hyperparameters (`max_leaf_nodes=15`, `learning_rate=0.03`, `l2_regularization=1.0`, unrestricted `max_depth`):
 
 | Metric | Value |
 |--------|-------|
@@ -238,47 +147,31 @@ HistGradientBoosting with derived features and a tuned hyperparameter search (`m
 | Precision | **0.9273** |
 | Recall | **0.75** |
 | F1 | **0.8293** |
-| Recomputed sample-weighted ECE (10 quantile cutpoints) | **0.006080** on the historical 2,000-row test split; descriptive only |
-| Legacy unweighted mean bin gap | 0.007046 (historically rounded to 0.007; not weighted ECE) |
-| Brier score (recomputed from saved model) | 0.008444 on the same selected holdout |
+| Sample-weighted ECE (10 quantile cutpoints) | 0.006080 on the 2,000-row test split |
+| Legacy unweighted mean bin gap | 0.007046 (previously rounded to 0.007; not weighted ECE) |
+| Brier score (recomputed from saved model) | 0.008444 on the same holdout |
 
-**Independent calibration readback (2 November 2026).** The committed model was reloaded and evaluated once on the original UCI AI4I 2,000-row seed-42 holdout; ROC-AUC 0.987429, PR-AUC 0.901899 and the confusion matrix matched the archived benchmark. [Read-only SHA-256-pinned audit, occupied-bin counts and runtime limitations](docs/data/ai4i-case-study/calibration-reassessment-20261102.json) · [Replay script](analysis/audit_ai4i_calibration.py). The saved model was produced with scikit-learn 1.9.0 and reloaded under 1.8.0 with compatibility warnings; matching rankings and counts are evidence for this reproduction, not a general guarantee of pickle compatibility. **Neither weighted ECE nor low Brier proves prospective calibration on real machines.**
-
-### Confusion matrix
+Reloading the committed model and scoring the original seed-42 holdout reproduces ROC-AUC 0.987429, PR-AUC 0.901899 and the archived confusion matrix ([SHA-256-pinned audit with occupied-bin counts](docs/data/ai4i-case-study/calibration-reassessment-20261102.json) · [replay script](analysis/audit_ai4i_calibration.py)).
 
 ![Confusion matrix](docs/assets/eda-confusion-matrix.png)
 
-Out of 68 actual failures in the holdout: **51 correctly flagged (TP)**, 17 missed (FN), only 4 false alarms (FP). Tuning traded some recall for precision relative to the untuned model — see the Hyperparameter Tuning section for why PR-AUC (threshold-independent) was used as the search objective instead of F1.
+Of 68 actual failures in the holdout: **51 flagged (TP)**, 17 missed (FN), 4 false alarms (FP). Tuning traded some recall for precision relative to the untuned model, because the search optimised threshold-independent PR-AUC rather than F1.
 
----
+**Hyperparameter tuning.** `RandomizedSearchCV` (20 iterations, 5-fold stratified CV, PR-AUC scoring) over `max_depth`, `learning_rate`, `l2_regularization` and `max_leaf_nodes`. Config and results: [`model-selection.json`](docs/data/ai4i-case-study/model-selection.json).
 
-## Hyperparameter Tuning
-
-The deployed model's hyperparameters were selected with `RandomizedSearchCV` (20 iterations, 5-fold stratified CV, scored on PR-AUC — the same primary metric used everywhere else in this repo) over `max_depth`, `learning_rate`, `l2_regularization`, and `max_leaf_nodes`. Full search config and results: [`docs/data/ai4i-case-study/model-selection.json`](docs/data/ai4i-case-study/model-selection.json).
-
----
-
-## Explainability (SHAP)
-
-Local feature attribution for the top 10 highest-risk holdout predictions uses `shap.TreeExplainer` (interventional, probability-space) rather than a single-feature-ablation heuristic, so it correctly accounts for feature interactions (e.g. torque and tool wear jointly driving overstrain risk). Detail: [`docs/data/ai4i-case-study/feature-importance.json`](docs/data/ai4i-case-study/feature-importance.json) → `local_attributions_top10_high_risk`.
-
----
+**Explainability.** Local attribution for the 10 highest-risk holdout predictions uses `shap.TreeExplainer` (interventional, probability space), which accounts for feature interactions such as torque and tool wear jointly driving overstrain risk. Output: [`feature-importance.json`](docs/data/ai4i-case-study/feature-importance.json) → `local_attributions_top10_high_risk`.
 
 ## Validation Robustness
 
-AI4I 2020 has no time axis or repeated-asset grouping — each of the 10,000 rows is one independently sampled machine snapshot with a unique Product ID — so time-aware or group-based (`GroupKFold`) splitting is not applicable to this dataset. Instead, the final architecture was re-fit across 5 independent stratified 80/20 splits to confirm the headline metrics aren't an artifact of one lucky split:
+AI4I 2020 has no time axis or repeated-asset grouping (each row is an independently sampled machine snapshot with a unique Product ID), so time-aware or `GroupKFold` splitting does not apply. The final architecture was instead re-fit across 5 independent stratified 80/20 splits:
 
-**ROC-AUC 0.984 ± 0.004, PR-AUC 0.880 ± 0.032** across seeds. PR-AUC varies more than ROC-AUC across splits (expected — only ~68 failures land in each 20% holdout), so the single-split PR-AUC of 0.90 reported above sits on the higher end of that range rather than being a guaranteed number. Full per-seed results: [`docs/data/ai4i-case-study/validation-robustness.json`](docs/data/ai4i-case-study/validation-robustness.json).
-
-**Holdout reuse still limits the headline**: the four-model architecture benchmark and later tuned score both used the seed=42 holdout. The other four 80/20 splits provide useful sensitivity checks (five-split mean 0.880 ± 0.032 PR-AUC), but they overlap the same original 10,000 examples and the architecture/hyperparameters were already chosen using those data. They do **not** erase selection bias or constitute an untouched external test. A locked pipeline evaluated once on an independent source would be required for a confirmatory claim.
-
----
+**ROC-AUC 0.984 ± 0.004, PR-AUC 0.880 ± 0.032.** PR-AUC varies more because only ~68 failures land in each holdout; the single-split 0.90 sits at the high end of the range. Per-seed results: [`validation-robustness.json`](docs/data/ai4i-case-study/validation-robustness.json).
 
 ## SQL Analysis
 
-Analytical queries run with **DuckDB** directly on the pre-computed JSON artifacts. Results saved to [`docs/data/ai4i-case-study/sql-analysis.json`](docs/data/ai4i-case-study/sql-analysis.json).
+**DuckDB** queries run directly on the JSON artifacts; results in [`sql-analysis.json`](docs/data/ai4i-case-study/sql-analysis.json).
 
-**Q1 — Failure modes ranked by frequency and capture rate:**
+**Q1 — Failure modes by frequency and capture rate:**
 
 | Code | Label | Holdout failures | Capture rate at top 10% |
 |------|-------|-----------------|------------------------|
@@ -288,11 +181,7 @@ Analytical queries run with **DuckDB** directly on the pre-computed JSON artifac
 | TWF | Tool wear | 10 | 70% |
 | RNF | Random | 4 | 25% |
 
-RNF has the lowest separability — acknowledged as a model limitation.
-
-**Q2 — Models ranked by PR-AUC (correct metric for imbalanced data):**
-
-HistGradientBoosting 0.852 > RandomForest 0.762 > LogisticRegression 0.382 > Dummy 0.034
+**Q2 — Models by PR-AUC:** HistGradientBoosting 0.852 > RandomForest 0.762 > LogisticRegression 0.382 > Dummy 0.034
 
 **Q3 — Review queue ROI:**
 
@@ -302,19 +191,15 @@ HistGradientBoosting 0.852 > RandomForest 0.762 > LogisticRegression 0.382 > Dum
 | 10% — 200 assets | 94.1% | 9.4x | 3.1 |
 | 15% — 300 assets | 95.6% | 6.4x | 4.6 |
 
----
-
 ## Maintenance Review Queue
 
 ![Review queue curve](docs/assets/review-queue-curve.png)
 
-Reviewing the **top 10% of assets** (200 machines) captures **94.1% of all holdout failures** — 9.4x better than random review.
-
----
+Reviewing the **top 10% of assets** (200 machines) captures **94.1% of all holdout failures**, 9.4x better than random review.
 
 ## Cost Impact
 
-From [`docs/data/ai4i-case-study/cost-simulation.json`](docs/data/ai4i-case-study/cost-simulation.json):
+From [`cost-simulation.json`](docs/data/ai4i-case-study/cost-simulation.json), using illustrative cost assumptions:
 
 | Scenario | Cost |
 |----------|------|
@@ -323,151 +208,108 @@ From [`docs/data/ai4i-case-study/cost-simulation.json`](docs/data/ai4i-case-stud
 | Risk-ranked queue (top 10%) | $53,000 |
 | **Savings vs reactive** | **$185,000 (77.7%)** |
 
-Assumptions are illustrative — demonstrates how model output translates into maintenance economics.
-
 ![Cost model by failure mode](docs/assets/cost-model.png)
 
-Per-failure-mode cost breakdown (differentiated unplanned vs. preventive cost per mode): [`docs/data/ai4i-case-study/cost-model.json`](docs/data/ai4i-case-study/cost-model.json).
-
----
+Per-failure-mode breakdown (differentiated unplanned vs. preventive cost): [`cost-model.json`](docs/data/ai4i-case-study/cost-model.json).
 
 ## RUL Regression (NASA C-MAPSS)
 
-A **second, separate case study**. AI4I 2020 is a static snapshot dataset — one row per independently sampled machine, no time axis — so it cannot support genuine remaining-useful-life (RUL) regression. NASA's C-MAPSS turbofan degradation dataset is a real run-to-failure dataset, which makes real RUL regression possible, and its multi-cycle-per-engine structure also supports a proper **grouped** train/validation split (`GroupKFold` by engine) — the exact rigor technique AI4I's structure could not support.
+A separate case study. AI4I is a static snapshot dataset and cannot support remaining-useful-life regression; NASA's C-MAPSS turbofan dataset is run-to-failure, with multiple cycles per engine, which allows real RUL regression and a grouped train/validation split (`GroupKFold` by engine).
 
 | Metric | Naive baseline (median RUL) | Tuned model |
 |--------|------------------------------|-------------|
 | RMSE (cycles) | 49.82 | **18.05** |
 | PHM08 score | 166,570.5 | **837.6** |
 
-**63.8% RMSE reduction** over the naive baseline, evaluated on NASA's own official test protocol (not a custom split) — an RMSE of ~18 cycles is consistent with published classical-ML results on this benchmark (FD001).
+**63.8% RMSE reduction** over the baseline on NASA's official FD001 test protocol; ~18 cycles RMSE is in line with published classical-ML results on this benchmark.
 
 ![Model vs baseline](docs/assets/cmapss-model-vs-baseline.png)
 ![Degradation trajectories](docs/assets/cmapss-degradation-trajectories.png)
 
-Full methodology, feature engineering, evaluation protocol, and limitations: [`docs/rul-case-study.md`](docs/rul-case-study.md). Live results page: `/rul-case-study` (linked from the dashboard sidebar). Raw artifacts: [`docs/data/cmapss-rul-case-study/`](docs/data/cmapss-rul-case-study/).
+Methodology, features, evaluation and limitations: [`docs/rul-case-study.md`](docs/rul-case-study.md). The 48-input FD001 feature contract is in [`docs/RUL_INPUT_CONTRACT.md`](docs/RUL_INPUT_CONTRACT.md). Raw artifacts: [`docs/data/cmapss-rul-case-study/`](docs/data/cmapss-rul-case-study/).
 
-*The live bento dashboard's own RUL tile intentionally stays a simple heuristic derived from the AI4I risk score — see [Engineering Decisions](#engineering-decisions) for why.*
+## Engineering Decisions
 
----
+- **Public benchmark data (AI4I 2020) instead of plant telemetry:** well documented, citable and reproducible.
+- **PR-AUC as the primary metric:** with a 3.39% failure class, accuracy and even ROC-AUC look good on a model that never flags a failure. PR-AUC is used consistently for benchmarking, the hyperparameter search and robustness checks.
+- **Gradient boosting instead of deep learning:** 10,000 tabular rows do not benefit from a neural network; a tree ensemble trains in seconds and `shap.TreeExplainer` gives fast, exact explanations for tree models.
+- **Model files committed to git instead of a registry:** adequate for two models and one deployment target. Offline candidates are staged immutably with SHA-256 manifests and a manual promotion gate ([`OFFLINE_MODEL_REGISTRY.md`](docs/OFFLINE_MODEL_REGISTRY.md)); a larger system would use a registry such as MLflow.
+- **Own Dockerfile and gunicorn:** the containerisation step is part of the project rather than hidden behind a buildpack.
+- **Dashboard RUL stays a heuristic:** the dashboard simulates AI4I-schema machine-tool telemetry, while the RUL model is trained on turbofan time series. Connecting the two would mean inventing a mapping between unrelated sensor schemas, so they remain separate.
+- **Same trained pipeline offline and live:** the dashboard loads the persisted `model.pkl` via joblib and scores simulated telemetry with it; there is no separate demo model.
+- **Different validation per dataset:** repeated stratified holdouts for AI4I, `GroupKFold` by engine for C-MAPSS, chosen by what each dataset's structure supports.
+- **Engineering hygiene:** pinned dependencies, structured logging, and a model card with training timestamp, library versions and dataset hash.
+
+### Drift detection
+
+[`analysis/check_drift.py`](analysis/check_drift.py) computes the **Population Stability Index (PSI)** between the AI4I training distribution and a synthetic batch in which `Tool wear [min]` is shifted by +80 minutes. The shifted feature and the derived `tool_wear_load_ratio` are flagged (PSI 2.79 and 2.21, well above the 0.2 threshold), while every unrelated feature stays under 0.03. Results appear in the `/case-study` "Drift Check" panel and in [`drift-report.json`](docs/data/ai4i-case-study/drift-report.json). Source-tagged offline telemetry comparisons are described in [`TELEMETRY_DRIFT_MONITOR.md`](docs/TELEMETRY_DRIFT_MONITOR.md).
+
+### Production next steps
+
+- Run the PSI check on a schedule against real incoming telemetry and alert when it crosses the threshold.
+- Schedule the existing training pipelines (`analysis/run_ai4i_case_study.py`, `analysis/run_cmapss_rul_case_study.py`) via cron or Airflow, on a fixed cadence or a drift trigger, with a promotion step before swapping artifacts.
+- Replace git-committed models with a registry that keeps prior versions retrievable for rollback.
+- Monitor the live `RiskScore` distribution and compare predicted failure capture against real outcomes once ground truth exists.
 
 ## Stack
 
-| Layer | Technology |
-|-------|-----------|
-| Application | Python 3.11, Flask, gunicorn |
-| Deployment | Docker (multi-stage build) |
-| Analytics | Pandas, NumPy, SciPy, scikit-learn |
-| Explainability | SHAP (TreeExplainer) |
-| SQL analysis | DuckDB (in-memory, reads JSON natively) |
-| Visualization | Matplotlib |
-| Frontend | HTML, CSS, JavaScript |
-| CI | CircleCI `python-quality`, `browser-quality` and configured `container-quality`; GitHub Actions are manual-only |
-
----
+Python 3.11, Flask and gunicorn; Pandas, NumPy, SciPy and scikit-learn; SHAP (TreeExplainer); DuckDB (in-memory, reads JSON natively); Matplotlib; HTML/CSS/JavaScript frontend; Docker multi-stage build on Render; CI on CircleCI (`python-quality`, `browser-quality`, `container-quality`), with GitHub Actions workflows manual-only.
 
 ## Architecture
 
-Additional modules included in the 18 October release:
-
-| Component | Responsibility |
-| --- | --- |
-| `analysis/source_registry.py` | Verified-source manifest; separate archive and model-card DataFrame SHA-256 semantics |
-| `analysis/ai4i_batch.py`, `analysis/fd001_batch.py` | Deterministic, checksum-pinned AI4I/FD001 input validation and local JSONL |
-| `analysis/kaggle_parity.py` | Offline row/label parity of a candidate Kaggle AI4I mirror with official UCI data |
-| `analysis/bigquery_plan.py`, `analysis/bigquery_load_guard.py` | Offline-only BigQuery 5-table/4-view SQL plan and file/schema preflight |
-| `analysis/bigquery_cloud_read.py` | Optional *read-only* provider-side BigQuery dry runs; real reads explicitly gated, no writes |
-| `analysis/stage_benchmarks.py` | One-shot verified local staging command |
-| `analysis/benchmark_snapshot.py` | Historical, source-tagged NEXUS benchmark report for the Flask API |
-| `analysis/telemetry_monitor.py`, `analysis/model_registry.py`, `analysis/rul_input_contract.py` | Offline advisory monitoring, immutable model evidence and FD001 feature contract |
-| `docs/BIGQUERY_KAGGLE_FOUNDATION.md` | Implementation guide, credentials/billing boundaries and unverified source status |
-
 ```
 smart-factory-app/
+├── main.py, decision_studio.py        # Dashboard, API and AI4I/RUL Decision Studio routes
+├── case_study.py, rul_case_study.py   # Case-study pages
+├── settings.py, layout.py             # Preferences + model card; shared accessible NEXUS navigation
 ├── analysis/
-│   ├── _common.py                     # Shared helpers (to_float, write_json, model card)
 │   ├── run_ai4i_case_study.py         # AI4I ML pipeline (downloads UCI dataset on first run)
-│   ├── generate_visuals.py            # Model comparison, feature importance, review queue, cost model
-│   ├── generate_eda.py                # EDA charts: class balance, failure modes, confusion matrix
-│   ├── sql_queries.py                 # DuckDB SQL analysis on JSON artifacts
 │   ├── run_cmapss_rul_case_study.py   # RUL regression pipeline (downloads NASA dataset on first run)
-│   ├── generate_cmapss_visuals.py     # RUL trajectory, predicted-vs-actual, feature importance charts
+│   ├── generate_eda.py, generate_visuals.py, generate_cmapss_visuals.py   # Charts
+│   ├── sql_queries.py                 # DuckDB SQL analysis on JSON artifacts
 │   ├── check_drift.py                 # PSI drift check against a synthetic shifted batch
-│   └── artifacts/                     # Persisted pipelines — also scored live by main.py
-│       ├── model.pkl                  # AI4I classifier
-│       └── rul_model.pkl              # C-MAPSS RUL regressor
-├── docs/
-│   ├── assets/                        # All chart/media assets, embedded live on the case-study pages
-│   ├── data/ai4i-case-study/          # AI4I JSON artifacts + sql-analysis.json + drift-report.json
-│   ├── data/cmapss-rul-case-study/    # RUL JSON artifacts
-│   ├── case-study.md
-│   └── rul-case-study.md
-├── tests/
-│   ├── test_case_study.py             # AI4I route and integration tests
-│   ├── test_dashboard_model.py        # Live dashboard scores against the real trained pipeline
-│   ├── test_artifacts.py              # AI4I data quality, metrics range, asset presence
-│   ├── test_drift_check.py            # PSI calculation and drift-flagging correctness
-│   ├── test_rul_case_study.py         # RUL route and integration tests
-│   ├── test_rul_artifacts.py          # RUL data quality and metrics contract tests
-│   ├── test_settings.py               # Settings route and model-card rendering
-│   ├── test_e2e.py                    # Chromium desktop/tablet/mobile routes and visual contracts
-│   └── test_container_contract.py     # Docker module/static asset inclusion regression
-├── static/                            # NEXUS CSS/JS + evidence-driven Decision Studio page assets
-├── decision_studio.py                  # Routes for standalone AI4I & RUL decision studios
-├── main.py                            # Dashboard + current studio registrations
-├── case_study.py                      # AI4I case-study page
-├── rul_case_study.py                  # RUL case-study page
-├── settings.py                        # Dashboard preferences + model card
-├── layout.py                          # Shared accessible NEXUS navigation
-├── .circleci/config.yml               # Automated Python, browser, Docker-quality jobs
-├── Dockerfile                         # Multi-stage build, includes decision_studio + static assets
-├── render.yaml                        # One-click Render Blueprint (Docker runtime)
-├── requirements.txt
-└── requirements-dev.txt               # + ruff, black, playwright
+│   ├── _common.py                     # Shared helpers (to_float, write_json, model card)
+│   └── artifacts/                     # model.pkl (AI4I classifier), rul_model.pkl (C-MAPSS regressor)
+├── docs/                              # Case studies, contracts, chart assets, JSON results
+├── static/                            # NEXUS CSS/JS + Decision Studio assets
+├── tests/                             # unittest suites + Playwright E2E
+├── .circleci/config.yml               # Python, browser and Docker quality jobs
+├── Dockerfile, render.yaml            # Multi-stage image; Render Blueprint (Docker runtime)
+└── requirements*.txt                  # runtime, dev (+ ruff, black, playwright), optional cloud
 ```
 
----
+Offline data and model-governance modules in `analysis/`:
+
+- `source_registry.py`: verified-source manifest with separate archive and model-card DataFrame SHA-256 semantics. `ai4i_batch.py`, `fd001_batch.py`: checksum-pinned input validation and local JSONL. `kaggle_parity.py`: row/label parity of a Kaggle AI4I mirror against UCI. `bigquery_plan.py`, `bigquery_load_guard.py`: 5-table/4-view SQL plan and file/schema preflight. `bigquery_cloud_read.py`: optional read-only BigQuery dry runs, real reads gated, no writes. `stage_benchmarks.py`: one-shot local staging. `benchmark_snapshot.py`: report behind `/api/benchmark-snapshot` ([#43](https://github.com/senanurcetin/smart-factory-app/pull/43)).
+- `telemetry_monitor.py`: advisory PSI comparisons with source provenance ([#34](https://github.com/senanurcetin/smart-factory-app/pull/34)). `model_registry.py`: immutable SHA-256 model candidates and a manual promotion gate ([#38](https://github.com/senanurcetin/smart-factory-app/pull/38)). `rul_input_contract.py`: 48 ordered FD001 inputs from engine history ([#39](https://github.com/senanurcetin/smart-factory-app/pull/39)).
+
+NEXUS identity, accessible navigation and the dark Decision Studio came in [#40](https://github.com/senanurcetin/smart-factory-app/pull/40).
 
 ## Local Setup
 
 ```bash
 python -m venv .venv
-# Windows:  .venv\Scripts\activate
-# macOS/Linux:  source .venv/bin/activate
+# Windows: .venv\Scriptsctivate   macOS/Linux: source .venv/bin/activate
+pip install -r requirements-dev.txt   # or requirements.txt without lint/format tooling
 
-pip install -r requirements-dev.txt   # or requirements.txt if you don't need lint/format tooling
-
-# Generate all charts from JSON artifacts (no dataset download needed)
+# Charts and SQL analysis from committed JSON artifacts (no dataset download)
 python analysis/generate_eda.py
 python analysis/generate_visuals.py
-
-# Run SQL analysis
 python analysis/sql_queries.py
 
-# Run full AI4I ML benchmark (downloads UCI dataset ~500 KB on first run).
-# This also persists the final pipeline to analysis/artifacts/model.pkl,
-# which main.py loads to score the live dashboard — a pre-trained copy is
-# already committed, so this step is optional unless you want to retrain.
-python analysis/run_ai4i_case_study.py
-
-# Run the RUL regression case study (downloads NASA C-MAPSS dataset ~12 MB
-# on first run). Persists analysis/artifacts/rul_model.pkl — also optional,
-# a pre-trained copy is already committed.
-python analysis/run_cmapss_rul_case_study.py
+# Optional retraining; trained copies of both models are committed.
+python analysis/run_ai4i_case_study.py         # UCI download ~500 KB; writes analysis/artifacts/model.pkl
+python analysis/run_cmapss_rul_case_study.py   # NASA download ~12 MB; writes analysis/artifacts/rul_model.pkl
 python analysis/generate_cmapss_visuals.py
 
-# Start the dashboard (scores simulated AI4I-schema telemetry with the
-# real trained pipeline above — not a separate toy model)
-python main.py
+python main.py   # dashboard; loads model.pkl to score simulated telemetry
 ```
 
-App: `http://127.0.0.1:8080` | Case-study route: `http://127.0.0.1:8080/case-study` | RUL case-study route: `http://127.0.0.1:8080/rul-case-study`
-
----
+App: `http://127.0.0.1:8080` · AI4I case study: `/case-study` · RUL case study: `/rul-case-study` · Settings: `/settings`
 
 ### Offline BigQuery / Kaggle / NASA preparation
 
-Cloud connectors are **not required** to generate an offline SQL plan or to validate existing data files:
+No cloud connector is needed to generate the SQL plan or validate data files:
 
 ```bash
 python -m analysis.source_registry
@@ -477,9 +319,7 @@ python -m unittest discover -s tests -p 'test_fd001_batch.py' -v
 python -m unittest discover -s tests -p 'test_bigquery_plan.py' -v
 ```
 
-Before staging, provide the **actual SHA-256 values of local raw data files**, authoritative Kaggle handle/version/licensing evidence, and a verified BigQuery project, location, IAM scope and budget. The prepared CSV/FD001 JSONL files remain on your local disk. The full instructions and guarded commands are in [BigQuery & Kaggle Foundation](docs/BIGQUERY_KAGGLE_FOUNDATION.md).
-
-The optional BigQuery client is isolated in `requirements-cloud.txt`; installing it does not grant access. The provider-side read-only dry-run adapter is a separate authorized operation and does **not** create datasets, load rows or execute cloud SQL by default.
+Staging requires the SHA-256 values of your local raw files, the Kaggle handle/version/licence, and a BigQuery project, location, IAM scope and budget. Prepared CSV/FD001 JSONL files stay on local disk. The optional BigQuery client lives in `requirements-cloud.txt`; the dry-run adapter does not create datasets, load rows or execute cloud SQL by default. Full guide: [BigQuery & Kaggle Foundation](docs/BIGQUERY_KAGGLE_FOUNDATION.md).
 
 ## Docker
 
@@ -488,158 +328,59 @@ docker build -t smart-factory-app .
 docker run -p 8080:8080 smart-factory-app
 ```
 
-Multi-stage build, served by `gunicorn` (2 workers) instead of the Flask development server. The committed `analysis/artifacts/model.pkl` and `rul_model.pkl` are both baked into the image, so no dataset download or retraining is needed to run the container. The actual Docker image built and deployed successfully to Render on 14 October 2026 after the packaging hotfix; container import and route smoke passed in production. The separate CircleCI `container-quality` job passed on 16 October 2026 for GitHub `main` SHA `61dd76c` ([run #90](https://circleci.com/gh/senanurcetin/smart-factory-app/90)); Render deployed the same SHA as `live`. See [release checklist](docs/render-release-verification.md) for further production HTTP/browser checks.
-
----
+Multi-stage build served by `gunicorn` (2 workers). Both committed model files are baked into the image, so the container needs no dataset download or retraining. Release checks: [`docs/render-release-verification.md`](docs/render-release-verification.md).
 
 ## Tests
 
-The merged integration adds **125 authored test methods** in ten suites covering source integrity, SQL planning, AI4I and NASA FD001 preparation, JSONL preflight, lineage checks, Flask API, local staging, mocked BigQuery dry-run gates and offline Kaggle row parity. Existing drift, registry, FD001 feature and NEXUS Chromium tests also remain registered in `.circleci/config.yml`.
-
-**These tests must be executed after the merge; their existence does not establish CI success.** The standard CI does not download datasets, access Kaggle or run paid BigQuery jobs. Browser checks require a real Chromium installation; some local environments may skip them.
-
 ```bash
-# Backend/unit coverage: routes, artifacts, metric thresholds, chart file
-# presence, hyperparameter-tuning/validation-robustness/model-card contracts,
-# live dashboard <-> real model integration, drift-check correctness, the
-# RUL case study's own artifact contracts and routes, the Settings page's
-# model-card rendering, negative-path tests for missing artifacts, and
-# Real-browser Playwright E2E regressions (requires
-# `playwright install chromium` once; run the separate CI browser job)
+# All unittest suites: routes, artifacts, metric thresholds, chart presence,
+# tuning/robustness/model-card contracts, dashboard <-> real model integration,
+# drift checks, RUL contracts, settings page, negative paths for missing artifacts,
+# source integrity, SQL planning, FD001/AI4I preparation, JSONL preflight,
+# lineage, mocked BigQuery dry-run gates and offline Kaggle parity.
+# test_e2e.py needs `playwright install chromium` once.
 python -m unittest discover -s tests -v
 
-# Lint and format check
+# Lint and format
 ruff check .
 black --check .
 
-# Syntax check all modules
-python -m py_compile main.py case_study.py rul_case_study.py layout.py settings.py \
-    analysis/run_ai4i_case_study.py \
-    analysis/generate_visuals.py \
-    analysis/generate_eda.py \
-    analysis/sql_queries.py \
-    analysis/run_cmapss_rul_case_study.py \
-    analysis/generate_cmapss_visuals.py \
-    analysis/check_drift.py
+# Syntax check (same as CI)
+python -m compileall -q main.py case_study.py rul_case_study.py layout.py settings.py analysis tests
 ```
 
----
+Backend tests use Flask's `test_client()` with the real offline model artifacts, and [`test_dashboard_reporting.py`](tests/test_dashboard_reporting.py) checks that CSV rows match API-scored values. [`test_e2e.py`](tests/test_e2e.py) drives headless Chromium through desktop, 1024px tablet and 375px mobile layouts, checking console errors, chart rendering, keyboard navigation, overflow and that the mobile nav collapses. With `E2E_SCREENSHOT_DIR=artifacts/gallery` it writes `smart-factory-desktop-1440.png`, `smart-factory-mobile-375.png` and, if the outage scenario is reached, `smart-factory-telemetry-outage.png`.
 
-## Proof Surfaces
+CI runs on [CircleCI](https://app.circleci.com/pipelines/github/senanurcetin/smart-factory-app) ([config](.circleci/config.yml)): `python-quality` (lint, format, compile, committed-artifact verification, unit suites), `browser-quality` (Chromium E2E) and `container-quality` (Docker build and runtime smoke test). CI validates the committed model artifacts and does not download UCI/NASA data, access Kaggle or run BigQuery jobs. [Commit history and status on `main`](https://github.com/senanurcetin/smart-factory-app/commits/main/).
+
+## Documentation
 
 | Document | Contents |
 |----------|----------|
-| [`docs/case-study.md`](docs/case-study.md) | Full methodology, results, limitations (AI4I) |
-| [`docs/rul-case-study.md`](docs/rul-case-study.md) | Full methodology, results, limitations (C-MAPSS RUL) |
+| [`docs/case-study.md`](docs/case-study.md) | AI4I methodology, results, limitations |
+| [`docs/rul-case-study.md`](docs/rul-case-study.md) | C-MAPSS RUL methodology, results, limitations |
+| [`docs/data-quality-guide.md`](docs/data-quality-guide.md) | Data-quality methodology |
+| [`docs/TELEMETRY_INPUT_CONTRACT.md`](docs/TELEMETRY_INPUT_CONTRACT.md) | Telemetry input contract |
+| [`docs/RUL_INPUT_CONTRACT.md`](docs/RUL_INPUT_CONTRACT.md) | FD001 RUL input contract |
+| [`docs/render-release-verification.md`](docs/render-release-verification.md) | Render release checklist |
+| [SEO and social preview guide](docs/SEO_AND_SOCIAL_PREVIEW_GUIDE.md) | Canonical URLs, screenshot sources, social preview assets |
 | [`docs/data/ai4i-case-study/summary.json`](docs/data/ai4i-case-study/summary.json) | Final model metrics and confusion matrix |
-| [`docs/data/ai4i-case-study/sql-analysis.json`](docs/data/ai4i-case-study/sql-analysis.json) | DuckDB query results |
-| [`docs/data/cmapss-rul-case-study/summary.json`](docs/data/cmapss-rul-case-study/summary.json) | RUL model RMSE, PHM08 score, baseline comparison |
-| [`docs/data/ai4i-case-study/drift-report.json`](docs/data/ai4i-case-study/drift-report.json) | PSI drift-check results (real, CI-executed, not just documented) |
-| Local route | `http://127.0.0.1:8080/case-study` |
-| Local route | `http://127.0.0.1:8080/rul-case-study` |
-| Local route | `http://127.0.0.1:8080/settings` (dashboard preferences + model card) |
-
----
-
-## Skills Demonstrated
-
-- **Exploratory data analysis**: class imbalance identification, failure mode profiling, product type distribution
-- **Feature engineering**: derived cross-sensor features (`mechanical_load`, `thermal_stress`, `tool_wear_load_ratio`), with impact isolated from hyperparameter tuning via a controlled comparison
-- **Hyperparameter tuning**: `RandomizedSearchCV` with PR-AUC as the search objective, results logged transparently
-- **Explainability**: SHAP TreeExplainer for interaction-aware local attribution, not a single-feature heuristic
-- **Validation rigor**: repeated stratified holdouts to confirm metric stability where time-aware/group splitting isn't applicable
-- **Model selection**: four-model benchmark with PR-AUC as primary metric for imbalanced data
-- **SQL**: DuckDB analytical queries on JSON artifacts — failure mode ranking, model comparison, queue ROI
-- **Business framing**: ranked review queue, cost model, operational maintenance economics
-- **Engineering practice**: pinned dependencies, lint/format CI gate, structured logging, a minimal model card, model persisted via joblib and served (not retrained ad hoc) by the live app
-- **Deployment**: multi-stage Dockerfile served by `gunicorn`; regular CI validates committed offline model artifacts and builds the production image without retraining or downloading UCI/NASA datasets on every push
-- **Genuine RUL regression**: a second case study on NASA C-MAPSS (a real run-to-failure dataset), including `GroupKFold` cross-validation grouped by engine — the grouped/time-aware split technique AI4I's dataset structure cannot support
-- **Knowing which rigor technique applies where**: same repo, two datasets, two different (correct) validation strategies — repeated holdouts for AI4I, grouped CV for C-MAPSS — chosen for what each dataset's structure actually supports, not applied uniformly by habit
-- **Data drift detection**: a real, CI-executed PSI (Population Stability Index) check against a deliberately shifted synthetic batch — demonstrated, not just listed as a "production consideration"
-- **Frontend engineering**: one consistent design system across all four routes (shared sidebar/chart-theme modules, not four independently-styled pages), a responsive off-canvas nav for mobile, and basic accessibility (skip-to-content link, `aria-label`s, keyboard-operable controls)
-- **Real-browser testing**: Playwright drives an actual Chromium instance against all four routes in CI — checking for console errors and verifying key UI behavior (e.g. the mobile nav actually collapses) — not just backend route/status-code assertions
-- **Python stack**: pandas, NumPy, scikit-learn, SHAP, matplotlib, DuckDB, Flask, gunicorn
-
----
-
-## Interview Talking Points
-
-1. Class imbalance is identified in EDA and drives every downstream decision — PR-AUC and recall over accuracy throughout.
-2. Feature engineering's value is isolated from hyperparameter tuning with a controlled comparison (same tuned params, raw vs. enhanced features) — a common conflation this project deliberately avoids.
-3. Headline metrics are backed by a 5-seed robustness check, not reported from a single split; the writeup shows the metric that varies more (PR-AUC) and by how much.
-4. SQL analysis is built directly into the pipeline: DuckDB queries on JSON artifacts show failure mode ranking, model comparison, and queue ROI in a reproducible, testable format.
-5. The project frames predictive maintenance as a **prioritization problem**, not a chart demo — connecting model output to a ranked queue and maintenance cost model.
-6. The live dashboard scores the same persisted model used in the offline benchmark (via joblib), not a disconnected demo model trained on random labels — a deliberate fix for a common portfolio-project credibility gap.
-7. Limitations are documented honestly: random failures (RNF) have 25% capture rate; the UCI dataset is simulated; the cost model is illustrative; SHAP and dashboard RUL are both explicitly labeled as approximations, not exact/calibrated outputs.
-8. A second, separate case study demonstrates genuine RUL regression on NASA C-MAPSS — a real run-to-failure dataset, evaluated on its own official test protocol with `GroupKFold` cross-validation grouped by engine, beating a naive baseline by 63.8% RMSE.
-9. The two case studies deliberately use different validation strategies (repeated holdouts vs. grouped CV) because the two datasets' structures support different things — not because one recipe was copy-pasted onto both.
-
----
-
-## What This Proves
-
-- Class imbalance identified up front; PR-AUC and recall drive metric selection throughout
-- Feature engineering's marginal value is isolated from hyperparameter tuning (same tuned params, raw vs. enhanced features): ROC-AUC +0.018, PR-AUC +0.077, F1 +0.082
-- Hyperparameters are searched (`RandomizedSearchCV`, PR-AUC objective), not hardcoded guesses
-- Reported metrics are backed by a repeated-holdout robustness check across 5 seeds, not a single lucky split
-- Local explanations use SHAP (interaction-aware), not a single-feature-ablation heuristic
-- SQL proficiency: DuckDB analytical queries on structured JSON artifacts
-- Model output translated into a ranked maintenance queue with quantified business ROI
-- The live dashboard scores simulated telemetry with the same trained pipeline benchmarked in the offline case study — no separate, disconnected demo model
-- Frontend care extends past the ML: one consistent design system across all four pages, a responsive nav that actually collapses on mobile (verified in CI by a real Chromium instance, not just a CSS class check), and basic accessibility
-- Engineering hygiene: pinned dependencies, structured logging (not `print`), a minimal model card (training timestamp, library versions, dataset hash), a Dockerized deployment path, and CI that retrains the full pipeline and builds the image on every push — not just replaying static committed artifacts
-- A second case study (NASA C-MAPSS) proves genuine RUL regression is understood, not just referenced as a limitation — including the `GroupKFold` grouping AI4I's dataset structure ruled out
-- End-to-end analytical thinking: EDA to feature engineering to model selection to business framing
-
----
-
-## Engineering Decisions
-
-Trade-offs made in this project, and why — the reasoning matters more than the raw metrics:
-
-- **Public benchmark dataset (AI4I 2020) over real plant telemetry**: no access to a real plant's sensor stream for a portfolio project; AI4I is a well-documented, citable, reproducible substitute. The tradeoff (simulated data, no true time axis) is disclosed everywhere it matters rather than glossed over.
-- **PR-AUC as the primary selection metric**: the failure class is 3.39% of the dataset, so accuracy and even ROC-AUC can look deceptively good on a model that never flags a failure. PR-AUC and recall are what actually reward catching rare failures, and are used consistently across benchmarking, hyperparameter search, and robustness checks.
-- **Classical gradient boosting (HistGradientBoosting) over deep learning**: 10,000 rows doesn't benefit from a neural network; a tree ensemble trains in seconds, and `shap.TreeExplainer` gives exact/fast explanations for tree models versus the approximate methods deep nets require. Simpler tool, better fit for the data size and the explainability goal.
-- **`model.pkl`/`rul_model.pkl` committed directly to git, not a model registry**: appropriate at this repo's scale (two models, one deployment target). A real production system would use a registry (e.g. MLflow Model Registry) with versioning and rollback — noted as a scale-dependent simplification, not an oversight.
-- **Docker + gunicorn over a managed PaaS**: a managed platform (Heroku/Render/etc.) would hide the deployment story entirely. Owning the Dockerfile and the WSGI server choice is the point — it demonstrates the containerization step itself, which a one-click deploy would skip.
-- **The live dashboard's RUL stays a simple heuristic, not the full C-MAPSS regression model**: the dashboard simulates AI4I-schema telemetry (a CNC/machine-tool tabular snapshot); the [RUL case study](#rul-regression-nasa-c-mapss) runs on a completely different asset type (turbofan engine time-series). Wiring one into the other's live demo would mean fabricating a connection between two unrelated sensor schemas — dishonest for the sake of a flashier KPI tile. They stay as two clearly separated proof surfaces instead.
-
-### Drift Detection (Demonstrated, Not Just Documented)
-
-Most "production considerations" lists (including the one below) are just documented intent. This one isn't: [`analysis/check_drift.py`](analysis/check_drift.py) is a real, CI-executed script that computes the **Population Stability Index (PSI)** between the AI4I training distribution and a synthetic "live" batch. Rather than compare identical data (which would trivially show no drift), the synthetic batch has one feature — `Tool wear [min]` — deliberately shifted by +80 minutes to simulate a fleet whose tools are wearing faster than during the training window. Result: the shifted feature and the derived feature that depends on it (`tool_wear_load_ratio`) are correctly flagged (PSI 2.79 and 2.21, both far past the 0.2 "significant drift" threshold), while every unrelated feature stays under PSI 0.03. See it live on the `/case-study` route (a "Drift Check" panel, sourced from the same JSON) or in [`docs/data/ai4i-case-study/drift-report.json`](docs/data/ai4i-case-study/drift-report.json).
-
-### Real-Browser Testing (Not Just Backend Mocks)
-
-Backend/contract tests use Flask's `test_client()` and real offline model artifacts; they cannot catch browser JavaScript failures, CSS regressions or missing deployed assets by themselves. [`tests/test_e2e.py`](tests/test_e2e.py) uses headless Chromium to verify desktop, 1024px tablet and 375px mobile layouts and real DOM/CSS state. The dedicated CircleCI jobs `python-quality`, `browser-quality`, and `container-quality` all passed on `main` SHA `61dd76c` (16 October 2026). The 14 October local pinned-dependency suite passed **139 tests, 4 opt-in skips, 248 subtests**; four additional real-AI4I drift integrations were run separately and passed from checksum-matched cached public CSV copies. The October release's historical PR/CI acceptance is recorded in [the merged PR #22](https://github.com/senanurcetin/smart-factory-app/pull/22) and [CircleCI pipeline history](https://app.circleci.com/pipelines/github/senanurcetin/smart-factory-app). The separate 14 October pre-merge checklist is retired; current acceptance always requires tests on the exact revision. The two inspected public AI4I CSV mirrors had matching SHA-256 `59db4f1d9c34c58136d89e5a006ec190dcea19e9dbea74f6b3b0c6f22a44d183`; mirror agreement is not an official UCI checksum.
-
-### Production Considerations
-
-Still out of scope to build for a benchmark case study, but worth being explicit about what a real deployment would need on top of what's here:
-
-- **Wiring drift detection to a real feed**: the PSI logic above is real, but it runs against a synthetic batch on demand — a production version would run on a schedule against actual incoming telemetry and alert when PSI crosses the threshold.
-- **Retraining cadence**: both training/tuning/robustness-check pipelines already exist (`analysis/run_ai4i_case_study.py`, `analysis/run_cmapss_rul_case_study.py`) — a real deployment would just need a scheduler (cron, Airflow, etc.) to re-run them on a fixed cadence or on a drift trigger, and a promotion step before swapping the model artifacts.
-- **Model versioning & rollback**: replace the git-committed `model.pkl` with a registry that keeps prior versions retrievable, so a bad retrain can be rolled back without a git revert.
-- **Prediction & outcome monitoring**: track the live `RiskScore` distribution for sudden shifts, and periodically compare predicted failure-capture rate against actual outcomes once ground truth is available — the kind of silent degradation that offline metrics alone won't catch.
-
----
+| [`docs/data/cmapss-rul-case-study/summary.json`](docs/data/cmapss-rul-case-study/summary.json) | RUL RMSE, PHM08 score, baseline comparison |
 
 ## Limitations
 
-- BigQuery and Kaggle integration currently consists of offline code, a SQL plan, strict data contracts, simulated/mock provider tests and a historical benchmark API. **Actual Kaggle source versions, official raw-file checksums, BigQuery IAM/billing and a successful real upload are not verified**.
-- The optional BigQuery adapter supports read-only provider-side dry-run and explicitly opt-in bounded SELECT. It does not perform BigQuery writes or enforce a global cloud spending cap.
-- Existing source-level and local tests are not a substitute for new exact-commit quality and production acceptance after the 18 October merges.
-- Real PLC and factory telemetry ingest are **not enabled**; MQTT/OPC UA modules are offline validation boundaries only.
-- The NEXUS screenshots in this README are historical images, not proof of the just-merged production UI.
-
-- The UCI AI4I dataset is simulated — metrics are benchmark evidence, not plant-specific deployment claims
-- The live dashboard simulates plausible AI4I-schema telemetry rather than reading a deployed production sensor stream (the risk model itself is real, not a toy)
-- The cost model is illustrative; real maintenance economics vary by plant and equipment type
-- Random failures (RNF) have low separability — 25% capture rate is an acknowledged limitation
-- The dashboard's RUL figure is a simple heuristic derived from the model's risk score, not a calibrated survival/RUL regression — genuine RUL regression is demonstrated separately (see [RUL Regression (C-MAPSS)](#rul-regression-nasa-c-mapss))
-- SHAP attributions use an interventional TreeExplainer with a 200-row background sample — a close but not exact approximation of full-dataset Shapley values
-- AI4I 2020 has no time axis or asset-grouping structure to split on, so split stability is checked via repeated holdouts (see [Validation Robustness](#validation-robustness)) rather than time-aware or group-based cross-validation
-
----
+- **Scope.** This is a research and demonstration project, not a deployed factory control or predictive-maintenance service. PLC/factory telemetry ingest is not enabled; the MQTT/OPC UA modules are offline validation code only.
+- **Data.** AI4I 2020 is a synthetic dataset, so the metrics are benchmark results rather than plant-specific claims. Two public AI4I CSV mirrors share SHA-256 `59db4f1d9c34c58136d89e5a006ec190dcea19e9dbea74f6b3b0c6f22a44d183`, but that is not an official UCI checksum.
+- **Simulated dashboard.** Sensor, OEE and line data on the dashboard are simulated; the risk score comes from the real trained model but is not a calibrated failure probability. The dashboard RUL is a heuristic derived from the risk score, not the C-MAPSS regression model.
+- **Calibration.** ECE and Brier score are descriptive on a single 2,000-row holdout and do not establish prospective calibration on real machines. The model was trained with scikit-learn 1.9.0 and the audit reloaded it under 1.8.0 with compatibility warnings; matching results there do not guarantee pickle compatibility in general.
+- **Holdout reuse.** Model selection and tuning both used the seed-42 holdout. The other four splits are sensitivity checks on the same 10,000 rows, not an untouched external test, so some selection bias remains.
+- **Validation design.** AI4I has no time axis or asset grouping, so stability is checked with repeated holdouts rather than time-aware or grouped CV.
+- **Random failures.** RNF capture is 25% at the top-10% budget.
+- **Cost model.** Cost figures are illustrative; real maintenance economics vary by plant and equipment.
+- **SHAP.** Attributions use an interventional TreeExplainer with a 200-row background sample, an approximation of full-dataset Shapley values.
+- **BigQuery and Kaggle.** The integration is offline code, a SQL plan, data contracts and mocked provider tests. Kaggle source versions, official raw-file checksums, BigQuery IAM/billing and a real upload have not been verified. The adapter supports read-only dry runs and opt-in bounded SELECT; it performs no writes and does not enforce a global spending cap. `/api/benchmark-snapshot` serves committed offline results, not a live BigQuery, Kaggle or plant feed.
+- **Screenshots.** The images in this README were captured from Render on 14 October 2026 ([provenance](docs/assets/production_screenshot_provenance_20261014.json)) and predate later UI changes, including the NEXUS identity in PR #40.
+- **Release status.** CI results and screenshots apply only to the revision they ran on. Check the commit's CircleCI status and the deployed Render SHA before treating a revision as released.
 
 ## License
 
