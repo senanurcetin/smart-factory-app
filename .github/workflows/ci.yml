@@ -1,13 +1,19 @@
 name: CI
 
-# Automatic source/test verification is performed by CircleCI.
-# GitHub-hosted runner minutes are exhausted; manual opt-in only.
+# GitHub-hosted runners are free for public repositories, so this runs on every
+# PR and on main. CircleCI remains configured in .circleci/config.yml.
 on:
+  push:
+    branches: [main]
+  pull_request:
   workflow_dispatch:
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
   quality:
-    if: vars.ENABLE_GITHUB_ACTIONS_CI == 'true'
     runs-on: ubuntu-latest
 
     steps:
