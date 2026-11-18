@@ -228,6 +228,8 @@ A separate case study. AI4I is a static snapshot dataset and cannot support rema
 
 Methodology, features, evaluation and limitations: [`docs/rul-case-study.md`](docs/rul-case-study.md). The 48-input FD001 feature contract is in [`docs/RUL_INPUT_CONTRACT.md`](docs/RUL_INPUT_CONTRACT.md). Raw artifacts: [`docs/data/cmapss-rul-case-study/`](docs/data/cmapss-rul-case-study/).
 
+**Demo endpoint.** `POST /api/rul/fd001-demo` scores one engine's FD001 history with the committed model. Send `{"history": [...]}` with 5 or more contiguous cycles, each with the 26 raw FD001 fields. The response is the estimate in cycles, capped at the 125-cycle training cap and labelled as NASA benchmark data, not plant telemetry. AI4I-shaped or malformed input returns 4xx. The dashboard RUL tile is unchanged.
+
 ## Engineering Decisions
 
 - **Public benchmark data (AI4I 2020) instead of plant telemetry:** well documented, citable and reproducible.

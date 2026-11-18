@@ -4,18 +4,29 @@ Reads the JSON artifacts `analysis/run_cmapss_rul_case_study.py` writes to
 `docs/data/cmapss-rul-case-study/` and renders them into a single page —
 same pattern as `case_study.py`. If `summary.json` (the anchor artifact)
 is missing, both routes return 503 rather than a stack trace.
+
+`POST /api/rul/fd001-demo` scores one engine's NASA C-MAPSS FD001 history with
+the committed RUL model. It is benchmark data only, kept apart from the AI4I
+dashboard, whose RUL tile stays a heuristic.
 """
 
 from __future__ import annotations
 
 import json
+import math
+import threading
 from pathlib import Path
 
-from flask import Blueprint, abort, jsonify, render_template_string
+from flask import Blueprint, abort, jsonify, render_template_string, request
 
+from analysis.rul_input_contract import MODEL_COLUMNS, RulInputError, build_fd001_feature_row
 from layout import SIDEBAR_CSS, render_sidebar
 
 ARTIFACT_DIR = Path(__file__).resolve().parent / "docs" / "data" / "cmapss-rul-case-study"
+RUL_MODEL_PATH = Path(__file__).resolve().parent / "analysis" / "artifacts" / "rul_model.pkl"
+RUL_CAP_CYCLES = 125  # training labels were capped here (analysis/run_cmapss_rul_case_study.py)
+MAX_DEMO_CYCLES = 400  # longest FD001 training engine is 362 cycles
+MAX_DEMO_BODY_BYTES = 256 * 1024
 
 RUL_CASE_STUDY_TEMPLATE = (
     """
@@ -456,4 +467,74 @@ def rul_case_study_page():
         abort(503, description=str(exc))
     return render_template_string(
         RUL_CASE_STUDY_TEMPLATE, sidebar_html=render_sidebar("rul-case-study"), **artifacts
+    )
+
+
+_rul_model = None
+_rul_model_lock = threading.Lock()
+
+
+def _load_rul_model():
+    """Load the committed FD001 pipeline once, on first use."""
+    global _rul_model
+    with _rul_model_lock:
+        if _rul_model is None:
+            if not RUL_MODEL_PATH.exists():
+                raise FileNotFoundError("FD001 RUL model artifact is missing")
+            import joblib
+
+            _rul_model = joblib.load(RUL_MODEL_PATH)
+        return _rul_model
+
+
+def _demo_error(status: int, message: str):
+    return jsonify({"error": message, "source": "NASA C-MAPSS FD001 simulated benchmark"}), status
+
+
+@rul_case_study_bp.route("/api/rul/fd001-demo", methods=["POST"])
+def fd001_rul_demo():
+    """Score one engine's FD001 history (5+ contiguous cycles) with the RUL model.
+
+    Body: {"history": [ {unit_number, time_cycles, setting_1..3, sensor_1..21}, ... ]}.
+    NASA benchmark data only: AI4I-shaped or other input is rejected with 422.
+    """
+    if request.content_length is not None and request.content_length > MAX_DEMO_BODY_BYTES:
+        return _demo_error(413, "request body is too large")
+    payload = request.get_json(silent=True)
+    if not isinstance(payload, dict) or set(payload) != {"history"}:
+        return _demo_error(400, 'body must be a JSON object with one "history" list')
+    history = payload["history"]
+    if isinstance(history, list) and len(history) > MAX_DEMO_CYCLES:
+        return _demo_error(422, f"history is limited to {MAX_DEMO_CYCLES} cycles")
+    try:
+        row = build_fd001_feature_row(history)
+    except RulInputError as exc:
+        return _demo_error(422, str(exc))
+    try:
+        model = _load_rul_model()
+    except FileNotFoundError as exc:
+        return _demo_error(503, str(exc))
+
+    import pandas as pd
+
+    frame = pd.DataFrame([row["model_features"]], columns=list(MODEL_COLUMNS))
+    raw = float(model.predict(frame)[0])
+    if not math.isfinite(raw):
+        return _demo_error(500, "model returned a non-finite estimate")
+    return jsonify(
+        {
+            "predicted_rul_cycles": round(min(max(raw, 0.0), float(RUL_CAP_CYCLES)), 1),
+            "rul_cap_cycles": RUL_CAP_CYCLES,
+            "unit_number": row["unit_number"],
+            "last_cycle": row["last_cycle"],
+            "window": row["window"],
+            "source": row["source"],
+            "is_live_plant_data": False,
+            "automated_maintenance_action": False,
+            "note": (
+                "NASA C-MAPSS FD001 benchmark engine data, not plant telemetry. "
+                "Estimates are capped at the training label cap and are not a "
+                "maintenance decision."
+            ),
+        }
     )
