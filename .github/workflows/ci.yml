@@ -77,26 +77,10 @@ jobs:
       - name: Generate C-MAPSS RUL visuals
         run: python analysis/generate_cmapss_visuals.py
 
-      - name: Artifact and metrics contract tests
-        run: python -m unittest discover -s tests -p "test_artifacts.py" -v
-
-      - name: Route and integration tests
-        run: python -m unittest discover -s tests -p "test_case_study.py" -v
-
-      - name: Dashboard <-> real model integration tests
-        run: python -m unittest discover -s tests -p "test_dashboard_model.py" -v
-
-      - name: Drift check tests
-        run: python -m unittest discover -s tests -p "test_drift_check.py" -v
-
-      - name: RUL artifact and metrics contract tests
-        run: python -m unittest discover -s tests -p "test_rul_artifacts.py" -v
-
-      - name: RUL route and integration tests
-        run: python -m unittest discover -s tests -p "test_rul_case_study.py" -v
-
-      - name: Settings route and model-card tests
-        run: python -m unittest discover -s tests -p "test_settings.py" -v
+      - name: Unit, contract and integration tests (all except browser e2e)
+        # Runs every tests/test_*.py except test_e2e.py, which needs a browser
+        # and runs in the e2e job. Listing files one by one left 25 of them out.
+        run: python -m unittest discover -s tests -p "test_[!e]*.py" -v
 
       - name: Import app
         run: python -c "import main; print(main.app.name)"
