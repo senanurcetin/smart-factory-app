@@ -1,7 +1,7 @@
 name: CI
 
 # GitHub-hosted runners are free for public repositories, so this runs on every
-# PR and on main. CircleCI remains configured in .circleci/config.yml.
+# PR and on main. CircleCI is no longer run; this covers its browser checks too.
 on:
   push:
     branches: [main]
@@ -51,25 +51,7 @@ jobs:
       # versioned. Retraining from external data is a separate manual workflow.
       # This keeps PR checks independent of UCI/NASA TLS and availability.
       - name: Verify committed model and metrics artifacts
-        run: |
-          python - <<'PY'
-          from pathlib import Path
-          import json
-          files = [
-              "analysis/artifacts/model.pkl",
-              "analysis/artifacts/rul_model.pkl",
-              "docs/data/ai4i-case-study/summary.json",
-              "docs/data/cmapss-rul-case-study/summary.json",
-              "docs/data/ai4i-case-study/drift-report.json",
-          ]
-          for name in files:
-              file = Path(name)
-              if not file.is_file() or not file.stat().st_size:
-                  raise SystemExit(f"Missing or empty committed artifact: {name}")
-              if file.suffix == ".json":
-                  json.loads(file.read_text(encoding="utf-8"))
-              print(f"OK: {name}")
-          PY
+        run: python scripts/verify_ci_artifacts.py
 
       - name: Generate EDA assets
         run: python analysis/generate_eda.py
@@ -112,7 +94,23 @@ jobs:
         run: playwright install --with-deps chromium
 
       - name: Real-browser smoke tests (all 4 routes)
-        run: python -m unittest discover -s tests -p "test_e2e.py" -v
+        # test_e2e.py skips itself when Playwright is missing; fail instead of
+        # passing with zero browser checks, and require the screenshots it writes.
+        env:
+          E2E_SCREENSHOT_DIR: artifacts/gallery
+        run: |
+          python -c 'from playwright.sync_api import sync_playwright; assert callable(sync_playwright)'
+          python -m unittest discover -s tests -p "test_e2e.py" -v
+          test -s artifacts/gallery/smart-factory-desktop-1440.png
+          test -s artifacts/gallery/smart-factory-mobile-375.png
+
+      - name: Upload dashboard screenshots
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: real-dashboard-screenshots
+          path: artifacts/gallery
+          if-no-files-found: ignore
 
   docker:
     runs-on: ubuntu-latest
