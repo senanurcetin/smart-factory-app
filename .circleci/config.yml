@@ -49,35 +49,8 @@ jobs:
           command: |
             # tests/ is not a Python package: use discover, not tests.* imports.
             # A separate browser job must install Chromium before test_e2e.py.
-            for test_file in \
-              test_artifacts \
-              test_container_contract \
-              test_model_registry \
-              test_ci_heredoc_safety \
-              test_batch_quality \
-              test_source_registry \
-              test_bigquery_plan \
-              test_ai4i_batch \
-              test_fd001_batch \
-              test_bigquery_load_guard \
-              test_benchmark_snapshot \
-              test_benchmark_snapshot_route \
-              test_stage_benchmarks \
-              test_bigquery_cloud_read \
-              test_kaggle_parity \
-              test_telemetry_ingestion \
-              test_telemetry_monitor \
-              test_case_study \
-              test_dashboard_model \
-              test_dashboard_reporting \
-              test_drift_check \
-              test_rul_input_contract \
-              test_rul_artifacts \
-              test_rul_case_study \
-              test_settings \
-              test_seo_public; do
-              python -m unittest discover -s tests -p "${test_file}.py" -v
-            done
+            # Every tests/test_*.py except test_e2e.py; a hand-kept list had missed six files.
+            python -m unittest discover -s tests -p "test_[!e]*.py" -v
       - run:
           name: Import Flask app
           command: python -c "import main; print(main.app.name)"
